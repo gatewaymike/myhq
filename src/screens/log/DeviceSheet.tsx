@@ -6,12 +6,13 @@ import { LIMITS, NumberField, parseNum, validate } from './fields';
 import { RouteIcon } from '../../app/RouteIcon';
 
 /** "My equipment, set up once" (item 2). Hydrogen flow at the outlet or concentration; no purity input (G1). lint-allow */
-export function DeviceSheet({ route, onClose, onSaved }: { route: Route; onClose: () => void; onSaved: (d: Device) => void }) {
+export function DeviceSheet({ route, device, onClose, onSaved }: { route: Route; device?: Device; onClose: () => void; onSaved: (d: Device) => void }) {
   const { t, store, bump } = useApp();
-  const [r, setR] = useState<Route>(route);
-  const [name, setName] = useState('');
-  const [value, setValue] = useState('');
-  const [mode, setMode] = useState('');
+  // With `device`, the sheet edits it; the route of a saved device does not change.
+  const [r, setR] = useState<Route>(device?.route ?? route);
+  const [name, setName] = useState(device?.name ?? '');
+  const [value, setValue] = useState(device ? String(device.route === 'inhalation' ? device.h2FlowMlMin : device.concentrationMgL) : '');
+  const [mode, setMode] = useState(device?.modeLabel ?? '');
   const [busy, setBusy] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -31,13 +32,14 @@ export function DeviceSheet({ route, onClose, onSaved }: { route: Route; onClose
     setBusy(true);
     try {
       const v = parseNum(value);
-      const d = await store.addDevice({
+      const fields = {
         name: name.trim(),
         route: r,
         h2FlowMlMin: r === 'inhalation' ? v : null,
         concentrationMgL: r === 'water' ? v : null,
         modeLabel: mode.trim() || null,
-      });
+      };
+      const d = device ? await store.updateDevice(device.id, fields) : await store.addDevice(fields);
       bump();
       onSaved(d);
     } finally {
@@ -57,7 +59,7 @@ export function DeviceSheet({ route, onClose, onSaved }: { route: Route; onClose
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="device-title" className="mb-4 font-mono text-sm uppercase tracking-[.12em] text-text">
-          {t('device.title')}
+          {t(device ? 'device.editTitle' : 'device.title')}
         </h2>
         <form
           className="grid grid-cols-[minmax(0,1fr)] gap-4"
@@ -66,7 +68,8 @@ export function DeviceSheet({ route, onClose, onSaved }: { route: Route; onClose
             save();
           }}
         >
-          <div className="grid grid-cols-2 gap-1 rounded-full border border-line bg-bg p-1" role="radiogroup" aria-label={t('device.route')}>
+          {device && <p className="text-xs leading-relaxed text-muted">{t('device.editNote')}</p>}
+          <div className={`grid grid-cols-2 gap-1 rounded-full border border-line bg-bg p-1 ${device ? 'hidden' : ''}`} role="radiogroup" aria-label={t('device.route')}>
             {(['inhalation', 'water'] as Route[]).map((x) => (
               <button
                 key={x}

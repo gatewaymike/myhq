@@ -125,6 +125,19 @@ export class SupabaseStore implements Store {
     return (data as EntryRow[]).map(toEntry);
   }
 
+  async exportAll() {
+    const { data: dRows, error: dErr } = await this.sb.from('devices').select('*').order('created_at');
+    if (dErr) throw dErr;
+    const entries: Entry[] = [];
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await this.sb.from('entries').select('*').order('session_start').range(from, from + 999);
+      if (error) throw error;
+      entries.push(...(data as EntryRow[]).map(toEntry));
+      if (data.length < 1000) break;
+    }
+    return { devices: (dRows as DeviceRow[]).map(toDevice), entries };
+  }
+
   async lifetimeHQ() {
     // Only the hq column, in pages of 1,000 (the API's per-response cap).
     let total = 0;

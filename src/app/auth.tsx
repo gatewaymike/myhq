@@ -19,6 +19,8 @@ interface AuthCtx {
   imported: number;
   clearImported: () => void;
   signOut: () => Promise<void>;
+  /** Server-side deletion of the signed-in account and everything in it (delete_my_account). */
+  deleteAccount: () => Promise<void>;
 }
 
 const Ctx = createContext<AuthCtx | null>(null);
@@ -83,6 +85,13 @@ export function AuthProvider({ guestStore, children }: { guestStore: LocalStore;
     clearImported: () => setImported(0),
     signOut: async () => {
       await supabase?.auth.signOut();
+    },
+    deleteAccount: async () => {
+      if (!supabase) return;
+      const { error } = await supabase.rpc('delete_my_account');
+      if (error) throw error;
+      // The account no longer exists, so only the local session is cleared.
+      await supabase.auth.signOut({ scope: 'local' });
     },
   };
 

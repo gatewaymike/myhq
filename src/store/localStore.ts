@@ -98,6 +98,10 @@ export class LocalStore implements Store {
     return opts.limit ? list.slice(0, opts.limit) : list;
   }
 
+  async exportAll() {
+    return this.snapshot();
+  }
+
   async lifetimeHQ() {
     return this.data.entries.reduce((a, e) => a + e.hq, 0);
   }

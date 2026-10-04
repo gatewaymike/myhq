@@ -58,6 +58,8 @@ export interface Store {
   archiveDevice(id: string): Promise<void>;
   /** Newest first. */
   listEntries(opts?: { fromDate?: string; toDate?: string; limit?: number }): Promise<Entry[]>;
+  /** Everything the person has stored, archived devices included (download my data). */
+  exportAll(): Promise<{ devices: Device[]; entries: Entry[] }>;
   /** Sum of every entry's HQ, full precision. */
   lifetimeHQ(): Promise<number>;
   /** Idempotent on clientRequestId: a second call returns the first entry (double-save guard). */
