@@ -3,6 +3,7 @@ import { useApp } from '../../app/context';
 import type { Route } from '../../lib/hq';
 import type { Device } from '../../store/types';
 import { LIMITS, NumberField, parseNum, validate } from './fields';
+import { RouteIcon } from '../../app/RouteIcon';
 
 /** "My equipment, set up once" (item 2). Hydrogen flow at the outlet or concentration; no purity input (G1). lint-allow */
 export function DeviceSheet({ route, onClose, onSaved }: { route: Route; onClose: () => void; onSaved: (d: Device) => void }) {
@@ -76,8 +77,9 @@ export function DeviceSheet({ route, onClose, onSaved }: { route: Route; onClose
                   setR(x);
                   setValue('');
                 }}
-                className={`min-h-tap rounded-full text-sm ${r === x ? (x === 'water' ? 'bg-water/15 text-water' : 'bg-inhalation/15 text-inhalation') : 'text-muted'}`}
+                className={`flex min-h-tap items-center justify-center gap-2 rounded-full text-sm ${r === x ? (x === 'water' ? 'bg-water/15 text-water' : 'bg-inhalation/15 text-inhalation') : 'text-muted'}`}
               >
+                <RouteIcon route={x} />
                 {t(x === 'water' ? 'route.water' : 'route.inhalation')}
               </button>
             ))}

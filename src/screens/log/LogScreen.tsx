@@ -14,6 +14,7 @@ import {
 import { loadPrefs, readJSON, savePrefs, uuid, writeJSON } from '../../store/localStore';
 import type { Device, Entry } from '../../store/types';
 import { DeviceSheet } from './DeviceSheet';
+import { RouteIcon } from '../../app/RouteIcon';
 import { LIMITS, NumberField, formatClock, parseNum, toLocalInput, validate } from './fields';
 
 /* ------------------------------------------------------------------ timer */
@@ -311,7 +312,7 @@ export function LogScreen() {
               route === r ? (r === 'water' ? 'bg-water/15 text-water' : 'bg-inhalation/15 text-inhalation') : 'text-muted hover:text-body'
             }`}
           >
-            <span className={`h-2 w-2 rounded-full ${r === 'water' ? 'bg-water' : 'bg-inhalation'}`} aria-hidden="true" />
+            <RouteIcon route={r} />
             {t(r === 'water' ? 'route.water' : 'route.inhalation')}
           </button>
         ))}
@@ -589,7 +590,7 @@ export function LogScreen() {
                 >
                   <span className="min-w-0 flex-1">
                     <span className={`flex min-w-0 items-center gap-2 font-mono text-[11px] uppercase tracking-wider ${routeColor(e.route)}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${e.route === 'water' ? 'bg-water' : 'bg-inhalation'}`} />
+                      <RouteIcon route={e.route} className="h-3.5 w-3.5 shrink-0" />
                       {t(e.route === 'water' ? 'route.water' : 'route.inhalation')}
                       {d.name && <span className="truncate normal-case tracking-normal text-muted">· {d.name}</span>}
                     </span>
