@@ -7,9 +7,11 @@ import type { StringKey } from '../i18n/strings';
 export function Wordmark({ size = 'text-xl' }: { size?: string }) {
   return (
     <span className={`inline-flex items-baseline ${size}`} aria-label="MyHQ">
-      <span className="font-display italic font-semibold text-gold">My</span>
-      <span className="font-mono font-medium tracking-tighter text-mint">HQ</span>
-      <span className="align-super text-[.45em] text-mint/70">™</span>
+      <span className="font-display italic font-semibold text-gold-bright">My</span>
+      {/* The ™ sits inside the HQ span: flex items ignore vertical-align, inline text does not. */}
+      <span className="font-mono font-medium tracking-tighter text-mint-bright">
+        HQ<span className="ml-[.05em] align-super text-[.4em] leading-none" aria-hidden="true">™</span>
+      </span>
     </span>
   );
 }
@@ -97,7 +99,7 @@ export function Shell({ children, banner }: { children: ReactNode; banner?: Reac
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-2">
           <div className="flex items-center gap-3">
             <Wordmark size="text-[1.35rem]" />
-            <span className="hidden font-mono text-[11px] text-mint/70 sm:inline">{t('header.descriptor')}</span>
+            <span className="hidden font-mono text-[11px] text-mint-bright/90 sm:inline">{t('header.descriptor')}</span>
           </div>
           <div className="flex items-center gap-2">
             <AccountLink />

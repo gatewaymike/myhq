@@ -18,6 +18,8 @@
   --inhalation: 180 136 255; /* #B488FF */
   --gold: 200 168 75;     /* #C8A84B locked */
   --mint: 2 195 154;      /* #02C39A */
+  --gold-bright: 226 196 102; /* #E2C466, wordmark only, brightened for legibility (Michael 2026-10-04) */
+  --mint-bright: 46 230 184;  /* #2EE6B8, wordmark and header descriptor only */
   --danger: 255 122 122;  /* #FF7A7A */
 }
 

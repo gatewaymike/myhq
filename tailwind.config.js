@@ -8,7 +8,7 @@ export default {
       colors: {
         bg: v('bg'), surface: v('surface'), 'surface-2': v('surface-2'), line: v('border'), track: v('track'),
         text: v('text'), body: v('body'), muted: v('muted'),
-        water: v('water'), inhalation: v('inhalation'), gold: v('gold'), mint: v('mint'), danger: v('danger'),
+        water: v('water'), inhalation: v('inhalation'), gold: v('gold'), mint: v('mint'), 'gold-bright': v('gold-bright'), 'mint-bright': v('mint-bright'), danger: v('danger'),
       },
       fontFamily: {
         display: ['"Playfair Display"', 'Georgia', 'serif'],
