@@ -55,6 +55,16 @@ export class LocalStore implements Store {
     writeJSON(this.key, this.data);
   }
 
+  /** Everything kept on this device, archived devices included (for the hand-over to an account). */
+  snapshot(): GuestData {
+    return { devices: [...this.data.devices], entries: [...this.data.entries] };
+  }
+
+  clear() {
+    this.data = { devices: [], entries: [] };
+    this.save();
+  }
+
   async listDevices() {
     return this.data.devices.filter((d) => !d.archived);
   }

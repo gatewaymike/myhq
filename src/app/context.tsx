@@ -30,6 +30,7 @@ interface ToastState {
 }
 
 export function AppProvider({ store, children }: { store: Store; children: ReactNode }) {
+  // store comes from AuthProvider: the guest store, or the account store once signed in.
   const [lang, setLangState] = useState<Lang>(() => readJSON<Lang>('myhq.lang', navigator.language?.startsWith('zh') ? 'zh-TW' : 'en'));
   const [version, setVersion] = useState(0);
   const [toastState, setToast] = useState<ToastState | null>(null);

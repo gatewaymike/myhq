@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from './auth';
 import { useApp } from './context';
 import type { StringKey } from '../i18n/strings';
 
@@ -54,6 +55,18 @@ function LangToggle() {
   );
 }
 
+function AccountLink() {
+  const { t } = useApp();
+  const { available, session, loading } = useAuth();
+  const { pathname } = useLocation();
+  if (!available || loading || session || ['/signin', '/signup', '/forgot', '/reset'].includes(pathname)) return null;
+  return (
+    <Link to="/signin" className="grid min-h-tap place-content-center px-2 font-mono text-xs text-water">
+      {t('auth.signIn')}
+    </Link>
+  );
+}
+
 const DESKTOP: { to: string; key: StringKey }[] = [
   { to: '/', key: 'nav.today' },
   { to: '/log', key: 'nav.log' },
@@ -86,7 +99,10 @@ export function Shell({ children, banner }: { children: ReactNode; banner?: Reac
             <Wordmark size="text-[1.35rem]" />
             <span className="hidden font-mono text-[11px] text-mint/70 sm:inline">{t('header.descriptor')}</span>
           </div>
-          <LangToggle />
+          <div className="flex items-center gap-2">
+            <AccountLink />
+            <LangToggle />
+          </div>
         </div>
         <nav aria-label={t('nav.main')} className="mx-auto hidden max-w-3xl gap-1 px-2 md:flex">
           {DESKTOP.map((d) => (

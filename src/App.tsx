@@ -1,8 +1,11 @@
-import { useMemo } from 'react';
-import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { BrowserRouter, MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { AppProvider, useApp } from './app/context';
+import { AuthProvider, useAuth } from './app/auth';
 import { Shell } from './app/Shell';
 import { LogScreen } from './screens/log/LogScreen';
+import { SettingsScreen } from './screens/settings/SettingsScreen';
+import { ForgotScreen, ResetScreen, SignInScreen, SignUpScreen } from './screens/auth/AuthScreens';
 import { LocalStore, writeJSON } from './store/localStore';
 import { exampleSeed } from './store/exampleSeed';
 import type { StringKey } from './i18n/strings';
@@ -29,9 +32,10 @@ function PreviewBanner() {
         type="button"
         className="min-h-tap font-mono uppercase tracking-wider underline underline-offset-4"
         onClick={() => {
-          [PREVIEW_KEY, 'myhq.prefs.v1', 'myhq.timer.v1'].forEach((k) => writeJSON(k, null));
+          const keys = [PREVIEW_KEY, 'myhq.prefs.v1', 'myhq.timer.v1'];
+          keys.forEach((k) => writeJSON(k, null));
           try {
-            [PREVIEW_KEY, 'myhq.prefs.v1', 'myhq.timer.v1'].forEach((k) => window.localStorage.removeItem(k));
+            keys.forEach((k) => window.localStorage.removeItem(k));
           } catch {
             /* ignore */
           }
@@ -44,30 +48,61 @@ function PreviewBanner() {
   );
 }
 
+/** Account events that need the router or a toast. */
+function AuthEffects() {
+  const { t, toast, bump } = useApp();
+  const { recovery, imported, clearImported } = useAuth();
+  const nav = useNavigate();
+  useEffect(() => {
+    if (recovery) nav('/reset');
+  }, [recovery, nav]);
+  useEffect(() => {
+    if (imported > 0) {
+      toast(t('auth.imported', { n: imported }));
+      clearImported();
+      bump();
+    }
+  }, [imported, clearImported, toast, t, bump]);
+  return null;
+}
+
 function Screens() {
   return (
     <Shell banner={PREVIEW ? <PreviewBanner /> : undefined}>
+      <AuthEffects />
       <Routes>
         <Route path="/" element={<ComingNext titleKey="nav.today" />} />
         <Route path="/log" element={<LogScreen />} />
         <Route path="/history" element={<ComingNext titleKey="nav.history" />} />
         <Route path="/trends" element={<ComingNext titleKey="nav.trends" />} />
-        <Route path="/settings" element={<ComingNext titleKey="nav.settings" />} />
+        <Route path="/settings" element={<SettingsScreen />} />
+        <Route path="/signin" element={<SignInScreen />} />
+        <Route path="/signup" element={<SignUpScreen />} />
+        <Route path="/forgot" element={<ForgotScreen />} />
+        <Route path="/reset" element={<ResetScreen />} />
         <Route path="*" element={<ComingNext titleKey="nav.today" />} />
       </Routes>
     </Shell>
   );
 }
 
+function WithStore() {
+  const { store } = useAuth();
+  return (
+    <AppProvider store={store}>
+      <Screens />
+    </AppProvider>
+  );
+}
+
 export default function App() {
-  // Sign-in is wired after hosting is live; until then the app runs in guest mode (item 1).
-  const store = useMemo(() => (PREVIEW ? new LocalStore(exampleSeed(), PREVIEW_KEY) : new LocalStore()), []);
+  const guestStore = useMemo(() => (PREVIEW ? new LocalStore(exampleSeed(), PREVIEW_KEY) : new LocalStore()), []);
   const Router = PREVIEW ? MemoryRouter : BrowserRouter;
   return (
     <Router {...(PREVIEW ? { initialEntries: ['/log'] } : {})}>
-      <AppProvider store={store}>
-        <Screens />
-      </AppProvider>
+      <AuthProvider guestStore={guestStore}>
+        <WithStore />
+      </AuthProvider>
     </Router>
   );
 }

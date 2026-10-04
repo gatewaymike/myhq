@@ -136,6 +136,26 @@ export class SupabaseStore implements Store {
     return toEntry(data as EntryRow);
   }
 
+  /**
+   * Guest mode hand-over (item 1): devices and entries kept on this device move into the account.
+   * Entries keep their client_request_id, so running this twice never duplicates a row.
+   */
+  async importGuest(devices: Device[], entries: Entry[]): Promise<number> {
+    const idMap = new Map<string, string>();
+    for (const d of devices) {
+      const created = await this.addDevice({ name: d.name, route: d.route, h2FlowMlMin: d.h2FlowMlMin, concentrationMgL: d.concentrationMgL, modeLabel: d.modeLabel });
+      idMap.set(d.id, created.id);
+    }
+    if (entries.length === 0) return 0;
+    const rows = entries.map((e) => ({
+      ...entryCols({ ...e, deviceId: e.deviceId ? idMap.get(e.deviceId) ?? null : null }),
+      source: 'guest' as const,
+    }));
+    const { error } = await this.sb.from('entries').upsert(rows, { onConflict: 'user_id,client_request_id', ignoreDuplicates: true });
+    if (error) throw error;
+    return entries.length;
+  }
+
   async updateEntry(id: string, e: Partial<Omit<EntryInput, 'clientRequestId'>>) {
     const { data, error } = await this.sb.from('entries').update(entryCols(e)).eq('id', id).select().single();
     if (error) throw error;
