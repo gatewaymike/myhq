@@ -6,6 +6,7 @@ import { Shell } from './app/Shell';
 import { LogScreen } from './screens/log/LogScreen';
 import { TodayScreen } from './screens/today/TodayScreen';
 import { HistoryScreen } from './screens/history/HistoryScreen';
+import { Onboarding, ONBOARDED_KEY } from './screens/onboarding/Onboarding';
 import { SettingsScreen } from './screens/settings/SettingsScreen';
 import { ForgotScreen, ResetScreen, SignInScreen, SignUpScreen } from './screens/auth/AuthScreens';
 import { LocalStore, writeJSON } from './store/localStore';
@@ -34,7 +35,7 @@ function PreviewBanner() {
         type="button"
         className="min-h-tap font-mono uppercase tracking-wider underline underline-offset-4"
         onClick={() => {
-          const keys = [PREVIEW_KEY, 'myhq.prefs.v1', 'myhq.timer.v1'];
+          const keys = [PREVIEW_KEY, 'myhq.prefs.v1', 'myhq.timer.v1', ONBOARDED_KEY];
           keys.forEach((k) => writeJSON(k, null));
           try {
             keys.forEach((k) => window.localStorage.removeItem(k));
@@ -72,6 +73,7 @@ function Screens() {
   return (
     <Shell banner={PREVIEW ? <PreviewBanner /> : undefined}>
       <AuthEffects />
+      <Onboarding forceShow={PREVIEW} />
       <Routes>
         <Route path="/" element={<TodayScreen />} />
         <Route path="/log" element={<LogScreen />} />

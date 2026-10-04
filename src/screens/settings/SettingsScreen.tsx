@@ -9,6 +9,7 @@ import { LocalStore } from '../../store/localStore';
 import type { Device } from '../../store/types';
 import { DeviceSheet } from '../log/DeviceSheet';
 import { Legal } from '../auth/AuthScreens';
+import { SHOW_INTRO_EVENT } from '../onboarding/Onboarding';
 
 const APP_VERSION = '0.5.0';
 
@@ -265,6 +266,13 @@ export function SettingsScreen() {
           <p>{t('today.aboutHQ')}</p>
           <p>{t('today.aboutRef')}</p>
         </div>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event(SHOW_INTRO_EVENT))}
+          className="min-h-tap justify-self-start px-1 font-mono text-xs uppercase tracking-wider text-water"
+        >
+          {t('settings.showIntro')}
+        </button>
       </Section>
 
       <Legal />

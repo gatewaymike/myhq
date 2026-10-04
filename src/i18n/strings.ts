@@ -216,6 +216,32 @@ export const strings = {
   'device.editTitle': { en: 'Edit equipment', zh: '編輯設備' },
   'device.editNote': { en: 'A new figure applies to new entries. Entries already logged keep the figure they were logged with.', zh: '新的數字只套用於之後的記錄，已記錄的資料保留當時的數字。' },
 
+  // First-run cards (item 11)
+  'onboard.skip': { en: 'Skip', zh: '略過' },
+  'onboard.next': { en: 'Next', zh: '下一步' },
+  'onboard.later': { en: 'Later', zh: '稍後' },
+  'onboard.step': { en: 'Step {n} of 3', zh: '第 {n} 步，共 3 步' },
+  'onboard.c1Title': { en: 'What 1 HQ is', zh: '1 HQ 是什麼' },
+  'onboard.c1Body': {
+    en: 'MyHQ counts water and inhalation in one unit, and every figure shows its arithmetic.',
+    zh: 'MyHQ 以同一個單位計算氫水與吸入，每個數字都會顯示計算方式。',
+  },
+  'onboard.c2Title': { en: 'Set up your equipment', zh: '設定您的設備' },
+  'onboard.c2Body': {
+    en: 'Enter it once: the hydrogen flow at the machine outlet for an inhalation device, or the concentration for hydrogen water. Every entry after that starts from it.',
+    zh: '只需輸入一次：吸入機請填機器出口的氫氣流量，氫水請填濃度。之後的每筆記錄都會以它為起點。',
+  },
+  'onboard.c3Title': { en: 'Log your first entry', zh: '記錄第一筆' },
+  'onboard.c3Body': {
+    en: 'Use the timer for an inhalation session, or enter how much hydrogen water you drank.',
+    zh: '吸入時可使用計時，喝氫水時輸入飲用量即可。',
+  },
+  'onboard.c3Guest': {
+    en: 'No account needed. Entries stay on this device until you create one.',
+    zh: '不需要帳號。建立帳號前，記錄會存在此裝置。',
+  },
+  'settings.showIntro': { en: 'Show the intro again', zh: '再次顯示介紹' },
+
   // Preview banner
   'preview.banner': { en: 'Preview with example data, kept on this device only.', zh: '預覽版，範例資料只存在此裝置。' },
   'preview.reset': { en: 'Reset examples', zh: '重設範例' },
