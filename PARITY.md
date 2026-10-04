@@ -10,4 +10,4 @@ Each screen ships only after Michael compares it side by side with the live Hori
 | History (with Trends) | pending | | |
 | Settings | pending | | |
 | First-run cards | pending | | |
-| Sign-in | built, not yet reviewed | 811b2d0 | Waits for the Supabase and Vercel setup steps. |
+| Sign-in | 2026-10-04 20:25 Taipei, "all passed" | 0eaf02c | Michael ran the database setup (RLS and formula test passed in Supabase) and the six-step phone test: guest entry, create account, email confirmation with hand-over, sign out and in, password reset. |
