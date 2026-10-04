@@ -50,7 +50,7 @@ export const strings = {
   'today.reference': { en: 'Reference 10.0', zh: '參考值 10.0' },
   'today.bothRoutes': { en: 'Both routes today', zh: '今日兩種途徑皆有' },
   'today.sevenDayAvg': { en: '7-day average', zh: '7 日平均' },
-  'today.sevenDayAvgDef': { en: 'Last 7 days, today included, divided by 7', zh: '最近 7 天（含今日）總和除以 7' },
+  'today.sevenDayAvgDef': { en: 'Last 7 days, today included', zh: '最近 7 天（含今日）' },
 
   // Routes
   'route.water': { en: 'Water', zh: '氫水' },

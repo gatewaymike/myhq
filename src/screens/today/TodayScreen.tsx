@@ -59,7 +59,6 @@ export function TodayScreen() {
   const todays = (week ?? []).filter((e) => e.localDate === today);
   const day = summarizeDay(todays);
   const avg = sevenDayAverage(week ?? [], today);
-  const weekSum = avg * SEVEN_DAY_WINDOW;
   const glow = { textShadow: '0 0 10px rgb(var(--water) / .7), 0 0 22px rgb(var(--water) / .35)' };
   const dateLabel = new Date(`${today}T12:00:00`).toLocaleDateString(locale, { weekday: 'short', month: 'short', day: 'numeric' });
   const time = (iso: string) => new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
@@ -159,9 +158,7 @@ export function TodayScreen() {
             <span className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">{t('today.sevenDayAvg')}</span>
             <span className="tabular font-mono text-text">{formatHQ(avg, locale)} HQ</span>
           </div>
-          <span className="tabular text-xs text-muted">
-            {t('today.sevenDayAvgDef')}: {formatHQ(weekSum, locale)} ÷ {SEVEN_DAY_WINDOW}
-          </span>
+          <span className="text-xs text-muted">{t('today.sevenDayAvgDef')}</span>
         </div>
         <div className="flex items-baseline justify-between gap-4 px-4 py-3">
           <span className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">{t('today.lifetime')}</span>
