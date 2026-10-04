@@ -1,0 +1,236 @@
+<title>MyHQ Palette Proposal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@1,600&display=swap">
+<style>
+/* Layout: page in the proposed palette; two phone frames (live tokens vs proposed) side by side, stacking on a phone; swatch table below. Single dark look by choice: the app is dark-only. */
+:root {
+  color-scheme: dark;
+  --bg: #020E0A;
+  --surface: #08231B;
+  --surface-2: #0C2E24;
+  --border: #1B4537;
+  --text: #E8F3EF;
+  --body: #C9DDD7;
+  --muted: #8EADA4;
+  --water: #00E5FF;
+  --inhalation: #B488FF;
+  --gold: #C8A84B;
+  --mint: #02C39A;
+  --danger: #FF7A7A;
+  --track: #0E2A22;
+  --f-display: "Playfair Display", Georgia, serif;
+  --f-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+html, body { background: var(--bg); color: var(--body); }
+body { font-family: var(--f-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; display: grid; gap: 40px; }
+h1, h2 { color: var(--text); text-wrap: balance; margin: 0; }
+h1 { font-family: var(--f-mono); font-weight: 500; font-size: 1.05rem; letter-spacing: .08em; text-transform: uppercase; }
+h2 { font-family: var(--f-mono); font-weight: 500; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+p { margin: 0; max-width: 65ch; }
+.lede { display: grid; gap: 10px; }
+.lede p { color: var(--body); }
+.tag { font-family: var(--f-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mint); }
+
+.phones { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; justify-items: center; }
+.phone-col { display: grid; gap: 10px; justify-items: center; width: 100%; max-width: 360px; }
+.phone-col h2 { justify-self: start; }
+.phone {
+  width: 100%; max-width: 360px; border-radius: 28px; overflow: hidden;
+  border: 1px solid var(--border); background: var(--p-bg);
+  display: grid; grid-template-rows: auto 1fr auto; font-family: var(--f-body); color: var(--p-body);
+}
+.p-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 10px; }
+.wordmark { display: inline-flex; align-items: baseline; font-size: 1.35rem; }
+.wm-my { font-family: var(--f-display); font-style: italic; font-weight: 600; color: var(--p-gold); }
+.wm-hq { font-family: var(--f-mono); font-weight: 500; color: var(--p-mint); letter-spacing: -.05em; }
+.wm-tm { font-size: .45em; color: var(--p-mint); opacity: .7; vertical-align: super; }
+.lang { font-family: var(--f-mono); font-size: .72rem; color: var(--p-muted); border: 1px solid var(--p-border); border-radius: 999px; padding: 4px 10px; }
+.p-main { padding: 6px 18px 18px; display: grid; gap: 14px; }
+.p-label { font-family: var(--f-mono); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--p-muted); }
+.ring-wrap { position: relative; width: 100%; max-width: 260px; justify-self: center; aspect-ratio: 1; }
+.ring-wrap svg { width: 100%; height: 100%; display: block; }
+.ring-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 2px; }
+.big { font-family: var(--f-body); font-weight: 700; font-size: 3.4rem; line-height: 1; color: var(--p-water); font-variant-numeric: tabular-nums; text-shadow: 0 0 10px color-mix(in srgb, var(--p-water) 70%, transparent), 0 0 22px color-mix(in srgb, var(--p-water) 35%, transparent); }
+.unit { font-family: var(--f-mono); font-size: .8rem; color: var(--p-text); letter-spacing: .08em; }
+.mg { font-family: var(--f-mono); font-size: .75rem; color: var(--p-muted); }
+.badge { justify-self: center; display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: .74rem; letter-spacing: .04em; color: var(--p-gold); border: 1px solid color-mix(in srgb, var(--p-gold) 55%, transparent); background: color-mix(in srgb, var(--p-gold) 10%, transparent); padding: 6px 12px; border-radius: 999px; }
+.badge svg { width: 14px; height: 14px; }
+.routes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.route { background: var(--p-surface); border: 1px solid var(--p-border); border-radius: 14px; padding: 12px; display: grid; gap: 4px; }
+.route .v { font-weight: 700; font-size: 1.35rem; font-variant-numeric: tabular-nums; color: var(--p-text); }
+.route .k { display: flex; align-items: center; gap: 6px; font-family: var(--f-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.route .math { font-family: var(--f-mono); font-size: .68rem; color: var(--p-muted); }
+.avg { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; background: var(--p-surface); border: 1px solid var(--p-border); border-radius: 14px; padding: 10px 12px; }
+.avg .k { font-family: var(--f-mono); font-size: .7rem; color: var(--p-muted); letter-spacing: .06em; }
+.avg .v { font-family: var(--f-mono); color: var(--p-text); font-variant-numeric: tabular-nums; }
+.avg .def { font-size: .7rem; color: var(--p-muted); }
+.p-bar { display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; border-top: 1px solid var(--p-border); background: var(--p-surface); padding: 8px 6px 12px; }
+.tab { display: grid; justify-items: center; gap: 3px; font-size: .64rem; color: var(--p-muted); min-height: 44px; align-content: end; }
+.tab svg { width: 20px; height: 20px; }
+.tab.on { color: var(--p-water); }
+.log-btn { justify-self: center; width: 56px; height: 56px; border-radius: 50%; background: var(--p-water); color: var(--p-bg); display: grid; place-content: center; font-weight: 700; font-size: .78rem; margin-top: -26px; box-shadow: 0 0 0 4px var(--p-bg); }
+.example { font-family: var(--f-mono); font-size: .68rem; color: var(--muted); text-align: center; }
+
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: .85rem; min-width: 640px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+th { font-family: var(--f-mono); font-weight: 400; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); background: var(--surface); }
+tr:last-child td { border-bottom: 0; }
+td.hex, td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--text); }
+.sw { display: inline-block; width: 22px; height: 22px; border-radius: 6px; border: 1px solid var(--border); vertical-align: middle; }
+.pass { color: var(--mint); font-family: var(--f-mono); font-size: .75rem; }
+.fail { color: var(--danger); font-family: var(--f-mono); font-size: .75rem; }
+.na { color: var(--muted); font-family: var(--f-mono); font-size: .75rem; }
+.changes { display: grid; gap: 12px; }
+.changes ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 70ch; }
+.changes li::marker { color: var(--mint); }
+.changes strong { color: var(--text); font-weight: 500; }
+.note { border: 1px solid var(--border); background: var(--surface); border-radius: 14px; padding: 14px 16px; display: grid; gap: 6px; }
+.note .tag { color: var(--gold); }
+@keyframes draw { from { stroke-dashoffset: var(--len); } }
+.arc { animation: draw 1.5s cubic-bezier(.16,1,.3,1) both; }
+@media (prefers-reduced-motion: reduce) { .arc { animation: none; } }
+</style>
+
+<div class="wrap">
+  <header class="lede">
+    <span class="tag">MyHQ rebuild · for Michael's approval</span>
+    <h1>Palette proposal</h1>
+    <p>The same Today screen drawn twice: once in the live app's colors, once in the proposed palette. Judge them on your phone. Nothing ships until you approve one.</p>
+  </header>
+
+  <section class="phones" aria-label="Side-by-side comparison">
+    <div class="phone-col">
+      <h2>A · Live app colors</h2>
+      <div class="phone" id="phone-live"></div>
+    </div>
+    <div class="phone-col">
+      <h2>B · Proposed</h2>
+      <div class="phone" id="phone-new"></div>
+    </div>
+  </section>
+  <p class="example" style="margin-inline:auto">Example day, not your data: 30 min at 600 mL/min plus 500 mL at 1.2 mg/L. The top-right chip is the language switch: EN (English) · 中文 (Chinese).</p>
+
+  <section class="changes">
+    <h2>What changes, and why</h2>
+    <ul>
+      <li><strong>Background stays #020E0A</strong> and water stays cyan #00E5FF, both from the locked palette. The live build drifted to #03120C and #00D9FF.</li>
+      <li><strong>Inhalation purple lightens</strong> from #B366FF to #B488FF. The live purple measures 4.40:1 on a card, below the 4.5:1 that small text needs. The new one measures above 6:1.</li>
+      <li><strong>Gold #C8A84B moves to the "Both routes today" badge.</strong> The live synergy yellow #FFD900 has no job after the bonus was removed.</li>
+      <li><strong>Body text gets a near-white</strong> (#E8F3EF headline, #C9DDD7 body) instead of the live pale teal everywhere. Labels use a muted sage that still clears 6:1. The live app dims whole screens with opacity, which is where most of its unreadable text comes from.</li>
+      <li><strong>Glow on headline numbers only.</strong> Titles and labels lose the glow.</li>
+      <li><strong>Mint #02C39A stays with the wordmark</strong> and the link to gatewayh2.com, so the app and the site share one brand mark.</li>
+    </ul>
+  </section>
+
+  <section class="changes" aria-labelledby="sw-h">
+    <h2 id="sw-h">Proposed tokens, contrast measured on this page</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Color</th><th>Hex</th><th>Role</th><th>On background</th><th>On card</th><th>Small text</th></tr></thead>
+        <tbody id="swatches"></tbody>
+      </table>
+    </div>
+    <p style="color:var(--muted);font-size:.8rem">Contrast is the WCAG ratio, computed in your browser from the hex values. Small text needs 4.5:1. Surfaces and borders are not text colors, so they are not rated.</p>
+  </section>
+
+  <section class="note">
+    <span class="tag">Suggested, not ruled · the ring scale</span>
+    <p>The full circle is 15.0 HQ, so the 10.0 reference tick sits two thirds of the way round. A full ring at 10.0 would read as a goal to fill, which R-365 rules out. On a day above 15.0 the scale steps up in fives and the tick moves with it. Tell me if you want a different scale.</p>
+  </section>
+</div>
+
+<script>
+const LIVE = { bg:'#03120C', surface:'#0A2E20', border:'#123B2B', text:'#A4DBDB', body:'#A4DBDB', muted:'#A4DBDB', water:'#00D9FF', inhalation:'#B366FF', gold:'#FFD900', mint:'#02C39A', track:'#1B3A44' };
+const NEW  = { bg:'#020E0A', surface:'#08231B', border:'#1B4537', text:'#E8F3EF', body:'#C9DDD7', muted:'#8EADA4', water:'#00E5FF', inhalation:'#B488FF', gold:'#C8A84B', mint:'#02C39A', track:'#0E2A22' };
+
+const DAY = { water: 0.75, inhalation: 4.00 };            // example values from the formula
+const total = DAY.water + DAY.inhalation;                  // 4.75, no bonus
+const SCALE = Math.max(15, Math.ceil(total / 5) * 5);
+const R = 124, C = 2 * Math.PI * R;
+
+function ring(p) {
+  const w = DAY.water / SCALE * C, i = DAY.inhalation / SCALE * C;
+  const tickAngle = (10 / SCALE) * 2 * Math.PI - Math.PI / 2;
+  const tx1 = 150 + (R - 14) * Math.cos(tickAngle), ty1 = 150 + (R - 14) * Math.sin(tickAngle);
+  const tx2 = 150 + (R + 14) * Math.cos(tickAngle), ty2 = 150 + (R + 14) * Math.sin(tickAngle);
+  const lx = 150 + (R + 27) * Math.cos(tickAngle), ly = 150 + (R + 27) * Math.sin(tickAngle) + 4;
+  return `<svg viewBox="0 0 300 300" role="img" aria-label="${total.toFixed(2)} HQ today, reference tick at 10.0">
+    <circle cx="150" cy="150" r="${R}" fill="none" stroke="${p.track}" stroke-width="16"/>
+    <g transform="rotate(-90 150 150)">
+      <circle class="arc" cx="150" cy="150" r="${R}" fill="none" stroke="${p.water}" stroke-width="16" stroke-linecap="round"
+        stroke-dasharray="${w} ${C}" style="--len:${w}"/>
+      <circle class="arc" cx="150" cy="150" r="${R}" fill="none" stroke="${p.inhalation}" stroke-width="16" stroke-linecap="round"
+        stroke-dasharray="${i} ${C}" stroke-dashoffset="${-w}" style="--len:${i};animation-delay:.15s"/>
+    </g>
+    <line x1="${tx1}" y1="${ty1}" x2="${tx2}" y2="${ty2}" stroke="${p.text}" stroke-width="3" stroke-linecap="round" opacity=".85"/>
+    <text x="${lx}" y="${ly}" fill="${p.muted}" font-family="DM Mono, monospace" font-size="13" text-anchor="middle">10.0</text>
+  </svg>`;
+}
+
+const icon = {
+  today: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>',
+  history: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
+  trends: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 18l5-6 4 3 7-9"/></svg>',
+  settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>',
+  both: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c3 4 5 6.5 5 9a5 5 0 0 1-10 0c0-2.5 2-5 5-9z"/></svg>'
+};
+
+function phone(el, p) {
+  for (const [k, v] of Object.entries(p)) el.style.setProperty('--p-' + k, v);
+  el.innerHTML = `
+    <div class="p-head">
+      <span class="wordmark"><span class="wm-my">My</span><span class="wm-hq">HQ</span><span class="wm-tm">™</span></span>
+      <span class="lang">EN · 中文</span>
+    </div>
+    <div class="p-main">
+      <span class="p-label">Today · Sun Oct 4</span>
+      <div class="ring-wrap">${ring(p)}
+        <div class="ring-center">
+          <span class="big">${total.toFixed(2)}</span>
+          <span class="unit">HQ TODAY</span>
+          <span class="mg">${(total * 0.8).toFixed(2)} mg H₂</span>
+        </div>
+      </div>
+      <span class="badge">${icon.both}Both routes today</span>
+      <div class="routes">
+        <div class="route"><span class="k" style="color:${p.water}"><span class="dot" style="background:${p.water}"></span>Water</span>
+          <span class="v">${DAY.water.toFixed(2)}</span><span class="math">(500 ÷ 500) × (1.2 ÷ 1.6)</span></div>
+        <div class="route"><span class="k" style="color:${p.inhalation}"><span class="dot" style="background:${p.inhalation}"></span>Inhalation</span>
+          <span class="v">${DAY.inhalation.toFixed(2)}</span><span class="math">(30 ÷ 30) × (600 ÷ 300) × 2</span></div>
+      </div>
+      <div class="avg"><div style="display:grid"><span class="k">7-DAY AVERAGE</span><span class="def">Last 7 days, today included, ÷ 7</span></div><span class="v">0.68 HQ</span></div>
+    </div>
+    <nav class="p-bar" aria-label="Example navigation">
+      <span class="tab on">${icon.today}Today</span>
+      <span class="tab">${icon.history}History</span>
+      <span class="log-btn" aria-label="Log">+ Log</span>
+      <span class="tab">${icon.trends}Trends</span>
+      <span class="tab">${icon.settings}Settings</span>
+    </nav>`;
+}
+phone(document.getElementById('phone-live'), LIVE);
+phone(document.getElementById('phone-new'), NEW);
+
+// Contrast table, computed from the hex values.
+function lum(h){ const c=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(v=>v<=0.03928?v/12.92:((v+0.055)/1.055)**2.4); return .2126*c[0]+.7152*c[1]+.0722*c[2]; }
+function ratio(a,b){ const [x,y]=[lum(a),lum(b)].sort((p,q)=>q-p); return (x+.05)/(y+.05); }
+const ROWS = [
+  ['bg','Background (locked)',false], ['surface','Cards',false], ['border','Card borders',false], ['track','Ring track',false],
+  ['text','Headlines, numbers',true], ['body','Body text',true], ['muted','Labels, hints',true],
+  ['water','Water route, primary action, headline glow',true], ['inhalation','Inhalation route',true],
+  ['gold','"My" in wordmark, Both routes today badge',true], ['mint','"HQ" in wordmark, link to gatewayh2.com',true]
+];
+document.getElementById('swatches').innerHTML = ROWS.map(([k,role,isText]) => {
+  const hex = NEW[k];
+  const onBg = ratio(hex, NEW.bg), onCard = ratio(hex, NEW.surface);
+  const verdict = !isText ? '<span class="na">not text</span>'
+    : (Math.min(onBg,onCard) >= 4.5 ? '<span class="pass">pass</span>' : '<span class="fail">fail</span>');
+  return `<tr><td><span class="sw" style="background:${hex}"></span></td><td class="hex">${hex}</td><td>${role}</td>
+    <td class="num">${isText ? onBg.toFixed(2)+':1' : '·'}</td><td class="num">${isText ? onCard.toFixed(2)+':1' : '·'}</td><td>${verdict}</td></tr>`;
+}).join('');
+</script>

@@ -1,0 +1,25 @@
+{
+  "_note": "Handoff test vectors (HANDOFF_myhq-rebuild_2026-10-04). Shared by the TypeScript tests and the SQL generated-column test. Never edit a vector to make a test pass.",
+  "single": [
+    { "label": "Water 500 mL at 1.6 mg/L", "route": "water", "volumeMl": 500, "concentrationMgL": 1.6, "display": "1.00" },
+    { "label": "Water 500 mL at 1.2 mg/L", "route": "water", "volumeMl": 500, "concentrationMgL": 1.2, "display": "0.75" },
+    { "label": "Water 1,000 mL at 0.8 mg/L", "route": "water", "volumeMl": 1000, "concentrationMgL": 0.8, "display": "1.00" },
+    { "label": "Inhalation 30 min at 150", "route": "inhalation", "minutes": 30, "h2FlowMlMin": 150, "display": "1.00" },
+    { "label": "Inhalation 30 min at 300", "route": "inhalation", "minutes": 30, "h2FlowMlMin": 300, "display": "2.00" },
+    { "label": "Inhalation 30 min at 600", "route": "inhalation", "minutes": 30, "h2FlowMlMin": 600, "display": "4.00" },
+    { "label": "Inhalation 30 min at 2,000 (hydrogen part of 3,000 at 66.7%)", "route": "inhalation", "minutes": 30, "h2FlowMlMin": 2000, "display": "13.33", "storedApprox": 13.333333333333334 },
+    { "label": "Inhalation 130 min at 150", "route": "inhalation", "minutes": 130, "h2FlowMlMin": 150, "display": "4.33", "storedApprox": 4.333333333333333 },
+    { "label": "Inhalation 7 min at 150", "route": "inhalation", "minutes": 7, "h2FlowMlMin": 150, "display": "0.23", "storedApprox": 0.23333333333333334 }
+  ],
+  "day": [
+    {
+      "label": "Same day: 30 min at 600 + 500 mL at 1.2",
+      "entries": [
+        { "route": "inhalation", "minutes": 30, "h2FlowMlMin": 600 },
+        { "route": "water", "volumeMl": 500, "concentrationMgL": 1.2 }
+      ],
+      "display": "4.75",
+      "bothRoutes": true
+    }
+  ]
+}

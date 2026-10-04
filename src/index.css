@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* MyHQ palette. PROPOSED, pending Michael's approval on preview (R-366).
+   Channels are "R G B" so Tailwind opacity modifiers work. */
+:root {
+  color-scheme: dark;
+  --bg: 2 14 10;          /* #020E0A locked */
+  --surface: 8 35 27;     /* #08231B */
+  --surface-2: 12 46 36;  /* #0C2E24 */
+  --border: 27 69 55;     /* #1B4537 */
+  --track: 14 42 34;      /* #0E2A22 */
+  --text: 232 243 239;    /* #E8F3EF */
+  --body: 201 221 215;    /* #C9DDD7 */
+  --muted: 142 173 164;   /* #8EADA4 */
+  --water: 0 229 255;     /* #00E5FF locked */
+  --inhalation: 180 136 255; /* #B488FF */
+  --gold: 200 168 75;     /* #C8A84B locked */
+  --mint: 2 195 154;      /* #02C39A */
+  --danger: 255 122 122;  /* #FF7A7A */
+}
+
+html, body, #root { min-height: 100%; }
+body {
+  margin: 0;
+  background: rgb(var(--bg));
+  color: rgb(var(--body));
+  font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", "Noto Sans TC", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+:lang(zh-TW) body, html[lang="zh-TW"] body { line-height: 2; }
+
+/* Glow on headline numbers only (item 20). */
+.glow-water { text-shadow: 0 0 10px rgb(var(--water) / .7), 0 0 22px rgb(var(--water) / .35); }
+.tabular { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
