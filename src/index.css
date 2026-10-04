@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* MyHQ palette. PROPOSED, pending Michael's approval on preview (R-366).
+/* MyHQ palette. APPROVED by Michael 2026-10-04 (proposal B, under R-366).
    Channels are "R G B" so Tailwind opacity modifiers work. */
 :root {
   color-scheme: dark;
@@ -39,3 +39,5 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+@keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
