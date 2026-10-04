@@ -8,6 +8,7 @@ import { exampleSeed } from './store/exampleSeed';
 import type { StringKey } from './i18n/strings';
 
 const PREVIEW = import.meta.env.VITE_PREVIEW === '1';
+const PREVIEW_KEY = 'myhq.preview.v2';
 
 function ComingNext({ titleKey }: { titleKey: StringKey }) {
   const { t } = useApp();
@@ -28,9 +29,9 @@ function PreviewBanner() {
         type="button"
         className="min-h-tap font-mono uppercase tracking-wider underline underline-offset-4"
         onClick={() => {
-          ['myhq.guest.v1', 'myhq.prefs.v1', 'myhq.timer.v1'].forEach((k) => writeJSON(k, null));
+          [PREVIEW_KEY, 'myhq.prefs.v1', 'myhq.timer.v1'].forEach((k) => writeJSON(k, null));
           try {
-            ['myhq.guest.v1', 'myhq.prefs.v1', 'myhq.timer.v1'].forEach((k) => window.localStorage.removeItem(k));
+            [PREVIEW_KEY, 'myhq.prefs.v1', 'myhq.timer.v1'].forEach((k) => window.localStorage.removeItem(k));
           } catch {
             /* ignore */
           }
@@ -60,7 +61,7 @@ function Screens() {
 
 export default function App() {
   // Sign-in is wired after hosting is live; until then the app runs in guest mode (item 1).
-  const store = useMemo(() => new LocalStore(PREVIEW ? exampleSeed() : undefined), []);
+  const store = useMemo(() => (PREVIEW ? new LocalStore(exampleSeed(), PREVIEW_KEY) : new LocalStore()), []);
   const Router = PREVIEW ? MemoryRouter : BrowserRouter;
   return (
     <Router {...(PREVIEW ? { initialEntries: ['/log'] } : {})}>

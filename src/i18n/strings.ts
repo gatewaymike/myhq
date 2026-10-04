@@ -81,7 +81,7 @@ export const strings = {
   // Equipment sheet
   'device.title': { en: 'Add equipment', zh: '新增設備' },
   'device.name': { en: 'Name', zh: '名稱' },
-  'device.namePlaceholder': { en: 'e.g. Bedroom inhaler', zh: '例如：臥室的吸入機' },
+  'device.namePlaceholder': { en: 'e.g. Home device', zh: '例如：家裡的設備' },
   'device.route': { en: 'Route', zh: '途徑' },
   'device.flowLabel': { en: 'Hydrogen flow at the machine outlet (mL/min)', zh: '機器出口的氫氣流量（mL/min）' },
   'device.mixedGasExample': {

@@ -43,13 +43,16 @@ export class LocalStore implements Store {
   readonly kind = 'guest' as const;
   private data: GuestData;
 
-  constructor(seed?: GuestData) {
-    this.data = readJSON<GuestData>(KEY, seed ?? { devices: [], entries: [] });
-    if (seed && !window.localStorage?.getItem?.(KEY)) this.save();
+  private key: string;
+
+  constructor(seed?: GuestData, key = KEY) {
+    this.key = key;
+    this.data = readJSON<GuestData | null>(key, null) ?? seed ?? { devices: [], entries: [] };
+    if (seed) this.save();
   }
 
   private save() {
-    writeJSON(KEY, this.data);
+    writeJSON(this.key, this.data);
   }
 
   async listDevices() {

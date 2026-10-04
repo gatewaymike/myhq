@@ -20,6 +20,7 @@ const RULES = [
   [/療程/, '療程 (course of treatment)'],
   [/設置|保存|數據|當前|實時/, 'mainland vocabulary'],
   [/purity/i, 'purity input (G1, R-091)'],
+  [/inhaler/i, '"inhaler" (reads as an asthma inhaler; use "device")'],
 ];
 
 function* walk(p) {
