@@ -14,6 +14,7 @@ import {
 import { loadPrefs, readJSON, savePrefs, uuid, writeJSON } from '../../store/localStore';
 import type { Device, Entry } from '../../store/types';
 import { DeviceSheet } from './DeviceSheet';
+import { DevicePicker } from './DevicePicker';
 import { RouteIcon } from '../../app/RouteIcon';
 import { LIMITS, NumberField, formatClock, parseNum, toLocalInput, validate } from './fields';
 
@@ -285,17 +286,28 @@ export function LogScreen() {
     return { name, body };
   };
 
+
   const equiv = concValue > 0 ? concentrationEquivalents(concValue) : null;
-  const selected = route === 'water' ? 'border-water bg-water/10 text-text' : 'border-inhalation bg-inhalation/10 text-text';
+  const [picker, setPicker] = useState(false);
+  const [whenOpen, setWhenOpen] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
+  const routeText = routeColor(route);
+  const timeLabel = (d: Date) => d.toLocaleString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const whenSummary =
+    whenMode === 'now' ? t('log.now') : whenMode === 'yesterday' ? `${t('log.yesterday')} · ${timeLabel(new Date(Date.now() - 864e5))}` : timeLabel(new Date(pickValue));
+  const glowStyle = formulaInput
+    ? { textShadow: `0 0 10px rgb(var(--${route === 'water' ? 'water' : 'inhalation'}) / .65), 0 0 22px rgb(var(--${route === 'water' ? 'water' : 'inhalation'}) / .3)` }
+    : undefined;
+  const linkBtn = 'min-h-tap px-1 font-mono text-xs uppercase tracking-wider text-water';
 
   /* ------------------------------------------------------------- render */
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
-      <h1 className="font-mono text-sm uppercase tracking-[.14em] text-text">{t('log.title')}</h1>
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
+      <h1 className="pt-2 text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('log.title')}</h1>
 
       {/* Route */}
       <div className="grid grid-cols-2 gap-1 rounded-full border border-line bg-surface p-1" role="radiogroup" aria-label={t('log.routeLabel')}>
-        {(['inhalation', 'water'] as Route[]).map((r) => (
+        {(['water', 'inhalation'] as Route[]).map((r) => (
           <button
             key={r}
             type="button"
@@ -308,7 +320,7 @@ export function LogScreen() {
               p.lastRoute = r;
               savePrefs(p);
             }}
-            className={`flex min-h-tap items-center justify-center gap-2 rounded-full text-sm transition-colors disabled:opacity-40 ${
+            className={`flex min-h-[48px] items-center justify-center gap-2 rounded-full text-[15px] transition-colors disabled:opacity-40 ${
               route === r ? (r === 'water' ? 'bg-water/15 text-water' : 'bg-inhalation/15 text-inhalation') : 'text-muted hover:text-body'
             }`}
           >
@@ -318,54 +330,59 @@ export function LogScreen() {
         ))}
       </div>
 
-      {/* Equipment */}
-      <section className="grid gap-2" aria-labelledby="equip-h">
-        <h2 id="equip-h" className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">
-          {t('log.equipment')}
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {routeDevices.map((d) => (
-            <button
-              key={d.id}
-              type="button"
-              disabled={!!timer}
-              aria-pressed={deviceId === d.id}
-              onClick={() => setDeviceId(d.id)}
-              className={`min-h-tap rounded-xl border px-3 py-1.5 text-left text-sm transition-colors disabled:opacity-60 ${
-                deviceId === d.id ? selected : 'border-line text-body hover:border-muted'
-              }`}
-            >
-              <span className="block leading-tight">{d.name}{d.modeLabel ? ` · ${d.modeLabel}` : ''}</span>
-              <span className={`tabular block font-mono text-[11px] ${routeColor(d.route)}`}>
-                {d.route === 'inhalation' ? `${formatInput(d.h2FlowMlMin!, locale)} mL/min H₂` : `${formatInput(d.concentrationMgL!, locale)} mg/L`}
+      {/* Main card */}
+      <section className={`grid grid-cols-[minmax(0,1fr)] gap-5 rounded-[20px] border bg-surface p-5 ${route === 'water' ? 'border-water/40' : 'border-inhalation/40'}`}>
+        {/* Equipment, one row */}
+        <button
+          type="button"
+          disabled={!!timer}
+          onClick={() => setPicker(true)}
+          className="flex min-h-[52px] items-center justify-between gap-3 rounded-xl border border-line bg-bg px-4 py-2 text-left disabled:opacity-70"
+          aria-haspopup="dialog"
+        >
+          <span className="grid min-w-0">
+            <span className="font-mono text-[10px] uppercase tracking-[.12em] text-muted">{t('log.equipment')}</span>
+            <span className="truncate text-text">{device ? `${device.name}${device.modeLabel ? ` · ${device.modeLabel}` : ''}` : t('log.manual')}</span>
+            {device && (
+              <span className={`tabular font-mono text-xs ${routeText}`}>
+                {device.route === 'inhalation' ? `${formatInput(device.h2FlowMlMin!, locale)} mL/min H₂` : `${formatInput(device.concentrationMgL!, locale)} mg/L`}
               </span>
-            </button>
-          ))}
-          <button
-            type="button"
-            disabled={!!timer}
-            aria-pressed={deviceId === MANUAL}
-            onClick={() => setDeviceId(MANUAL)}
-            className={`min-h-tap rounded-xl border px-3 text-sm disabled:opacity-60 ${deviceId === MANUAL ? selected : 'border-line text-body'}`}
-          >
-            {t('log.manual')}
-          </button>
-          <button type="button" disabled={!!timer} onClick={() => setSheet(true)} className="min-h-tap rounded-xl border border-dashed border-line px-3 text-sm text-muted hover:text-body disabled:opacity-60">
-            + {t('log.addEquipment')}
-          </button>
-        </div>
-      </section>
+            )}
+          </span>
+          {!timer && <span className="shrink-0 font-mono text-xs uppercase tracking-wider text-water">{t('log.change')}</span>}
+        </button>
 
-      {/* Inputs */}
-      <section className="grid grid-cols-[minmax(0,1fr)] gap-4 rounded-card border border-line bg-surface p-4">
         {route === 'water' ? (
           <>
+            <div className="grid gap-3">
+              <span className="text-[17px] text-text">{t('log.howMuchDrank')}</span>
+              <div className="grid grid-cols-3 gap-2">
+                {WATER_CHIPS.map((ml) => (
+                  <button
+                    key={ml}
+                    type="button"
+                    aria-pressed={parseNum(volume) === ml}
+                    onClick={() => setVolume(String(ml))}
+                    className={`tabular min-h-[48px] rounded-xl border font-mono text-sm ${parseNum(volume) === ml ? 'border-water bg-water/10 text-water' : 'border-line text-body'}`}
+                  >
+                    {ml} mL
+                  </button>
+                ))}
+              </div>
+              <NumberField id="log-volume" label={t('log.volume')} unit="mL" value={volume} onChange={setVolume} error={volErr} />
+            </div>
+            {!device && <NumberField id="log-conc" label={t('log.concentration')} unit="mg/L" value={conc} onChange={setConc} error={concErr} />}
+            {equiv && !concErr && (
+              <p className="tabular -mt-2 font-mono text-xs text-muted">
+                {t('log.concEquiv', { mgL: formatInput(equiv.mgL, locale), ppm: formatInput(equiv.ppm, locale), ppb: formatInput(equiv.ppb, locale) })}
+              </p>
+            )}
             {!pourNoteSeen && (
-              <div className="flex items-start gap-3 rounded-xl border border-water/30 bg-water/5 p-3 text-sm text-body">
-                <p className="flex-1 leading-relaxed">{t('log.pourNote')}</p>
+              <div className="flex items-start gap-3 border-t border-line pt-4 text-xs leading-relaxed text-muted">
+                <p className="flex-1">{t('log.pourNote')}</p>
                 <button
                   type="button"
-                  className="min-h-tap shrink-0 px-2 font-mono text-xs uppercase tracking-wider text-water"
+                  className={linkBtn}
                   onClick={() => {
                     setPourNoteSeen(true);
                     const p = loadPrefs();
@@ -377,46 +394,10 @@ export function LogScreen() {
                 </button>
               </div>
             )}
-            <div className="grid gap-2">
-              <span className="text-base text-text">{t('log.howMuchDrank')}</span>
-              <div className="flex flex-wrap gap-2">
-                {WATER_CHIPS.map((ml) => (
-                  <button
-                    key={ml}
-                    type="button"
-                    aria-pressed={parseNum(volume) === ml}
-                    onClick={() => setVolume(String(ml))}
-                    className={`tabular min-h-tap rounded-xl border px-4 font-mono text-sm ${parseNum(volume) === ml ? 'border-water bg-water/10 text-water' : 'border-line text-body'}`}
-                  >
-                    {ml} mL
-                  </button>
-                ))}
-              </div>
-            </div>
-            <NumberField id="log-volume" label={t('log.volume')} unit="mL" value={volume} onChange={setVolume} error={volErr} />
-            {device ? null : (
-              <NumberField
-                id="log-conc"
-                label={t('log.concentration')}
-                unit="mg/L"
-                value={conc}
-                onChange={setConc}
-                error={concErr}
-              />
-            )}
-            {equiv && !concErr && (
-              <p className="tabular font-mono text-xs text-muted">
-                {t('log.concEquiv', {
-                  mgL: formatInput(equiv.mgL, locale),
-                  ppm: formatInput(equiv.ppm, locale),
-                  ppb: formatInput(equiv.ppb, locale),
-                })}
-              </p>
-            )}
           </>
         ) : (
           <>
-            {device ? null : (
+            {!device && (
               <NumberField
                 id="log-flow"
                 label={t('log.flow')}
@@ -428,76 +409,66 @@ export function LogScreen() {
               />
             )}
 
-            <div className="grid grid-cols-2 gap-1 rounded-full border border-line bg-bg p-1" role="radiogroup" aria-label={t('log.minutes')}>
-              {(['timer', 'manual'] as InhalationMode[]).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  role="radio"
-                  aria-checked={inhMode === m}
-                  disabled={!!timer && m === 'manual'}
-                  onClick={() => setInhMode(m)}
-                  className={`min-h-tap rounded-full text-sm disabled:opacity-40 ${inhMode === m ? 'bg-inhalation/15 text-inhalation' : 'text-muted'}`}
-                >
-                  {t(m === 'timer' ? 'log.timer' : 'log.enterMinutes')}
-                </button>
-              ))}
-            </div>
-
-            {inhMode === 'timer' && !stoppedAt && (
-              <div className="grid justify-items-center gap-3 py-2">
-                <span className="tabular font-mono text-5xl font-medium text-text" aria-live="off">
-                  {formatClock(timer ? now - timer.startedAt : 0)}
-                </span>
+            {inhMode === 'timer' && !stoppedAt ? (
+              <div className="grid justify-items-center gap-4 py-1">
+                <span className="tabular font-mono text-[3.25rem] font-medium leading-none text-text">{formatClock(timer ? now - timer.startedAt : 0)}</span>
                 {timer ? (
                   <>
                     <p className="max-w-sm text-center text-xs leading-relaxed text-muted">{t('log.sessionRunning')}</p>
-                    <div className="grid w-full max-w-xs grid-cols-2 gap-3">
-                      <button type="button" onClick={discardTimer} className="min-h-tap rounded-xl border border-line text-sm text-body">
+                    <div className="grid w-full grid-cols-2 gap-3">
+                      <button type="button" onClick={discardTimer} className="min-h-[48px] rounded-xl border border-line text-sm text-body">
                         {t('log.discardSession')}
                       </button>
-                      <button type="button" onClick={stopTimer} className="min-h-tap rounded-xl bg-inhalation text-sm font-bold text-bg">
+                      <button type="button" onClick={stopTimer} className="min-h-[48px] rounded-xl bg-inhalation text-sm font-bold text-bg">
                         {t('log.stopSession')}
                       </button>
                     </div>
                   </>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={startTimer}
-                    disabled={!(flowValue > 0) || !!flowErr}
-                    className="min-h-tap w-full max-w-xs rounded-xl bg-inhalation text-sm font-bold text-bg disabled:opacity-40"
-                  >
-                    {t('log.startSession')}
+                  <>
+                    <button
+                      type="button"
+                      onClick={startTimer}
+                      disabled={!(flowValue > 0) || !!flowErr}
+                      className="min-h-[52px] w-full rounded-xl bg-inhalation text-base font-bold text-bg disabled:opacity-40"
+                    >
+                      {t('log.startSession')}
+                    </button>
+                    <button type="button" className={linkBtn} onClick={() => setInhMode('manual')}>
+                      {t('log.enterMinutesInstead')}
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="grid gap-2">
+                <NumberField id="log-minutes" label={t('log.minutes')} unit="min" value={minutes} onChange={setMinutes} error={minErr} />
+                {stoppedAt ? (
+                  <button type="button" onClick={discardTimer} className={`${linkBtn} justify-self-start text-muted`}>
+                    {t('log.discardSession')}
+                  </button>
+                ) : (
+                  <button type="button" onClick={() => setInhMode('timer')} className={`${linkBtn} justify-self-start`}>
+                    {t('log.useTimer')}
                   </button>
                 )}
               </div>
-            )}
-
-            {(inhMode === 'manual' || stoppedAt) && (
-              <NumberField id="log-minutes" label={t('log.minutes')} unit="min" value={minutes} onChange={setMinutes} error={minErr} />
-            )}
-            {stoppedAt && (
-              <button type="button" onClick={discardTimer} className="min-h-tap justify-self-start px-1 font-mono text-xs uppercase tracking-wider text-muted hover:text-body">
-                {t('log.discardSession')}
-              </button>
             )}
           </>
         )}
       </section>
 
-      {/* Live HQ with the arithmetic (item 3) */}
-      <section className="grid justify-items-center gap-1 rounded-card border border-line bg-surface px-4 py-5" aria-live="polite">
-        <span className="font-mono text-[11px] uppercase tracking-[.12em] text-muted">{t('log.thisEntry')}</span>
-        <span className={`tabular text-5xl font-bold ${formulaInput ? `${routeColor(route)} glow-water` : 'text-muted/50'}`} style={route === 'inhalation' && formulaInput ? { textShadow: '0 0 10px rgb(var(--inhalation) / .6), 0 0 22px rgb(var(--inhalation) / .3)' } : undefined}>
+      {/* Calculated HQ with the arithmetic (item 3) */}
+      <section className="grid justify-items-center gap-1 rounded-[20px] border border-line bg-surface px-4 py-5" aria-live="polite">
+        <span className="font-mono text-[11px] uppercase tracking-[.14em] text-muted">{t('log.calculated')}</span>
+        <span className={`tabular text-[3.5rem] font-bold leading-tight ${formulaInput ? routeText : 'text-muted/40'}`} style={glowStyle}>
           {formatHQ(hq, locale)}
+          <span className="ml-2 align-baseline text-2xl font-normal">HQ</span>
         </span>
-        <span className="font-mono text-xs text-body">
-          HQ · {formatMg(hq * 0.8, locale)} mg H₂
-        </span>
+        <span className="font-mono text-xs text-body">{formatMg(hq * 0.8, locale)} mg H₂</span>
         {math && (
           <>
-            <button type="button" onClick={() => setShowMath((s) => !s)} aria-expanded={showMath} className="mt-1 min-h-tap px-3 font-mono text-xs text-water underline-offset-4 hover:underline">
+            <button type="button" onClick={() => setShowMath((s) => !s)} aria-expanded={showMath} className={`${linkBtn} mt-1 normal-case tracking-normal`}>
               {t(showMath ? 'log.hideMath' : 'log.showMath')}
             </button>
             {showMath && (
@@ -512,71 +483,85 @@ export function LogScreen() {
         )}
       </section>
 
-      {/* When */}
+      {/* Time and note: one quiet line until opened */}
       {!(route === 'inhalation' && timer) && (
-        <section className="grid gap-2" aria-labelledby="when-h">
-          <h2 id="when-h" className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">
-            {t('log.when')}
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {(['now', 'yesterday', 'pick'] as WhenMode[]).map((w) => (
-              <button
-                key={w}
-                type="button"
-                aria-pressed={whenMode === w}
-                onClick={() => {
-                  setWhenMode(w);
-                  if (w === 'pick') setPickValue(toLocalInput(new Date()));
-                }}
-                className={`min-h-tap rounded-xl border px-4 text-sm ${whenMode === w ? 'border-water bg-water/10 text-water' : 'border-line text-body'}`}
-              >
-                {t(w === 'now' ? 'log.now' : w === 'yesterday' ? 'log.yesterday' : 'log.pickTime')}
+        <div className="grid gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm">
+            <span className="text-muted">
+              {t('log.when')}: <span className="text-text">{whenSummary}</span>
+              <button type="button" className={`${linkBtn} ml-2`} aria-expanded={whenOpen} onClick={() => setWhenOpen((o) => !o)}>
+                {t('log.change')}
               </button>
-            ))}
+            </span>
+            {!notesOpen && (
+              <button type="button" className={linkBtn} onClick={() => setNotesOpen(true)}>
+                + {t('log.addNote')}
+              </button>
+            )}
           </div>
-          {whenMode === 'pick' && (
-            <input
-              id="log-when"
-              type="datetime-local"
-              value={pickValue}
-              max={toLocalInput(new Date())}
-              onChange={(e) => setPickValue(e.target.value)}
-              className="min-h-tap rounded-xl border border-line bg-bg px-3 text-text focus:border-water focus:outline-none"
+          {whenOpen && (
+            <div className="grid gap-2">
+              <div className="flex flex-wrap gap-2">
+                {(['now', 'yesterday', 'pick'] as WhenMode[]).map((w) => (
+                  <button
+                    key={w}
+                    type="button"
+                    aria-pressed={whenMode === w}
+                    onClick={() => {
+                      setWhenMode(w);
+                      if (w === 'pick') setPickValue(toLocalInput(new Date()));
+                    }}
+                    className={`min-h-tap rounded-xl border px-4 text-sm ${whenMode === w ? 'border-water bg-water/10 text-water' : 'border-line text-body'}`}
+                  >
+                    {t(w === 'now' ? 'log.now' : w === 'yesterday' ? 'log.yesterday' : 'log.pickTime')}
+                  </button>
+                ))}
+              </div>
+              {whenMode === 'pick' && (
+                <input
+                  id="log-when"
+                  type="datetime-local"
+                  value={pickValue}
+                  max={toLocalInput(new Date())}
+                  onChange={(e) => setPickValue(e.target.value)}
+                  className="min-h-tap rounded-xl border border-line bg-bg px-3 text-text focus:border-water focus:outline-none"
+                />
+              )}
+            </div>
+          )}
+          {notesOpen && (
+            <textarea
+              id="log-notes"
+              rows={2}
+              maxLength={500}
+              value={notes}
+              autoFocus
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder={t('log.notes')}
+              className="rounded-xl border border-line bg-bg px-3 py-2 text-text placeholder:text-muted/60 focus:border-water focus:outline-none"
             />
           )}
-        </section>
+        </div>
       )}
-
-      <label className="grid gap-1.5">
-        <span className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">{t('log.notes')}</span>
-        <textarea
-          id="log-notes"
-          rows={2}
-          maxLength={500}
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="rounded-xl border border-line bg-bg px-3 py-2 text-text focus:border-water focus:outline-none"
-        />
-      </label>
 
       {saveError && <p className="text-sm text-danger">{saveError}</p>}
       <button
         type="button"
         onClick={save}
         disabled={!canSave}
-        className={`min-h-[52px] rounded-xl text-base font-bold text-bg transition-opacity disabled:opacity-35 ${route === 'water' ? 'bg-water' : 'bg-inhalation'}`}
+        className={`min-h-[56px] rounded-xl text-base font-bold text-bg transition-opacity disabled:opacity-35 ${route === 'water' ? 'bg-water' : 'bg-inhalation'}`}
       >
         {saving ? t('log.saving') : t('log.save')}
       </button>
 
       {/* One-tap repeat (item 5) */}
       {repeatable.length > 0 && (
-        <section className="grid gap-2 pt-2" aria-labelledby="repeat-h">
-          <div>
-            <h2 id="repeat-h" className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">
+        <section className="grid gap-2 border-t border-line pt-5" aria-labelledby="repeat-h">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+            <h2 id="repeat-h" className="font-mono text-[11px] uppercase tracking-[.12em] text-muted">
               {t('log.repeat')}
             </h2>
-            <p className="text-xs text-muted">{t('log.repeatHint')}</p>
+            <span className="text-xs text-muted">{t('log.repeatHint')}</span>
           </div>
           <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
             {repeatable.map((e) => {
@@ -586,15 +571,14 @@ export function LogScreen() {
                   key={e.id}
                   type="button"
                   onClick={() => repeat(e)}
-                  className="flex min-h-tap items-center justify-between gap-3 rounded-xl border border-line bg-surface px-3 py-2 text-left hover:border-muted"
+                  className="flex min-h-[52px] items-center justify-between gap-3 rounded-xl border border-line px-3 text-left hover:border-muted"
                 >
-                  <span className="min-w-0 flex-1">
-                    <span className={`flex min-w-0 items-center gap-2 font-mono text-[11px] uppercase tracking-wider ${routeColor(e.route)}`}>
-                      <RouteIcon route={e.route} className="h-3.5 w-3.5 shrink-0" />
-                      {t(e.route === 'water' ? 'route.water' : 'route.inhalation')}
-                      {d.name && <span className="truncate normal-case tracking-normal text-muted">· {d.name}</span>}
+                  <span className="flex min-w-0 items-center gap-3">
+                    <RouteIcon route={e.route} className={`h-4 w-4 shrink-0 ${routeColor(e.route)}`} />
+                    <span className="grid min-w-0">
+                      <span className="tabular truncate text-sm text-body">{d.body}</span>
+                      {d.name && <span className="truncate text-xs text-muted">{d.name}</span>}
                     </span>
-                    <span className="tabular block text-sm text-body">{d.body}</span>
                   </span>
                   <span className="tabular shrink-0 font-mono text-sm text-text">{formatHQ(e.hq, locale)} HQ</span>
                 </button>
@@ -602,6 +586,24 @@ export function LogScreen() {
             })}
           </div>
         </section>
+      )}
+
+      {picker && (
+        <DevicePicker
+          route={route}
+          devices={routeDevices}
+          selectedId={deviceId}
+          manualId={MANUAL}
+          onPick={(id) => {
+            setDeviceId(id);
+            setPicker(false);
+          }}
+          onAdd={() => {
+            setPicker(false);
+            setSheet(true);
+          }}
+          onClose={() => setPicker(false)}
+        />
       )}
 
       {sheet && (
