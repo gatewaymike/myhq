@@ -19,7 +19,9 @@ export function exampleSeed(): { devices: Device[]; entries: Entry[] } {
     devices: [exDevice, bottle],
     entries: [
       mk(3, { route: 'water', deviceId: 'ex-bottle', volumeMl: 500, concentrationMgL: 1.2 }),
+      mk(1, { route: 'inhalation', deviceId: 'ex-device', minutes: 30, h2FlowMlMin: 600 }),
       mk(26, { route: 'inhalation', deviceId: 'ex-device', minutes: 30, h2FlowMlMin: 600 }),
+      mk(50, { route: 'water', deviceId: 'ex-bottle', volumeMl: 400, concentrationMgL: 1.2 }),
     ],
   };
 }

@@ -4,6 +4,7 @@ import { AppProvider, useApp } from './app/context';
 import { AuthProvider, useAuth } from './app/auth';
 import { Shell } from './app/Shell';
 import { LogScreen } from './screens/log/LogScreen';
+import { TodayScreen } from './screens/today/TodayScreen';
 import { SettingsScreen } from './screens/settings/SettingsScreen';
 import { ForgotScreen, ResetScreen, SignInScreen, SignUpScreen } from './screens/auth/AuthScreens';
 import { LocalStore, writeJSON } from './store/localStore';
@@ -11,7 +12,7 @@ import { exampleSeed } from './store/exampleSeed';
 import type { StringKey } from './i18n/strings';
 
 const PREVIEW = import.meta.env.VITE_PREVIEW === '1';
-const PREVIEW_KEY = 'myhq.preview.v2';
+const PREVIEW_KEY = 'myhq.preview.v3';
 
 function ComingNext({ titleKey }: { titleKey: StringKey }) {
   const { t } = useApp();
@@ -71,7 +72,7 @@ function Screens() {
     <Shell banner={PREVIEW ? <PreviewBanner /> : undefined}>
       <AuthEffects />
       <Routes>
-        <Route path="/" element={<ComingNext titleKey="nav.today" />} />
+        <Route path="/" element={<TodayScreen />} />
         <Route path="/log" element={<LogScreen />} />
         <Route path="/history" element={<ComingNext titleKey="nav.history" />} />
         <Route path="/trends" element={<ComingNext titleKey="nav.trends" />} />
@@ -99,7 +100,7 @@ export default function App() {
   const guestStore = useMemo(() => (PREVIEW ? new LocalStore(exampleSeed(), PREVIEW_KEY) : new LocalStore()), []);
   const Router = PREVIEW ? MemoryRouter : BrowserRouter;
   return (
-    <Router {...(PREVIEW ? { initialEntries: ['/log'] } : {})}>
+    <Router {...(PREVIEW ? { initialEntries: ['/'] } : {})}>
       <AuthProvider guestStore={guestStore}>
         <WithStore />
       </AuthProvider>

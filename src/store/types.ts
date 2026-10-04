@@ -58,6 +58,8 @@ export interface Store {
   archiveDevice(id: string): Promise<void>;
   /** Newest first. */
   listEntries(opts?: { fromDate?: string; toDate?: string; limit?: number }): Promise<Entry[]>;
+  /** Sum of every entry's HQ, full precision. */
+  lifetimeHQ(): Promise<number>;
   /** Idempotent on clientRequestId: a second call returns the first entry (double-save guard). */
   addEntry(e: EntryInput): Promise<Entry>;
   updateEntry(id: string, e: Partial<Omit<EntryInput, 'clientRequestId'>>): Promise<Entry>;

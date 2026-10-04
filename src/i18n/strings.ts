@@ -26,7 +26,27 @@ export const strings = {
   'header.langSwitch': { en: 'Switch language', zh: '切換語言' },
 
   // Today
+  'today.title': { en: 'Daily HQ', zh: '每日 HQ' },
   'today.hqToday': { en: 'HQ today', zh: '今日 HQ' },
+  'today.lifetime': { en: 'Lifetime', zh: '累計' },
+  'today.entries': { en: "Today's entries", zh: '今日記錄' },
+  'today.empty': { en: 'Nothing logged yet today.', zh: '今天還沒有記錄。' },
+  'today.logFirst': { en: 'Log an entry', zh: '新增記錄' },
+  'today.about': { en: 'What the numbers mean', zh: '數字的意思' },
+  'today.aboutHQ': {
+    en: '1 HQ is the hydrogen in half a liter of fully saturated hydrogen water at 1 atm and 25°C: 0.80 mg of H₂.',
+    zh: '1 HQ 是半公升在 1 大氣壓、25°C 下完全飽和的氫水所含的氫：0.80 mg H₂。',
+  },
+  'today.aboutRef': {
+    en: 'The tick on the ring marks 10.0 HQ, a daily reference value inside a range. It is neither a floor nor a ceiling.',
+    zh: '圓環上的刻度標示 10.0 HQ，是一個範圍內的每日參考值，不是下限，也不是上限。',
+  },
+  'today.aboutBoth': {
+    en: '"Both routes today" appears on a day with at least one water entry and one inhalation entry. It never changes any HQ figure.',
+    zh: '同一天至少有一筆氫水與一筆吸入記錄時，會顯示「今日兩種途徑皆有」。它不會改變任何 HQ 數字。',
+  },
+  'today.aboutAvg': { en: 'The 7-day average is the total for the last 7 days, today included, divided by 7.', zh: '7 日平均是最近 7 天（含今日）的總和除以 7。' },
+  'today.close': { en: 'Close', zh: '關閉' },
   'today.reference': { en: 'Reference 10.0', zh: '參考值 10.0' },
   'today.bothRoutes': { en: 'Both routes today', zh: '今日兩種途徑皆有' },
   'today.sevenDayAvg': { en: '7-day average', zh: '7 日平均' },

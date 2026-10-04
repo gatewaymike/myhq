@@ -98,6 +98,10 @@ export class LocalStore implements Store {
     return opts.limit ? list.slice(0, opts.limit) : list;
   }
 
+  async lifetimeHQ() {
+    return this.data.entries.reduce((a, e) => a + e.hq, 0);
+  }
+
   async addEntry(input: EntryInput) {
     const existing = this.data.entries.find((e) => e.clientRequestId === input.clientRequestId);
     if (existing) return existing;

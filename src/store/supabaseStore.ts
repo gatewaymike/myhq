@@ -125,6 +125,17 @@ export class SupabaseStore implements Store {
     return (data as EntryRow[]).map(toEntry);
   }
 
+  async lifetimeHQ() {
+    // Only the hq column, in pages of 1,000 (the API's per-response cap).
+    let total = 0;
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await this.sb.from('entries').select('hq').order('id').range(from, from + 999);
+      if (error) throw error;
+      for (const r of data as { hq: number | string }[]) total += Number(r.hq);
+      if (data.length < 1000) return total;
+    }
+  }
+
   async addEntry(e: EntryInput) {
     // Insert, ignoring a duplicate client_request_id, then read the row back either way.
     const { error } = await this.sb
