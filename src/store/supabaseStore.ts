@@ -142,9 +142,14 @@ export class SupabaseStore implements Store {
    */
   async importGuest(devices: Device[], entries: Entry[]): Promise<number> {
     const idMap = new Map<string, string>();
+    // Reuse a matching device already in the account (same name, route and figure), so a retried hand-over adds nothing twice.
+    const existing = await this.listDevices();
+    const same = (a: Device, b: Device) =>
+      a.name === b.name && a.route === b.route && a.h2FlowMlMin === b.h2FlowMlMin && a.concentrationMgL === b.concentrationMgL && (a.modeLabel ?? null) === (b.modeLabel ?? null);
     for (const d of devices) {
-      const created = await this.addDevice({ name: d.name, route: d.route, h2FlowMlMin: d.h2FlowMlMin, concentrationMgL: d.concentrationMgL, modeLabel: d.modeLabel });
-      idMap.set(d.id, created.id);
+      const match = existing.find((x) => same(x, d));
+      const target = match ?? (await this.addDevice({ name: d.name, route: d.route, h2FlowMlMin: d.h2FlowMlMin, concentrationMgL: d.concentrationMgL, modeLabel: d.modeLabel }));
+      idMap.set(d.id, target.id);
     }
     if (entries.length === 0) return 0;
     const rows = entries.map((e) => ({

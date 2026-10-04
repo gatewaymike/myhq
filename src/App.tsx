@@ -58,7 +58,7 @@ function AuthEffects() {
   }, [recovery, nav]);
   useEffect(() => {
     if (imported > 0) {
-      toast(t('auth.imported', { n: imported }));
+      toast(imported === 1 ? t('auth.importedOne') : t('auth.imported', { n: imported }));
       clearImported();
       bump();
     }

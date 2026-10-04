@@ -53,7 +53,7 @@ function Card({ title, children }: { title: string; children: ReactNode }) {
     <div className="mx-auto grid w-full max-w-md grid-cols-[minmax(0,1fr)] gap-5">
       <div className="grid justify-items-center gap-2 pt-2">
         <Wordmark size="text-[2.5rem]" />
-        <h1 className="font-mono text-sm uppercase tracking-[.14em] text-text">{title}</h1>
+        <h1 className="text-center text-[1.75rem] font-bold uppercase leading-tight tracking-[.12em] text-water sm:text-[2.2rem]">{title}</h1>
       </div>
       {children}
     </div>
@@ -111,7 +111,7 @@ export function SignInScreen() {
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setBusy(false);
     if (error) return setErr(t(errorKey(error)));
-    nav('/');
+    nav('/log');
   }
 
   return (
@@ -170,7 +170,7 @@ export function SignUpScreen() {
     const { error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { emailRedirectTo: `${window.location.origin}/`, data: { language: lang } },
+      options: { emailRedirectTo: `${window.location.origin}/log`, data: { language: lang } },
     });
     setBusy(false);
     if (error) return setErr(t(errorKey(error)));
@@ -195,7 +195,7 @@ export function SignUpScreen() {
           <Field id="su-email" label={t('auth.email')} type="email" autoComplete="email" value={email} onChange={setEmail} />
           <Field id="su-password" label={t('auth.password')} type="password" autoComplete="new-password" value={password} onChange={setPassword} hint={t('auth.passwordHint')} />
           {err && <p className="text-sm text-danger" role="alert">{err}</p>}
-          <p className="text-xs text-muted">{t('auth.agree')}</p>
+          <p className="text-xs text-muted">{t(PRIVACY_URL ? 'auth.agree' : 'auth.agreeNoPrivacy')}</p>
           <Submit busy={busy} label={t('auth.createAccount')} />
           <p className="text-sm text-muted">
             {t('auth.haveAccount')} <Link to="/signin" className="text-water">{t('auth.signIn')}</Link>
@@ -267,7 +267,7 @@ export function ResetScreen() {
     if (error) return setErr(t(errorKey(error)));
     clearRecovery();
     toast(t('auth.passwordSaved'));
-    nav('/');
+    nav('/log');
   }
 
   return (

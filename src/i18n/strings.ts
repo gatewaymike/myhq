@@ -127,8 +127,10 @@ export const strings = {
   'auth.errorEmail': { en: 'Enter a valid email address.', zh: '請輸入有效的電子郵件地址。' },
   'auth.errorPassword': { en: 'Use at least 8 characters.', zh: '請使用至少 8 個字元。' },
   'auth.imported': { en: '{n} entries from this device are now in your account.', zh: '此裝置的 {n} 筆記錄已移入您的帳號。' },
+  'auth.importedOne': { en: '1 entry from this device is now in your account.', zh: '此裝置的 1 筆記錄已移入您的帳號。' },
   'auth.unavailable': { en: 'Accounts are not available in this preview.', zh: '此預覽版無法使用帳號功能。' },
   'auth.agree': { en: 'By creating an account you accept the privacy policy and the disclaimer below.', zh: '建立帳號即表示您接受下方的隱私權政策與免責聲明。' },
+  'auth.agreeNoPrivacy': { en: 'By creating an account you accept the disclaimer below.', zh: '建立帳號即表示您接受下方的免責聲明。' },
 
   // Settings
   'settings.account': { en: 'Account', zh: '帳號' },
