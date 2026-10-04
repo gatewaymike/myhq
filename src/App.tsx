@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './app/auth';
 import { Shell } from './app/Shell';
 import { LogScreen } from './screens/log/LogScreen';
 import { TodayScreen } from './screens/today/TodayScreen';
+import { HistoryScreen } from './screens/history/HistoryScreen';
 import { SettingsScreen } from './screens/settings/SettingsScreen';
 import { ForgotScreen, ResetScreen, SignInScreen, SignUpScreen } from './screens/auth/AuthScreens';
 import { LocalStore, writeJSON } from './store/localStore';
@@ -12,7 +13,7 @@ import { exampleSeed } from './store/exampleSeed';
 import type { StringKey } from './i18n/strings';
 
 const PREVIEW = import.meta.env.VITE_PREVIEW === '1';
-const PREVIEW_KEY = 'myhq.preview.v3';
+const PREVIEW_KEY = 'myhq.preview.v4';
 
 function ComingNext({ titleKey }: { titleKey: StringKey }) {
   const { t } = useApp();
@@ -74,8 +75,8 @@ function Screens() {
       <Routes>
         <Route path="/" element={<TodayScreen />} />
         <Route path="/log" element={<LogScreen />} />
-        <Route path="/history" element={<ComingNext titleKey="nav.history" />} />
-        <Route path="/trends" element={<ComingNext titleKey="nav.trends" />} />
+        <Route path="/history" element={<HistoryScreen />} />
+        <Route path="/trends" element={<HistoryScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />
         <Route path="/signin" element={<SignInScreen />} />
         <Route path="/signup" element={<SignUpScreen />} />
