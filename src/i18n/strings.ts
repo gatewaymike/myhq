@@ -47,7 +47,6 @@ export const strings = {
   },
   'today.aboutAvg': { en: 'The 7-day average is the total for the last 7 days, today included, divided by 7.', zh: '7 日平均是最近 7 天（含今日）的總和除以 7。' },
   'today.close': { en: 'Close', zh: '關閉' },
-  'today.reference': { en: 'Reference 10.0', zh: '參考值 10.0' },
   'today.bothRoutes': { en: 'Both routes today', zh: '今日兩種途徑皆有' },
   'today.sevenDayAvg': { en: '7-day average', zh: '7 日平均' },
   'today.sevenDayAvgDef': { en: 'Last 7 days, today included', zh: '最近 7 天（含今日）' },
@@ -73,8 +72,6 @@ export const strings = {
   'log.gotIt': { en: 'Got it', zh: '知道了' },
   'log.minutes': { en: 'Minutes', zh: '分鐘' },
   'log.flow': { en: 'Hydrogen flow (mL/min)', zh: '氫氣流量（mL/min）' },
-  'log.timer': { en: 'Timer', zh: '計時' },
-  'log.enterMinutes': { en: 'Enter minutes', zh: '輸入分鐘' },
   'log.startSession': { en: 'Start session', zh: '開始' },
   'log.stopSession': { en: 'Stop', zh: '停止' },
   'log.discardSession': { en: 'Discard', zh: '捨棄' },
@@ -96,7 +93,6 @@ export const strings = {
   'log.removed': { en: 'Entry removed', zh: '已移除記錄' },
   'log.showMath': { en: 'Show the math', zh: '顯示計算' },
   'log.hideMath': { en: 'Hide the math', zh: '隱藏計算' },
-  'log.thisEntry': { en: 'This entry', zh: '本筆記錄' },
   'log.repeat': { en: 'Repeat a recent entry', zh: '重複最近的記錄' },
   'log.repeatHint': { en: 'One tap saves it again, timed now.', zh: '點一下即以現在時間再次儲存。' },
   'log.errorPositive': { en: 'Enter a number above zero.', zh: '請輸入大於零的數字。' },
@@ -186,7 +182,6 @@ export const strings = {
   'settings.about': { en: 'About HQ', zh: '關於 HQ' },
   'settings.disclaimerTitle': { en: 'Disclaimer', zh: '免責聲明' },
   'settings.disclosureTitle': { en: 'Disclosure', zh: '揭露聲明' },
-  'settings.visitSite': { en: 'Gateway H₂ website', zh: 'Gateway H₂ 網站' },
 
   // Settings (full)
   'settings.equipment': { en: 'My equipment', zh: '我的設備' },
