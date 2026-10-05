@@ -15,3 +15,4 @@ Each screen ships only after Michael compares it side by side with the live Hori
 ## Decisions outside the screens
 
 - 2026-10-05 09:03 Taipei: **no data carries over from the old app** (Michael: "I dont need any data from the old app to carry over"). The import step in the handoff is dropped; everyone starts fresh in the new app.
+- 2026-10-05 10:07 Taipei: **link preview image approved** (`public/og-image.png`, 1200 × 627; Michael: "Approved").
