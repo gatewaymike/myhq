@@ -247,10 +247,11 @@ export const strings = {
     en: 'HQ is not a medical device or medical advice. Consult your doctor before making medical decisions.',
     zh: 'HQ 不是醫療器材，也不構成醫療建議。做任何醫療決定前，請先諮詢您的醫師。',
   },
-  // R-273, verbatim. The Chinese footer wording is ruled separately (R-251); its text is not in hand.
+  // en: R-273, verbatim. zh: R-251 (no invoicing clause), the first two sentences of the live
+  // gatewayh2.com Chinese footer, pasted by Michael 2026-10-07. Pending the native ZH-TW read.
   'legal.disclosure': {
     en: 'Gateway H₂ sells and places hydrogen equipment. We set the price on the devices we distribute and earn the margin when one sells; VHLife invoices and services the customer directly.',
-    zh: null,
+    zh: 'Gateway H₂ 銷售並配置氫氣設備。我們為經銷的設備訂定售價，售出時賺取差價。',
   },
   'legal.privacy': { en: 'Privacy policy', zh: '隱私權政策' },
   'legal.site': { en: 'gatewayh2.com', zh: 'gatewayh2.com' },
