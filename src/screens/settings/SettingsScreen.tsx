@@ -10,6 +10,7 @@ import type { Device } from '../../store/types';
 import { DeviceSheet } from '../log/DeviceSheet';
 import { Legal } from '../auth/AuthScreens';
 import { SHOW_INTRO_EVENT } from '../onboarding/Onboarding';
+import { useInstall } from '../../lib/install';
 
 const APP_VERSION = '0.5.0';
 
@@ -28,6 +29,7 @@ export function SettingsScreen() {
   const { t, lang, setLang, store, version, bump, toast, locale } = useApp();
   const { available, session, signOut, deleteAccount } = useAuth();
   const nav = useNavigate();
+  const install = useInstall();
   const email = session?.user.email ?? '';
 
   const [devices, setDevices] = useState<Device[]>([]);
@@ -108,6 +110,19 @@ export function SettingsScreen() {
       <h1 className="pt-2 text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('nav.settings')}</h1>
 
       {/* Account */}
+      {(install.mode === 'button' || install.mode === 'ios' || install.mode === 'samsung') && (
+        <Section id="install-h" title={t('install.title')}>
+          <p className="text-sm text-body">{t('install.body')}</p>
+          {install.mode === 'button' && (
+            <button type="button" onClick={() => void install.install()} className={`${btn} justify-self-start border-water bg-water font-bold text-bg`}>
+              {t('install.button')}
+            </button>
+          )}
+          {install.mode === 'ios' && <p className="text-sm text-text">{t('install.ios')}</p>}
+          {install.mode === 'samsung' && <p className="text-sm text-text">{t('install.samsung')}</p>}
+        </Section>
+      )}
+
       <Section id="acct-h" title={t('settings.account')}>
         {session ? (
           <>
