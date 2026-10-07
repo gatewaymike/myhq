@@ -95,7 +95,7 @@ export function Shell({ children, banner }: { children: ReactNode; banner?: Reac
   return (
     <div className="min-h-screen">
       {banner}
-      <header className="sticky z-30 border-b border-line bg-bg/95 backdrop-blur" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
+      <header className="sticky top-0 z-30 border-b border-line bg-bg/95 backdrop-blur" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-2">
           <div className="flex items-center gap-3">
             <Wordmark size="text-[1.35rem]" />

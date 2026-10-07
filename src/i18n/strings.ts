@@ -97,6 +97,9 @@ export const strings = {
   'log.repeatHint': { en: 'One tap saves it again, timed now.', zh: '點一下即以現在時間再次儲存。' },
   'log.errorPositive': { en: 'Enter a number above zero.', zh: '請輸入大於零的數字。' },
   'log.errorMax': { en: 'That is above {max}. Check the figure.', zh: '超過 {max}，請確認數字。' },
+  // Installable app (PWA). zh pending the native ZH-TW read.
+  'pwa.updateReady': { en: 'A new version is ready.', zh: '新版本已就緒。' },
+  'pwa.reload': { en: 'Reload', zh: '重新載入' },
   'log.errorSave': { en: 'Could not save. Check your connection and try again.', zh: '無法儲存，請確認網路連線後再試一次。' },
 
   // Equipment sheet

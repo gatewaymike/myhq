@@ -3,7 +3,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
 
-const ROOTS = ['src', 'index.html', 'supabase']; // design/ holds internal approval pages, not app copy
+const ROOTS = ['src', 'index.html', 'supabase', 'vite.config.ts']; // design/ holds internal approval pages, not app copy
 const EXT = new Set(['.ts', '.tsx', '.html', '.json', '.sql', '.css']);
 const RULES = [
   [/—/, 'em dash'],

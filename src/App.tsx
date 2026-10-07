@@ -3,6 +3,7 @@ import { BrowserRouter, MemoryRouter, Route, Routes, useNavigate } from 'react-r
 import { AppProvider, useApp } from './app/context';
 import { AuthProvider, useAuth } from './app/auth';
 import { Shell } from './app/Shell';
+import { UpdateBar } from './app/UpdateBar';
 import { LogScreen } from './screens/log/LogScreen';
 import { TodayScreen } from './screens/today/TodayScreen';
 import { HistoryScreen } from './screens/history/HistoryScreen';
@@ -73,6 +74,7 @@ function Screens() {
   return (
     <Shell banner={PREVIEW ? <PreviewBanner /> : undefined}>
       <AuthEffects />
+      <UpdateBar />
       <Onboarding forceShow={PREVIEW} />
       <Routes>
         <Route path="/" element={<TodayScreen />} />

@@ -19,6 +19,8 @@ Why ALIAS, not CNAME: h2tracker also carries MX and TXT records, and a CNAME may
 
 ## Order
 
+Cutover order (suggested, not ruled): privacy link (done), Chinese disclosure line (done), native ZH-TW corrections, PWA layer, then the steps below.
+
 1. **Vercel: add the domain.** Project `myhq` > Settings > Domains > Add `h2tracker.gatewayh2.com`. Vercel shows "Invalid Configuration" and the DNS value it wants. Copy that value exactly; do not use one from memory or from this file.
 2. **Supabase: allow the new address (before DNS, so sign-up links work the moment it switches).** Project `mksxiftqzetkyqmkhjip` > Authentication > URL Configuration.
    - Site URL: `https://h2tracker.gatewayh2.com`
@@ -36,6 +38,11 @@ Why ALIAS, not CNAME: h2tracker also carries MX and TXT records, and a CNAME may
    5. Settings > download CSV; the file opens.
    6. Settings > the privacy link opens gatewayh2.com/privacy/myhq.
    7. Delete the test account.
+   8. Android Chrome: install the app; it opens full screen with the MyHQ icon and name.
+   9. iPhone Safari: Share, Add to Home Screen; the icon and name are right; the clock does not overlap the header; open a sheet (Log, device picker) and check its top edge clears the clock.
+   10. Airplane mode: the installed app opens and shows the last screen; a guest entry saves; a signed-in save shows the "Could not save" message, not a crash.
+   11. Push a trivial change; the installed app shows "A new version is ready." with Reload; Reload picks it up.
+   12. iPhone storage: sign in inside the installed app, not only in Safari. The home-screen app may keep its own storage, so guest entries made in a Safari tab may not appear there, and a confirmation email link may open in Safari. Record what happens; if guest entries do not carry over, add one line to the iPhone install instruction.
 
 ## Rollback (any step 5 failure that can't be fixed in minutes)
 
