@@ -7,8 +7,8 @@ import { Wordmark } from '../../app/Shell';
 import { supabase } from '../../lib/supabase';
 import type { StringKey } from '../../i18n/strings';
 
-/** Set once the privacy policy page is live on gatewayh2.com (owned by the website chat). Never guessed. */
-export const PRIVACY_URL: string | null = null;
+/** Live on gatewayh2.com since 2026-10-07; Michael confirmed the five checks (R-393 B1). */
+export const PRIVACY_URL: string | null = 'https://gatewayh2.com/privacy/myhq';
 export const SITE_URL = 'https://gatewayh2.com';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
