@@ -16,3 +16,4 @@ Each screen ships only after Michael compares it side by side with the live Hori
 
 - 2026-10-05 09:03 Taipei: **no data carries over from the old app** (Michael: "I dont need any data from the old app to carry over"). The import step in the handoff is dropped; everyone starts fresh in the new app.
 - 2026-10-05 10:07 Taipei: **link preview image approved** (`public/og-image.png`, 1200 × 627; Michael: "Approved").
+- 2026-10-07 09:21 Taipei: **privacy page rulings B1 to B4 accepted** ("Ok to all B1-B4"): the policy lives at `https://gatewayh2.com/privacy/myhq` and covers the app only; English only at cutover, Chinese after a native read (Chinese mode links the English page); no gatewayh2.com footer link until a site-wide policy exists; Chinese mode uses the R-251 disclosure wording, English keeps R-273 verbatim. Page facts supplied by Michael: operator Gateway H₂ (Taiwan), contact michael@gatewayh2.com, Supabase region ap-northeast-2, effective October 10, 2026.
