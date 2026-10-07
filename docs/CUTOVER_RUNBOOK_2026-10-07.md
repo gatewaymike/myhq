@@ -39,6 +39,7 @@ Cutover order (suggested, not ruled): privacy link (done), Chinese disclosure li
    6. Settings > the privacy link opens gatewayh2.com/privacy/myhq.
    7. Delete the test account.
    8. Android Chrome: install the app; it opens full screen with the MyHQ icon and name.
+      Samsung Internet on the same phone: note whether the Play Protect "possibly unsafe" warning still appears on the gatewayh2.com address (it did on the vercel.app preview, 2026-10-07; Chrome was clean).
    9. iPhone Safari: Share, Add to Home Screen; the icon and name are right; the clock does not overlap the header; open a sheet (Log, device picker) and check its top edge clears the clock.
    10. Airplane mode: the installed app opens and shows the last screen; a guest entry saves; a signed-in save shows the "Could not save" message, not a crash.
    11. Push a trivial change; the installed app shows "A new version is ready." with Reload; Reload picks it up.
