@@ -23,7 +23,7 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export type InstallMode = 'installed' | 'button' | 'ios' | 'samsung' | 'none';
+export type InstallMode = 'installed' | 'button' | 'ios' | 'samsung' | 'menu' | 'none';
 
 export function detectInstallMode(hasPrompt: boolean): InstallMode {
   if (typeof window === 'undefined') return 'none';
@@ -36,6 +36,8 @@ export function detectInstallMode(hasPrompt: boolean): InstallMode {
   if (hasPrompt) return 'button';
   const ios = /iPhone|iPad|iPod/.test(ua) || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
   if (ios) return 'ios';
+  // Android without a button: Chrome stops offering once MyHQ is installed, and Brave may never offer.
+  if (/Android/i.test(ua)) return 'menu';
   return 'none';
 }
 

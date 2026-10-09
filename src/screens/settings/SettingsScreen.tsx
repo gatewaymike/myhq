@@ -110,7 +110,7 @@ export function SettingsScreen() {
       <h1 className="pt-2 text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('nav.settings')}</h1>
 
       {/* Account */}
-      {(install.mode === 'button' || install.mode === 'ios' || install.mode === 'samsung') && (
+      {(install.mode === 'button' || install.mode === 'ios' || install.mode === 'samsung' || install.mode === 'menu') && (
         <Section id="install-h" title={t('install.title')}>
           <p className="text-sm text-body">{t('install.body')}</p>
           {install.mode === 'button' && (
@@ -120,6 +120,7 @@ export function SettingsScreen() {
           )}
           {install.mode === 'ios' && <p className="text-sm text-text">{t('install.ios')}</p>}
           {install.mode === 'samsung' && <p className="text-sm text-text">{t('install.samsung')}</p>}
+          {install.mode === 'menu' && <p className="text-sm text-text">{t('install.menu')}</p>}
         </Section>
       )}
 

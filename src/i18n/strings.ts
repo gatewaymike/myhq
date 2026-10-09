@@ -102,6 +102,7 @@ export const strings = {
   'install.body': { en: 'Add MyHQ to your home screen so it opens like an app.', zh: '將 MyHQ 加入主畫面，就能像應用程式一樣開啟。' },
   'install.button': { en: 'Install MyHQ', zh: '安裝 MyHQ' },
   'install.ios': { en: 'Tap Share, then Add to Home Screen.', zh: '點選「分享」，再點選「加入主畫面」。' },
+  'install.menu': { en: 'Open your browser menu (⋮) and choose Install app or Add to Home screen.', zh: '開啟瀏覽器選單（⋮），選擇「安裝應用程式」或「加到主畫面」。' },
   'install.samsung': { en: 'For the cleanest install, open this page in Chrome and choose Install app.', zh: '若要順利安裝，請用 Chrome 開啟此頁面，再選擇「安裝應用程式」。' },
   'pwa.updateReady': { en: 'A new version is ready.', zh: '新版本已就緒。' },
   'pwa.reload': { en: 'Reload', zh: '重新載入' },
