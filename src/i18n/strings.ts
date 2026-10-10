@@ -30,7 +30,7 @@ export const strings = {
   'today.hqToday': { en: 'HQ today', zh: '今日 HQ' },
   'today.lifetime': { en: 'Lifetime', zh: '累計' },
   'today.entries': { en: "Today's entries", zh: '今日記錄' },
-  'today.empty': { en: 'Nothing logged yet today.', zh: '今天還沒有記錄。' },
+  'today.empty': { en: 'Nothing logged yet today.', zh: '今天尚未記錄。' },
   'today.logFirst': { en: 'Log an entry', zh: '新增記錄' },
   'today.about': { en: 'What the numbers mean', zh: '數字的意思' },
   'today.aboutHQ': {
@@ -43,16 +43,16 @@ export const strings = {
   },
   'today.aboutBoth': {
     en: '"Both routes today" appears on a day with at least one water entry and one inhalation entry. It never changes any HQ figure.',
-    zh: '同一天至少有一筆氫水與一筆吸入記錄時，會顯示「今日兩種途徑皆有」。它不會改變任何 HQ 數字。',
+    zh: '同一天至少有一筆氫水與一筆吸入記錄時，會顯示「今日兩種方式皆有」。它不會改變任何 HQ 數字。',
   },
   'today.aboutAvg': { en: 'The 7-day average is the total for the last 7 days, today included, divided by 7.', zh: '7 日平均是最近 7 天（含今日）的總和除以 7。' },
   'today.close': { en: 'Close', zh: '關閉' },
-  'today.bothRoutes': { en: 'Both routes today', zh: '今日兩種途徑皆有' },
+  'today.bothRoutes': { en: 'Both routes today', zh: '今日兩種方式皆有' },
   'today.sevenDayAvg': { en: '7-day average', zh: '7 日平均' },
   'today.sevenDayAvgDef': { en: 'Last 7 days, today included', zh: '最近 7 天（含今日）' },
 
   // Routes
-  'route.water': { en: 'Water', zh: '氫水' },
+  'route.water': { en: 'Water', zh: '水' },
   'route.inhalation': { en: 'Inhalation', zh: '吸入' },
 
   // Log screen
@@ -60,14 +60,14 @@ export const strings = {
   'log.routeLabel': { en: 'Route', zh: '途徑' },
   'log.equipment': { en: 'Equipment', zh: '設備' },
   'log.addEquipment': { en: 'Add equipment', zh: '新增設備' },
-  'log.manual': { en: 'Enter values', zh: '手動輸入' },
+  'log.manual': { en: 'Enter values', zh: '輸入數值' },
   'log.howMuchDrank': { en: 'How much did you drink?', zh: '您喝了多少？' },
   'log.volume': { en: 'Volume (mL)', zh: '飲用量（mL）' },
   'log.concentration': { en: 'Concentration at pour (mg/L)', zh: '倒出時的濃度（mg/L）' },
   'log.concEquiv': { en: '{mgL} mg/L = {ppm} ppm = {ppb} ppb', zh: '{mgL} mg/L = {ppm} ppm = {ppb} ppb' },
   'log.pourNote': {
     en: 'An entry assumes the serving is drunk within 30 minutes of pouring, from a closed vessel. Beyond that window the figure is an estimate.',
-    zh: '每筆記錄假設在倒出後 30 分鐘內、以密閉容器飲用完畢。超過這段時間，數字僅為估計值。',
+    zh: '每筆資料皆假設自密閉容器倒出後，於 30 分鐘內飲用完畢；超過後，相關數值僅為估算值。',
   },
   'log.gotIt': { en: 'Got it', zh: '知道了' },
   'log.minutes': { en: 'Minutes', zh: '分鐘' },
@@ -120,7 +120,7 @@ export const strings = {
   },
   'device.concentrationLabel': { en: 'Concentration at pour (mg/L)', zh: '倒出時的濃度（mg/L）' },
   'device.modeLabel': { en: 'Mode (optional)', zh: '模式（選填）' },
-  'device.modeHint': { en: 'For a switchable unit, add one entry per mode, each with its own figure.', zh: '可切換模式的機器，請每種模式各新增一筆，各自填入數字。' },
+  'device.modeHint': { en: 'For a switchable unit, add one entry per mode, each with its own figure.', zh: '如果是可切換模式的裝置，請針對每一種模式分別建立一筆資料，並各自填入對應的數值。' },
   'device.save': { en: 'Save equipment', zh: '儲存設備' },
   'device.cancel': { en: 'Cancel', zh: '取消' },
 
@@ -148,7 +148,7 @@ export const strings = {
   'trends.bothDays': { en: 'Days with both routes', zh: '兩種途徑皆有的天數' },
   'trends.ofN': { en: '{n} of {total}', zh: '{total} 天中的 {n} 天' },
   'trends.tapHint': { en: 'Tap a day to see its numbers.', zh: '點選某一天以查看數字。' },
-  'trends.chartLabel': { en: 'Daily HQ for the last {n} days, water and inhalation stacked, with a reference line at 10.0', zh: '最近 {n} 天的每日 HQ，氫水與吸入堆疊顯示，並有 10.0 參考線' },
+  'trends.chartLabel': { en: 'Daily HQ for the last {n} days, water and inhalation stacked, with a reference line at 10.0', zh: '過去 {n} 天的每日 HQ，將飲水與吸入量以堆疊方式呈現，並在 10.0 處加上一條參考線。' },
 
   // Account
   'auth.signIn': { en: 'Sign in', zh: '登入' },
@@ -197,7 +197,7 @@ export const strings = {
   'settings.noEquipment': { en: 'No equipment saved yet.', zh: '尚未儲存任何設備。' },
   'settings.remove': { en: 'Remove', zh: '移除' },
   'settings.confirmRemove': { en: 'Tap again to remove', zh: '再點一次以移除' },
-  'settings.removeNote': { en: 'Removing equipment keeps every entry logged with it, with its figures.', zh: '移除設備後，用它記錄的每筆記錄及其數字都會保留。' },
+  'settings.removeNote': { en: 'Removing equipment keeps every entry logged with it, with its figures.', zh: '移除設備後，所有與該設備相關的紀錄及其數值仍會保留。' },
   'settings.removed': { en: 'Equipment removed', zh: '已移除設備' },
   'settings.yourData': { en: 'Your data', zh: '您的資料' },
   'settings.downloadCSV': { en: 'Download CSV', zh: '下載 CSV' },
@@ -249,7 +249,7 @@ export const strings = {
   // Preview banner
   'preview.banner': { en: 'Preview with example data, kept on this device only.', zh: '預覽版，範例資料只存在此裝置。' },
   'preview.reset': { en: 'Reset examples', zh: '重設範例' },
-  'common.comingNext': { en: 'This screen comes next through the parity check.', zh: '此頁面將在下一輪比對後完成。' },
+  'common.comingNext': { en: 'This screen comes next through the parity check.', zh: '此畫面會在完成同等性檢查後接續顯示。' },
 
   // Legal
   'legal.disclaimer': {
