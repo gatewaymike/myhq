@@ -24,8 +24,8 @@ jobs:
           getent hosts "$host" || echo "DNS lookup failed for $host (a paused Supabase project may not resolve)"
           code=$(curl -sS --retry 3 --retry-all-errors --retry-delay 10 -o body.txt -w '%{http_code}' \
             "$VITE_SUPABASE_URL/rest/v1/devices?select=id&limit=1" \
-            -H "apikey: $VITE_SUPABASE_PUBLISHABLE_KEY" \
-            -H "Authorization: Bearer $VITE_SUPABASE_PUBLISHABLE_KEY")
+            -H "apikey: $VITE_SUPABASE_PUBLISHABLE_KEY")
+          # No Authorization header: the new sb_publishable_ keys are not JWTs, so sending one as a Bearer token is rejected.
           echo "HTTP $code"; cat body.txt; echo
           # 200 means the database answered. Anything else fails the run, so GitHub emails the repo owner.
           test "$code" = "200"
