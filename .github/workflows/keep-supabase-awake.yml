@@ -1,7 +1,7 @@
 # Keeps the free Supabase project from pausing after a quiet week (Supabase emailed 2026-10-13).
 # Interim only: suggested to switch to Supabase Pro at cutover, which never pauses.
 # Reads one row through the public API with the publishable key (public by design, see .env.production).
-# Row-level security returns nothing to an anonymous caller, but the database still runs the query.
+# Anonymous callers are refused by Postgres (no table grants); the refusal itself shows the database is awake.
 # Note: GitHub disables scheduled workflows in a public repo after 60 days without repository activity.
 name: Keep Supabase awake
 
@@ -27,5 +27,7 @@ jobs:
             -H "apikey: $VITE_SUPABASE_PUBLISHABLE_KEY")
           # No Authorization header: the new sb_publishable_ keys are not JWTs, so sending one as a Bearer token is rejected.
           echo "HTTP $code"; cat body.txt; echo
-          # 200 means the database answered. Anything else fails the run, so GitHub emails the repo owner.
-          test "$code" = "200"
+          # Anonymous callers have no grant on any table (by design: never "GRANT ... TO anon"), so Postgres itself
+          # answers 401 with code 42501. That reply proves the database ran the query, which is the activity we need.
+          # Anything else (unreachable, paused, a gateway error) fails the run, so GitHub emails the repo owner.
+          if [ "$code" = "200" ] || grep -q '"42501"' body.txt; then echo "Database answered: awake."; else exit 1; fi
