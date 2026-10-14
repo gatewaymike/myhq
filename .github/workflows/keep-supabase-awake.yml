@@ -15,11 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Query the database once
         run: |
           set -a; . ./.env.production; set +a
-          code=$(curl -sS -o body.txt -w '%{http_code}' \
+          host="${VITE_SUPABASE_URL#https://}"
+          echo "Host: $host"
+          getent hosts "$host" || echo "DNS lookup failed for $host (a paused Supabase project may not resolve)"
+          code=$(curl -sS --retry 3 --retry-all-errors --retry-delay 10 -o body.txt -w '%{http_code}' \
             "$VITE_SUPABASE_URL/rest/v1/devices?select=id&limit=1" \
             -H "apikey: $VITE_SUPABASE_PUBLISHABLE_KEY" \
             -H "Authorization: Bearer $VITE_SUPABASE_PUBLISHABLE_KEY")
