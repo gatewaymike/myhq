@@ -12,7 +12,7 @@ import { Legal } from '../auth/AuthScreens';
 import { SHOW_INTRO_EVENT } from '../onboarding/Onboarding';
 import { useInstall } from '../../lib/install';
 
-const APP_VERSION = '0.5.0';
+const APP_VERSION = '1.0.0'; // live at h2tracker.gatewayh2.com since 2026-10-18
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
