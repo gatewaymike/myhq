@@ -68,8 +68,8 @@ export function SettingsScreen() {
     try {
       const { devices: all, entries } = await store.exportAll();
       const stamp = new Date().toISOString().slice(0, 10);
-      if (kind === 'csv') downloadFile(`myhq-entries-${stamp}.csv`, entriesToCSV(entries, all), 'text/csv;charset=utf-8');
-      else downloadFile(`myhq-data-${stamp}.json`, exportJSON(entries, all, email || null), 'application/json');
+      if (kind === 'csv') await downloadFile(`myhq-entries-${stamp}.csv`, entriesToCSV(entries, all), 'text/csv;charset=utf-8');
+      else await downloadFile(`myhq-data-${stamp}.json`, exportJSON(entries, all, email || null), 'application/json');
     } catch {
       toast(t('auth.errorGeneric'));
     } finally {

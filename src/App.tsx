@@ -4,6 +4,8 @@ import { AppProvider, useApp } from './app/context';
 import { AuthProvider, useAuth } from './app/auth';
 import { Shell } from './app/Shell';
 import { UpdateBar } from './app/UpdateBar';
+import { BackButton } from './app/BackButton';
+import { IS_NATIVE } from './lib/platform';
 import { LogScreen } from './screens/log/LogScreen';
 import { TodayScreen } from './screens/today/TodayScreen';
 import { HistoryScreen } from './screens/history/HistoryScreen';
@@ -74,7 +76,7 @@ function Screens() {
   return (
     <Shell banner={PREVIEW ? <PreviewBanner /> : undefined}>
       <AuthEffects />
-      <UpdateBar />
+      {IS_NATIVE ? <BackButton /> : <UpdateBar />}
       <Onboarding forceShow={PREVIEW} />
       <Routes>
         <Route path="/" element={<TodayScreen />} />

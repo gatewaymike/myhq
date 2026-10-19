@@ -1,0 +1,58 @@
+# Builds the Google Play app (Capacitor, Michael 2026-10-19) on GitHub's servers, which have the Android tools.
+# Every run: a debug APK for installing on a test phone (download it from the run's Artifacts).
+# When the upload-key secrets exist: also the signed release bundle (.aab) for Play Console.
+name: Android app
+
+on:
+  push:
+    branches: [main]
+    paths: ['src/**', 'public/**', 'android/**', 'index.html', 'package.json', 'package-lock.json', 'capacitor.config.ts', 'vite.config.ts', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Build the web app and copy it into the Android project
+        run: |
+          npm ci
+          npm run build
+          npx cap sync android
+      - name: Debug APK (for test phones)
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: myhq-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+      - name: Signed release bundle (only when the upload key is configured)
+        if: ${{ env.HAS_KEY == 'true' }}
+        working-directory: android
+        env:
+          KEYSTORE_B64: ${{ secrets.MYHQ_UPLOAD_KEYSTORE_B64 }}
+          MYHQ_UPLOAD_STORE_PASSWORD: ${{ secrets.MYHQ_UPLOAD_STORE_PASSWORD }}
+          MYHQ_UPLOAD_KEY_ALIAS: ${{ secrets.MYHQ_UPLOAD_KEY_ALIAS }}
+          MYHQ_UPLOAD_KEY_PASSWORD: ${{ secrets.MYHQ_UPLOAD_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.keystore"
+          MYHQ_UPLOAD_KEYSTORE="$RUNNER_TEMP/upload.keystore" ./gradlew --no-daemon bundleRelease
+          rm -f "$RUNNER_TEMP/upload.keystore"
+      - if: ${{ env.HAS_KEY == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: myhq-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
+    env:
+      HAS_KEY: ${{ secrets.MYHQ_UPLOAD_KEYSTORE_B64 != '' }}

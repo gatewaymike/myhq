@@ -5,6 +5,7 @@ import { useApp } from '../../app/context';
 import { useAuth } from '../../app/auth';
 import { Wordmark } from '../../app/Shell';
 import { supabase } from '../../lib/supabase';
+import { authRedirectBase } from '../../lib/platform';
 import type { StringKey } from '../../i18n/strings';
 
 /** Live on gatewayh2.com since 2026-10-07; Michael confirmed the five checks (R-393 B1). */
@@ -170,7 +171,7 @@ export function SignUpScreen() {
     const { error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { emailRedirectTo: `${window.location.origin}/log`, data: { language: lang } },
+      options: { emailRedirectTo: `${authRedirectBase()}/log`, data: { language: lang } },
     });
     setBusy(false);
     if (error) return setErr(t(errorKey(error)));
@@ -222,7 +223,7 @@ export function ForgotScreen() {
     if (!EMAIL_RE.test(email.trim())) return setErr(t('auth.errorEmail'));
     setBusy(true);
     setErr(null);
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/reset` });
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${authRedirectBase()}/reset` });
     setBusy(false);
     if (error && errorKey(error) === 'auth.errorRate') return setErr(t('auth.errorRate'));
     // Same message whether or not the address has an account.

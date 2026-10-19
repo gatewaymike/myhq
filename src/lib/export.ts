@@ -1,5 +1,6 @@
 import { MG_PER_HQ, formatHQ } from './hq';
 import type { Device, Entry } from '../store/types';
+import { IS_NATIVE } from './platform';
 
 /** "Download my data" (item 17). Full-precision HQ alongside the displayed figure (R-039). */
 
@@ -79,7 +80,11 @@ export function exportJSON(entries: Entry[], devices: Device[], email: string | 
   );
 }
 
-export function downloadFile(name: string, content: string, type: string): void {
+export async function downloadFile(name: string, content: string, type: string): Promise<void> {
+  if (IS_NATIVE) {
+    const { shareFile } = await import('./nativeShare');
+    return shareFile(name, content);
+  }
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

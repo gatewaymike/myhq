@@ -1,6 +1,7 @@
 // Install help (operations handoff 3f). The browser's install event can fire before Settings is
 // opened, so it is captured here at startup and held until the button asks for it.
 import { useEffect, useState } from 'react';
+import { IS_NATIVE } from './platform';
 
 interface InstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -27,6 +28,7 @@ export type InstallMode = 'installed' | 'button' | 'ios' | 'samsung' | 'menu' | 
 
 export function detectInstallMode(hasPrompt: boolean): InstallMode {
   if (typeof window === 'undefined') return 'none';
+  if (IS_NATIVE) return 'installed'; // the store app needs no install help
   const nav = window.navigator as Navigator & { standalone?: boolean };
   const standalone = window.matchMedia?.('(display-mode: standalone)').matches || nav.standalone === true;
   if (standalone) return 'installed';

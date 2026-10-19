@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MyHQ</string>
+    <string name="title_activity_main">MyHQ</string>
+    <string name="package_name">com.gatewayh2.myhq</string>
+    <string name="custom_url_scheme">com.gatewayh2.myhq</string>
+</resources>
