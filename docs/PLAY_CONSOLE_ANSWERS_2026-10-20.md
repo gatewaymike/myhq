@@ -88,11 +88,9 @@ Go through the form in this order.
 - Delete account URL: `https://gatewayh2.com/privacy/myhq`. **Check before you submit,** see the box below.
 - Do you provide a way for users to request that some or all of their data is deleted, without requiring them to delete their account? **Yes.** Single entries can be deleted in History.
 
-> **Check before you submit:** Google requires the deletion page to name the app ("MyHQ") and show a prominent way to request deletion without reinstalling the app, such as the Settings steps in the browser at h2tracker.gatewayh2.com, or an email address. The privacy page renders with JavaScript, so I can't read it from here.
+> **Checked 2026-10-20 (Michael's screenshot):** the page is titled "MyHQ Privacy Policy" and has an "Export and deletion" section. "Delete your account" names Settings, Delete my account, and the section ends with `michael@gatewayh2.com` for data requests. That meets Google's rule: the app is named, and there is a way to ask without reinstalling.
 >
-> Open it on your phone and confirm it names MyHQ and has a deletion section with those steps or the contact email.
-> - If it does, use the URL as given. If that section has its own anchor (a link ending in `#something`), use that link instead.
-> - If it doesn't, that's a fix for the website chat (out of this chat's scope), and the Data safety form waits for it.
+> Suggested hardening (not required; a website chat item): make the last line say outright that the email works for deletion, and add that deletion also works in any browser at h2tracker.gatewayh2.com.
 
 **Data types:** declare only these.
 
@@ -147,7 +145,7 @@ Everything else is **not collected**:
 - App or game: **App**
 - Category: **Health & Fitness**
 - Tags: pick up to five that fit, such as "Health tracker". Console offers a fixed list.
-- Email: **required and shown publicly on the listing.** Use the same address as on the privacy page.
+- Email: **required and shown publicly on the listing.** `michael@gatewayh2.com`, the same address as on the privacy page.
 - Phone: leave it blank.
 - Website: `https://h2tracker.gatewayh2.com`
 
