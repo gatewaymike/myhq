@@ -4,7 +4,7 @@ Prepared 2026-10-20. These are the answers for the **Finish setting up your app*
 
 **Status labels:**
 - **Fact** means the answer is a fact about the app.
-- **Your call** means a decision that isn't ruled yet; my lean is given, but it is not a ruling.
+- **Ruled** marks Michael's five decisions of 2026-10-20 12:50 (all option a).
 
 Store files are in `store/android/` (sent with this document).
 
@@ -33,7 +33,7 @@ Store files are in `store/android/` (sent with this document).
 
 Choose **All or some functionality is restricted**, then **Add instructions**. Guest mode works without signing in, but cloud saving needs an account, and Google reviewers must be able to reach every feature.
 
-**Your call, but I lean yes:** create one reviewer account for Google.
+**Ruled by Michael 2026-10-20 12:50:** yes, create one reviewer account for Google.
 1. Sign up in the app or at h2tracker.gatewayh2.com with a plus address, for example `yourname+playreview@gmail.com`. Supabase treats it as a new account, and the confirmation email still reaches your inbox.
 2. Confirm the email. Log two or three entries so the reviewer sees data.
 3. Type the email and password only into Play Console. **Never send that password to me.**
@@ -74,7 +74,7 @@ The result is likely Everyone, or PEGI 3 in Europe. The questionnaire decides th
 
 ## 5. Target audience and content
 
-**Your call, but I lean toward 18 and over only.** It keeps MyHQ outside Google's Families policy and matches the adult health framing. Then:
+**Ruled by Michael 2026-10-20 12:50:** **18 and over only.** It keeps MyHQ outside Google's Families policy and matches the adult health framing. Then:
 - **Could your store listing unintentionally appeal to children?** No.
 
 ## 6. Data safety
@@ -117,7 +117,7 @@ Everything else is **not collected**:
 - diagnostics;
 - device IDs.
 
-**Your call: Health and fitness › Health info.** Google defines Health info as "information about a user's health, such as medical records or symptoms."
+**Ruled by Michael 2026-10-20 12:50:** **do not declare Health and fitness › Health info.** Google defines Health info as "information about a user's health, such as medical records or symptoms."
 - **Lean: do not declare it.** MyHQ records intake figures (minutes, flow, volume, concentration). By Google's own definition those are neither medical records nor symptoms. The privacy page also tells users MyHQ asks for no health data, and declaring Health info would contradict it.
 - **Cost of the lean:** if a reviewer reads hydrogen-session logs as health data, the form comes back rejected and gets fixed in a day. That would delay the closed test, not production.
 - **Alternative:** declare Health info, Optional, App functionality. Then the privacy page's "asks for no health data" line has to change first (website chat), or the two would contradict each other.
@@ -132,7 +132,7 @@ Everything else is **not collected**:
 
 ## 9. Health
 
-**Your call. Lean: Health and fitness › Nutrition and Weight Management**, the closest non-medical category for an intake log.
+**Ruled by Michael 2026-10-20 12:50:** **Health and fitness › Nutrition and Weight Management**, the closest non-medical category for an intake log.
 - Avoid every **Medical** category. "Medication and Treatment Management" and the others imply treatment, contradict the app's own line ("HQ is not a medical device or medical advice"), and invite medical-device scrutiny.
 - **Alternative:** "My app doesn't provide any health features." That's defensible, since MyHQ only counts intake, but a reviewer could call it inaccurate for a hydrogen tracker.
 
@@ -155,7 +155,7 @@ The text is in `store/android/listing_en-US.txt`, and the copy lint passes on it
 
 | Field | Value |
 |---|---|
-| App name (30 max) | `MyHQ: Hydrogen Intake Tracker` (29). **Your call:** plain `MyHQ` also works, but it is harder to find in search |
+| App name (30 max) | `MyHQ: Hydrogen Intake Tracker` (29). **Ruled by Michael 2026-10-20 12:50:** this title |
 | Short description (80 max) | `Log hydrogen water and inhalation. See your daily total in one unit, HQ™.` (73) |
 | Full description | 1,667 of 4,000 characters. It carries the HQ formula, the 10.0 reference wording, the app's disclaimer and the disclosure line word for word as they appear in the app |
 
