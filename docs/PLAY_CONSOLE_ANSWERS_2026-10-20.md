@@ -86,7 +86,7 @@ Go through the form in this order.
 - Is all of the user data collected by your app encrypted in transit? **Yes**
 - Which of the following methods of account creation does your app support? **Username and password.** The email serves as the username.
 - Delete account URL: `https://gatewayh2.com/privacy/myhq`. **Check before you submit,** see the box below.
-- Do you provide a way for users to request that some or all of their data is deleted, without requiring them to delete their account? **Yes.** Single entries can be deleted in History.
+- Do you provide a way for users to request that some or all of their data is deleted, without requiring them to delete their account? (Optional) **No, for now** (changed 13:13). Answering Yes requires a link to a page that sets out the steps and says which data is deleted or kept; the privacy page doesn't describe deleting single entries yet. Switch to Yes once the website chat adds that (single entries: History, Delete).
 
 > **Checked 2026-10-20 (Michael's screenshot):** the page is titled "MyHQ Privacy Policy" and has an "Export and deletion" section. "Delete your account" names Settings, Delete my account, and the section ends with `michael@gatewayh2.com` for data requests. That meets Google's rule: the app is named, and there is a way to ask without reinstalling.
 >
