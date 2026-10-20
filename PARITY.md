@@ -41,3 +41,10 @@ Each screen ships only after Michael compares it side by side with the live Hori
 - 2026-10-19 23:06 Taipei: **Michael: the Android launcher icon's logo is too small** (his screenshots, next to the web-app icon). Cause: the generated adaptive-icon config added a 16.7% inset on top of an already safe-zone-sized foreground. Fixed: inset removed, foreground resized so the wordmark fills the same share of the tile as the approved web-app icon (40.7% vs 40.6%), still inside Android's safe zone. Awaiting Michael's check on the phone.
 - 2026-10-19 23:28 Taipei: **upload key created by Michael on his laptop** (keytool, RSA 2048, alias `myhq-upload`, CN=Michael Jaeger, OU=MyHQ, O=Gateway H2, L=Hsinchu, C=TW); keystore backed up by Michael, password on paper; never sent to Claude. The four GitHub secrets are set (keystore, store password, key password, alias). Next: signed release bundle from the Android workflow.
 - 2026-10-07 10:22 Taipei: **Chinese disclosure set (R-251, B4).** Text from the live gatewayh2.com Chinese footer, pasted by Michael: Gateway H₂ 銷售並配置氫氣設備。我們為經銷的設備訂定售價，售出時賺取差價。(Gateway H₂ sells and places hydrogen equipment. We set the price on the equipment we distribute and earn the margin when it sells.) No invoicing clause, no commission. Native read not yet recorded; it rides with the 176-string review.
+
+## 2026-10-20 Play Console app created; store answers and graphics drafted
+
+- Michael created the app in Play Console: name MyHQ, package `com.gatewayh2.myhq`, en-US, App, Free. Dashboard reached (12:32).
+- `docs/PLAY_CONSOLE_ANSWERS_2026-10-20.md`: answers for every setup task, checked against the code. Open decisions (Michael's call, not ruled): reviewer account, target age 18+, Health info in Data safety (lean: do not declare), Health category (lean: Nutrition and Weight Management), store title.
+- `store/android/`: 512 icon, 1024 × 500 feature graphic, five 1080 × 1920 screenshots from the example-data preview, en-US listing text (copy lint now covers `store/`).
+- Check pending: the privacy page must name MyHQ and show a deletion path before it can serve as the Delete account URL.

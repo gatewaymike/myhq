@@ -3,8 +3,8 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
 
-const ROOTS = ['src', 'index.html', 'supabase', 'vite.config.ts']; // design/ holds internal approval pages, not app copy
-const EXT = new Set(['.ts', '.tsx', '.html', '.json', '.sql', '.css']);
+const ROOTS = ['src', 'index.html', 'supabase', 'vite.config.ts', 'store']; // design/ holds internal approval pages, not app copy
+const EXT = new Set(['.ts', '.tsx', '.html', '.json', '.sql', '.css', '.txt']);
 const RULES = [
   [/—/, 'em dash'],
   [/risk[- ]free|completely inert|zero (interactions|toxicity|contraindications)|no adverse effects/i, 'banned absolute-safety language'],

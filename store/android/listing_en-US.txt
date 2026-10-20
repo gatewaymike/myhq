@@ -1,0 +1,36 @@
+APP NAME (30 max)
+MyHQ: Hydrogen Intake Tracker
+
+SHORT DESCRIPTION (80 max)
+Log hydrogen water and inhalation. See your daily total in one unit, HQ™.
+
+FULL DESCRIPTION (4,000 max)
+MyHQ counts hydrogen water and hydrogen inhalation in one unit, the Hydrogen Quotient (HQ™), and shows the arithmetic behind every figure.
+
+WHAT 1 HQ IS
+1.0 HQ = 500 mL of water at 1.6 mg/L = 0.80 mg of H₂.
+Water: HQ = (mL ÷ 500) × (mg/L ÷ 1.6)
+Inhalation: HQ = (minutes ÷ 30) × (hydrogen flow in mL/min ÷ 300) × 2, with flow taken at the machine outlet.
+The same public formula applies to every device, whoever makes it.
+
+WHAT YOU CAN DO
+• Set up your equipment once: water concentration in mg/L, or hydrogen flow in mL/min
+• Log the water you drank or an inhalation session in a few taps, or use the session timer
+• See today's total against a 10.0 HQ daily reference, a value inside a range that is neither a floor nor a ceiling
+• Tap "Show the math" to see exactly how each number was calculated
+• Review your history and 14-day or 30-day trends by route
+• Switch between English and Traditional Chinese at any time
+
+YOUR DATA
+• Use MyHQ without an account: entries stay on your phone
+• Create a free account to keep entries in the cloud and see them on any device
+• No ads, no analytics, no tracking
+• Download everything as CSV or JSON, or delete your account and every entry, from Settings
+
+WHAT MYHQ IS NOT
+MyHQ records intake figures only. HQ is not a medical device or medical advice. Consult your doctor before making medical decisions.
+
+WHO MAKES MYHQ
+MyHQ is made by Gateway H₂. Gateway H₂ sells and places hydrogen equipment. We set the price on the devices we distribute and earn the margin when one sells; VHLife invoices and services the customer directly. MyHQ applies the same formula to every manufacturer's equipment.
+
+Learn more at gatewayh2.com
