@@ -198,6 +198,18 @@ export const strings = {
   'settings.remove': { en: 'Remove', zh: '移除' },
   'settings.confirmRemove': { en: 'Tap again to remove', zh: '再點一次以移除' },
   'settings.removeNote': { en: 'Removing equipment keeps every entry logged with it, with its figures.', zh: '移除設備後，所有與該設備相關的紀錄及其數值仍會保留。' },
+  // Daily log reminder (R-466). zh drafts from the 2026-10-25 handoff: native ZH-TW review pending.
+  'settings.reminders': { en: 'Reminders', zh: '提醒' },
+  'settings.reminder.label': { en: 'Daily log reminder', zh: '每日記錄提醒' },
+  'settings.reminder.time': { en: 'Reminder time', zh: '提醒時間' },
+  'settings.reminder.skip': { en: 'Skipped on days you have already logged.', zh: '當天已記錄就不會提醒。' },
+  'settings.reminder.denied': {
+    en: "Notifications are off for MyHQ. Turn them on in your phone's settings.",
+    zh: 'MyHQ 的通知已關閉，請到手機的「設定」開啟。',
+  },
+  'reminder.title': { en: 'MyHQ', zh: 'MyHQ' },
+  'reminder.body': { en: "Time to log today's hydrogen intake.", zh: '該記錄今天的氫氣攝取量了。' },
+  'reminder.channel': { en: 'Daily log reminder', zh: '每日記錄提醒' },
   'settings.removed': { en: 'Equipment removed', zh: '已移除設備' },
   'settings.yourData': { en: 'Your data', zh: '您的資料' },
   'settings.downloadCSV': { en: 'Download CSV', zh: '下載 CSV' },

@@ -11,8 +11,83 @@ import { DeviceSheet } from '../log/DeviceSheet';
 import { Legal } from '../auth/AuthScreens';
 import { SHOW_INTRO_EVENT } from '../onboarding/Onboarding';
 import { useInstall } from '../../lib/install';
+import { IS_NATIVE } from '../../lib/platform';
+import { isValidTime, readReminder, writeReminder, type ReminderSettings } from '../../lib/reminder';
+import { askPermission } from '../../lib/reminderSync';
+import { notifications } from '../../app/ReminderSync';
 
-const APP_VERSION = '1.0.0'; // live at h2tracker.gatewayh2.com since 2026-10-18
+const APP_VERSION = '1.1.0'; // 1.0.0 live at h2tracker.gatewayh2.com since 2026-10-18; 1.1.0 adds the reminder
+const PREVIEW = import.meta.env.VITE_PREVIEW === '1';
+
+function RemindersSection() {
+  const { t, bump } = useApp();
+  const [settings, setSettings] = useState<ReminderSettings>(() => readReminder());
+  const [denied, setDenied] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  // Notifications switched off in the phone's settings while the reminder is on: say so.
+  useEffect(() => {
+    if (!IS_NATIVE || !settings.on) return;
+    void notifications.checkPermissions().then((p) => setDenied(p.display !== 'granted'));
+  }, [settings.on]);
+
+  function save(next: ReminderSettings) {
+    setSettings(next);
+    writeReminder(next);
+    bump(); // ReminderSync rebuilds the schedule
+  }
+
+  async function toggle() {
+    if (busy) return;
+    if (settings.on) return save({ ...settings, on: false });
+    setBusy(true);
+    const ok = IS_NATIVE ? await askPermission(notifications).catch(() => false) : true;
+    setBusy(false);
+    setDenied(!ok);
+    if (ok) save({ ...settings, on: true });
+  }
+
+  return (
+    <Section id="remind-h" title={t('settings.reminders')}>
+      <div className="flex items-center justify-between gap-3">
+        <span id="remind-label" className="text-sm text-text">{t('settings.reminder.label')}</span>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={settings.on}
+          aria-labelledby="remind-label"
+          disabled={busy}
+          onClick={() => void toggle()}
+          className="flex min-h-tap min-w-tap items-center justify-center"
+        >
+          <span className={`relative h-7 w-12 rounded-full border transition-colors motion-reduce:transition-none ${settings.on ? 'border-water bg-water/25' : 'border-line bg-bg'}`}>
+            <span
+              className={`absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full transition-[left] motion-reduce:transition-none ${settings.on ? 'left-[calc(100%-1.5rem)] bg-water' : 'left-1 bg-muted'}`}
+            />
+          </span>
+        </button>
+      </div>
+      {settings.on && (
+        <label className="flex items-center justify-between gap-3" htmlFor="remind-time">
+          <span className="text-sm text-body">{t('settings.reminder.time')}</span>
+          <input
+            id="remind-time"
+            type="time"
+            value={settings.time}
+            onChange={(e) => isValidTime(e.target.value) && save({ ...settings, time: e.target.value })}
+            className="tabular min-h-tap rounded-xl border border-line bg-bg px-3 font-mono text-text [color-scheme:dark] focus:border-water focus:outline-none"
+          />
+        </label>
+      )}
+      <p className="text-xs text-muted">{t('settings.reminder.skip')}</p>
+      {denied && (
+        <p className="text-sm text-danger" role="alert">
+          {t('settings.reminder.denied')}
+        </p>
+      )}
+    </Section>
+  );
+}
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
@@ -189,6 +264,9 @@ export function SettingsScreen() {
           + {t('log.addEquipment')}
         </button>
       </Section>
+
+      {/* Reminders (R-466): the store app only; the preview shows it for the parity gate */}
+      {(IS_NATIVE || PREVIEW) && <RemindersSection />}
 
       {/* Language */}
       <Section id="lang-h" title={t('settings.language')}>

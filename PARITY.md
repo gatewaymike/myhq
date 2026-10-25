@@ -50,3 +50,13 @@ Each screen ships only after Michael compares it side by side with the live Hori
 - Check pending: the privacy page must name MyHQ and show a deletion path before it can serve as the Delete account URL.
 - **Ruled 12:50 (all option a):** reviewer account on a plus address of Michael's Gmail; target audience 18 and over only; Health info not declared in Data safety; Health declaration Nutrition and Weight Management; store title "MyHQ: Hydrogen Intake Tracker". Privacy page deletion section checked and passing (12:46).
 - 14:24 **First closed-testing release sent for review.** Track "Closed testing - Alpha", release 1 (1.0.0) from the run 39278382968 bundle (added from the Play library after a duplicate-upload error), 177 countries plus rest of world, testers by email list "MyHQ", feedback michael@gatewayh2.com, store listing and all App content items in the same submission. One warning (no deobfuscation file; the build does not use R8), no errors.
+
+## 2026-10-25 Daily log reminder built (R-466), awaiting the parity gate
+
+- Handoff `HANDOFF_myhq-daily-log-reminder_2026-10-25.md`. Built with the five suggested answers, pending Michael's one-line rulings: placement below My equipment; default 20:00; skip on logged days; hidden on the web (shown in the preview only, for this gate); body "Time to log today's hydrogen intake."
+- Flag: the handoff cites R-365 for "reminders only on a schedule the user sets"; in KERNEL R-365 is goal framing. No reminder-schedule ruling exists. The build follows the principle anyway (off by default, user-set time).
+- `@capacitor/local-notifications` 8.3.1. Local only: the setting is stored on the phone, never in Supabase (no schema, RLS, privacy page or Data safety change). Next 14 reminders as one-shots (IDs 1001 to 1014), rebuilt on launch, resume, every save or delete, language change and setting change; today skipped once logged; tapping opens Log.
+- Inexact on purpose: `isExactNotification: false`, `allowWhileIdle`, and the plugin's `SCHEDULE_EXACT_ALARM` stripped in the app manifest (`tools:node="remove"`). Permission asked only when the switch is turned on; a sync never prompts.
+- Status-bar icon `ic_stat_myhq` (the ring with its tick). Android channel `daily-log`.
+- Not built from the handoff: 15-minute steps on the time picker (Android's picker ignores them) and a button to open the phone's settings (would need a third-party plugin); the denied message tells people where to go instead.
+- versionCode 2, versionName 1.1.0. Tests 35 (12 new), copy lint clean, build passes. ZH strings are the handoff drafts: native review pending.
