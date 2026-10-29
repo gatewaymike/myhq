@@ -60,3 +60,9 @@ Each screen ships only after Michael compares it side by side with the live Hori
 - Status-bar icon `ic_stat_myhq` (the ring with its tick). Android channel `daily-log`.
 - Not built from the handoff: 15-minute steps on the time picker (Android's picker ignores them) and a button to open the phone's settings (would need a third-party plugin); the denied message tells people where to go instead.
 - versionCode 2, versionName 1.1.0. Tests 35 (12 new), copy lint clean, build passes. ZH strings are the handoff drafts: native review pending.
+
+## 2026-10-29 Closed test approved; opt-in link sent out
+
+- Michael's Dashboard (10:31): Closed testing Active (1 track); "Publish a closed testing release" done. Approval arrived without Michael seeing the email. 0 testers opted in at 10:31.
+- Opt-in link confirmed by Michael: https://play.google.com/apps/testing/com.gatewayh2.myhq (store page: https://play.google.com/store/apps/details?id=com.gatewayh2.myhq, visible to testers only after opting in). Tester message drafted (ZH to send, EN translation).
+- The track carries 1.0.0 (versionCode 1, no reminder). 1.1.0 (versionCode 2, reminder) waits for the R-466 parity gate.
