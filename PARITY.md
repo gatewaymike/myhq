@@ -66,3 +66,11 @@ Each screen ships only after Michael compares it side by side with the live Hori
 - Michael's Dashboard (10:31): Closed testing Active (1 track); "Publish a closed testing release" done. Approval arrived without Michael seeing the email. 0 testers opted in at 10:31.
 - Opt-in link confirmed by Michael: https://play.google.com/apps/testing/com.gatewayh2.myhq (store page: https://play.google.com/store/apps/details?id=com.gatewayh2.myhq, visible to testers only after opting in). Tester message drafted (ZH to send, EN translation).
 - The track carries 1.0.0 (versionCode 1, no reminder). 1.1.0 (versionCode 2, reminder) waits for the R-466 parity gate.
+
+## 2026-10-29 Auth email moved to Resend (Michael chose option A, 10:49)
+
+- Cause found: Supabase's built-in sender only delivers to project team members, 2 per hour (Supabase docs, read 2026-10-29), so tester sign-ups would never get a confirmation email. Michael's own account was fine (existing account; sign-in worked).
+- Resend free plan (3,000 per month, 100 per day, US$0). Domain `mail.gatewayh2.com`, Tokyo, verified 12:03 (records added by Resend's Hostinger connection: DKIM TXT `resend._domainkey.mail`, CNAMEs `rsend.mail` and `send.mail`). Receiving off. Root-domain mail records untouched.
+- Supabase custom SMTP: smtp.resend.com:465, user `resend`, key scoped to sending on mail.gatewayh2.com (the key lives only in Supabase and Resend). Sender `MyHQ <no-reply@mail.gatewayh2.com>`.
+- Test 12:12: sign-up confirmation to a plus address arrived in the Gmail inbox.
+- Open (suggested): branded bilingual email templates (S4); the tester message's "create an account" now works.
