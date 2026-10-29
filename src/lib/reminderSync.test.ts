@@ -20,6 +20,7 @@ function fake(display: string, afterRequest = display) {
     createChannel: async (c) => void calls.channels.push(c.id),
     cancel: async (o) => void calls.cancelled.push(...o.notifications.map((n) => n.id)),
     schedule: async (o) => void calls.scheduled.push(...o.notifications),
+    getPending: async () => ({ notifications: calls.scheduled.map((n) => ({ id: n.id as number })) }),
   };
   return { api, calls };
 }
@@ -30,14 +31,17 @@ const morning = new Date(2026, 9, 25, 9, 0);
 describe('reminder sync', () => {
   it('cancels all 14 and schedules nothing when switched off', async () => {
     const { api, calls } = fake('granted');
-    expect(await syncReminders(api, { on: false, time: '20:00' }, false, copy, morning)).toBe('off');
+    expect((await syncReminders(api, { on: false, time: '20:00' }, false, copy, morning)).result).toBe('off');
     expect(calls.cancelled).toEqual(REMINDER_IDS);
     expect(calls.scheduled).toHaveLength(0);
   });
 
   it('schedules 14 inexact reminders on the channel when on and allowed', async () => {
     const { api, calls } = fake('granted');
-    expect(await syncReminders(api, { on: true, time: '20:00' }, false, copy, morning)).toBe('scheduled');
+    const r = await syncReminders(api, { on: true, time: '20:00' }, false, copy, morning);
+    expect(r.result).toBe('scheduled');
+    expect(r.pending).toBe(14);
+    expect(r.next).toEqual(new Date(2026, 9, 25, 20, 0));
     expect(calls.channels).toEqual(['daily-log']);
     expect(calls.scheduled).toHaveLength(14);
     expect(calls.scheduled.every((n) => n.isExactNotification === false && n.channelId === 'daily-log')).toBe(true);
@@ -53,7 +57,7 @@ describe('reminder sync', () => {
 
   it('never prompts during a sync, and schedules nothing without permission', async () => {
     const { api, calls } = fake('prompt');
-    expect(await syncReminders(api, { on: true, time: '20:00' }, false, copy, morning)).toBe('denied');
+    expect((await syncReminders(api, { on: true, time: '20:00' }, false, copy, morning)).result).toBe('denied');
     expect(calls.requests).toBe(0);
     expect(calls.scheduled).toHaveLength(0);
     expect(calls.cancelled).toEqual(REMINDER_IDS);

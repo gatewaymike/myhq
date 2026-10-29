@@ -1,13 +1,43 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { App as CapApp } from '@capacitor/app';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { useApp } from './context';
 import { localDateOf } from '../lib/hq';
 import { readReminder } from '../lib/reminder';
-import { syncReminders, type NotificationsApi } from '../lib/reminderSync';
+import { syncReminders, type NotificationsApi, type SyncReport } from '../lib/reminderSync';
 
 export const notifications = LocalNotifications as unknown as NotificationsApi;
+
+/** The outcome of the latest sync, shown in Settings so a failure is never silent. */
+export type ReminderStatus = { kind: 'idle' } | { kind: 'done'; report: SyncReport } | { kind: 'error'; message: string };
+
+let status: ReminderStatus = { kind: 'idle' };
+const listeners = new Set<() => void>();
+function setStatus(s: ReminderStatus) {
+  status = s;
+  listeners.forEach((f) => f());
+}
+
+export function useReminderStatus(): ReminderStatus {
+  const [, force] = useState(0);
+  useEffect(() => {
+    const f = () => force((n) => n + 1);
+    listeners.add(f);
+    return () => {
+      listeners.delete(f);
+    };
+  }, []);
+  return status;
+}
+
+function errorText(e: unknown): string {
+  if (e && typeof e === 'object') {
+    const o = e as { code?: unknown; message?: unknown };
+    return [o.code, o.message].filter((x) => typeof x === 'string' && x).join(': ') || String(e);
+  }
+  return String(e);
+}
 
 /**
  * Store app only. Keeps the next 14 reminders current: on launch, on resume (which also catches a
@@ -26,13 +56,15 @@ export function ReminderSync() {
         const today = localDateOf(new Date()).localDate;
         loggedToday = (await store.listEntries({ fromDate: today, toDate: today, limit: 1 })).length > 0;
       }
-      await syncReminders(notifications, settings, loggedToday, {
+      const report = await syncReminders(notifications, settings, loggedToday, {
         title: t('reminder.title'),
         body: t('reminder.body'),
         channelName: t('reminder.channel'),
       });
-    } catch {
-      // A failed sync leaves the previous schedule in place; the next launch or save tries again.
+      setStatus({ kind: 'done', report });
+    } catch (e) {
+      // Shown in Settings; the next launch, resume or save tries again.
+      setStatus({ kind: 'error', message: errorText(e) });
     }
   }, [store, t]);
 

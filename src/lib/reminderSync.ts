@@ -17,9 +17,18 @@ export interface NotificationsApi {
   createChannel(c: { id: string; name: string; importance?: 1 | 2 | 3 | 4 | 5 }): Promise<void>;
   cancel(o: { notifications: { id: number }[] }): Promise<void>;
   schedule(o: { notifications: Record<string, unknown>[] }): Promise<unknown>;
+  getPending(): Promise<{ notifications: { id: number }[] }>;
 }
 
 export type SyncResult = 'off' | 'denied' | 'scheduled';
+
+export interface SyncReport {
+  result: SyncResult;
+  /** The soonest reminder this sync asked for. */
+  next: Date | null;
+  /** How many of our reminders the phone reports as pending afterward (the check that they really stuck). */
+  pending: number;
+}
 
 /**
  * Cancels every reminder, then schedules the next 14 if the setting is on and notifications are allowed.
@@ -31,15 +40,15 @@ export async function syncReminders(
   loggedToday: boolean,
   copy: ReminderCopy,
   now = new Date(),
-): Promise<SyncResult> {
+): Promise<SyncReport> {
   await api.cancel({ notifications: REMINDER_IDS.map((id) => ({ id })) });
-  if (!settings.on) return 'off';
+  if (!settings.on) return { result: 'off', next: null, pending: 0 };
   const perm = await api.checkPermissions();
-  if (perm.display !== 'granted') return 'denied';
+  if (perm.display !== 'granted') return { result: 'denied', next: null, pending: 0 };
   // A notification pointing at a missing channel never shows (Android 8+). Creating it again only renames it.
   await api.createChannel({ id: REMINDER_CHANNEL, name: copy.channelName, importance: 3 });
   const plan = planReminders(now, settings.time, loggedToday);
-  if (plan.length === 0) return 'scheduled';
+  if (plan.length === 0) return { result: 'scheduled', next: null, pending: 0 };
   await api.schedule({
     notifications: plan.map((p) => ({
       id: p.id,
@@ -56,7 +65,8 @@ export async function syncReminders(
       extra: { open: '/log' },
     })),
   });
-  return 'scheduled';
+  const pending = (await api.getPending()).notifications.filter((n) => REMINDER_IDS.includes(n.id)).length;
+  return { result: 'scheduled', next: plan[0].at, pending };
 }
 
 /** Called when the person switches the reminder on: the only place the permission prompt appears. */

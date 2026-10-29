@@ -207,6 +207,8 @@ export const strings = {
     en: "Notifications are off for MyHQ. Turn them on in your phone's settings.",
     zh: 'MyHQ 的通知已關閉，請到手機的「設定」開啟。',
   },
+  'settings.reminder.next': { en: 'Next reminder: {when}', zh: '下次提醒：{when}' },
+  'settings.reminder.error': { en: "Couldn't set the reminder. It will try again the next time you open MyHQ.", zh: '無法設定提醒，下次開啟 MyHQ 時會再試一次。' },
   'reminder.title': { en: 'MyHQ', zh: 'MyHQ' },
   'reminder.body': { en: "Time to log today's hydrogen intake.", zh: '該記錄今天的氫氣攝取量了。' },
   'reminder.channel': { en: 'Daily log reminder', zh: '每日記錄提醒' },

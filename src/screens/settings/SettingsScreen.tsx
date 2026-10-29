@@ -14,13 +14,14 @@ import { useInstall } from '../../lib/install';
 import { IS_NATIVE } from '../../lib/platform';
 import { isValidTime, readReminder, writeReminder, type ReminderSettings } from '../../lib/reminder';
 import { askPermission } from '../../lib/reminderSync';
-import { notifications } from '../../app/ReminderSync';
+import { notifications, useReminderStatus } from '../../app/ReminderSync';
 
-const APP_VERSION = '1.1.0'; // 1.0.0 live at h2tracker.gatewayh2.com since 2026-10-18; 1.1.0 adds the reminder
+const APP_VERSION = '1.1.1'; // 1.0.0 live 2026-10-18; 1.1.0 adds the reminder; 1.1.1 shows its status
 const PREVIEW = import.meta.env.VITE_PREVIEW === '1';
 
 function RemindersSection() {
-  const { t, bump } = useApp();
+  const { t, bump, locale } = useApp();
+  const status = useReminderStatus();
   const [settings, setSettings] = useState<ReminderSettings>(() => readReminder());
   const [denied, setDenied] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -80,6 +81,20 @@ function RemindersSection() {
         </label>
       )}
       <p className="text-xs text-muted">{t('settings.reminder.skip')}</p>
+      {settings.on && !denied && IS_NATIVE && status.kind === 'done' && status.report.next && (
+        <p className="text-sm text-body">
+          {t('settings.reminder.next', {
+            when: status.report.next.toLocaleString(locale, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }),
+          })}
+          <span className="ml-2 font-mono text-[11px] text-muted">· {status.report.pending}/14</span>
+        </p>
+      )}
+      {settings.on && status.kind === 'error' && (
+        <p className="text-sm text-danger" role="alert">
+          {t('settings.reminder.error')}
+          <span className="mt-1 block break-words font-mono text-[11px] text-muted">{status.message}</span>
+        </p>
+      )}
       {denied && (
         <p className="text-sm text-danger" role="alert">
           {t('settings.reminder.denied')}
