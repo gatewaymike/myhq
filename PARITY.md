@@ -74,3 +74,9 @@ Each screen ships only after Michael compares it side by side with the live Hori
 - Supabase custom SMTP: smtp.resend.com:465, user `resend`, key scoped to sending on mail.gatewayh2.com (the key lives only in Supabase and Resend). Sender `MyHQ <no-reply@mail.gatewayh2.com>`.
 - Test 12:12: sign-up confirmation to a plus address arrived in the Gmail inbox.
 - Open (suggested): branded bilingual email templates (S4); the tester message's "create an account" now works.
+
+## 2026-10-29 Reminder gate test on Michael's phone (1.1.0, then 1.1.1 via the internal testing track)
+
+- First run on 1.1.0: B and D silent; no "Daily log reminder" category visible; sync errors were swallowed, so the cause could not be seen. Fix: 1.1.1 (code 3) shows "Next reminder: … · n/14" or the error in Settings.
+- 1.1.1: 14/14 pending. Michael's earlier time was already past, so the next reminder was correctly tomorrow. With a time 3 minutes ahead: B passed (implied by C), C passed (tap opens Log), D passed (survives a restart). E and F pending.
+- Open watch item: Android may defer inexact alarms set far ahead by hours; check how late a reminder scheduled a day or more ahead actually arrives.
