@@ -80,3 +80,5 @@ Each screen ships only after Michael compares it side by side with the live Hori
 - First run on 1.1.0: B and D silent; no "Daily log reminder" category visible; sync errors were swallowed, so the cause could not be seen. Fix: 1.1.1 (code 3) shows "Next reminder: … · n/14" or the error in Settings.
 - 1.1.1: 14/14 pending. Michael's earlier time was already past, so the next reminder was correctly tomorrow. With a time 3 minutes ahead: B passed (implied by C), C passed (tap opens Log), D passed (survives a restart). E and F pending.
 - Open watch item: Android may defer inexact alarms set far ahead by hours; check how late a reminder scheduled a day or more ahead actually arrives.
+- 13:35 F passed (Chinese section, including the next-reminder line). E not yet shown cleanly (time set equal to the clock).
+- **Answers (Michael 13:37):** 1 a, placement below My equipment; 2 "don't know" (20:00 stays as built, suggestion only); 3 a, skip on logged days; 4 **b**, the website shows "Daily log reminders are available in the MyHQ app." (built); 5 a, the notification text as drafted.

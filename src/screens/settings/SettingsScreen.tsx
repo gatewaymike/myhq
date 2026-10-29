@@ -281,7 +281,14 @@ export function SettingsScreen() {
       </Section>
 
       {/* Reminders (R-466): the store app only; the preview shows it for the parity gate */}
-      {(IS_NATIVE || PREVIEW) && <RemindersSection />}
+      {IS_NATIVE || PREVIEW ? (
+        <RemindersSection />
+      ) : (
+        // Michael 2026-10-29 (answer 4b): the website says where reminders live instead of hiding them.
+        <Section id="remind-h" title={t('settings.reminders')}>
+          <p className="text-sm text-body">{t('settings.reminder.appOnly')}</p>
+        </Section>
+      )}
 
       {/* Language */}
       <Section id="lang-h" title={t('settings.language')}>
