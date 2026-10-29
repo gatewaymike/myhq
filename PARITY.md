@@ -82,3 +82,4 @@ Each screen ships only after Michael compares it side by side with the live Hori
 - Open watch item: Android may defer inexact alarms set far ahead by hours; check how late a reminder scheduled a day or more ahead actually arrives.
 - 13:35 F passed (Chinese section, including the next-reminder line). E not yet shown cleanly (time set equal to the clock).
 - **Answers (Michael 13:37):** 1 a, placement below My equipment; 2 "don't know" (20:00 stays as built, suggestion only); 3 a, skip on logged days; 4 **b**, the website shows "Daily log reminders are available in the MyHQ app." (built); 5 a, the notification text as drafted.
+- 13:39 E passed (entry logged, time ahead, next reminder stays on tomorrow). A to F all passed on 1.1.1. Verdict held for the day-ahead timing check (inexact alarms) and Michael's answer on the 20:00 default.
