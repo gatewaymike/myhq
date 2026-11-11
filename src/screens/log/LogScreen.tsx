@@ -11,7 +11,8 @@ import {
   type EntryInput as FormulaInput,
   type Route,
 } from '../../lib/hq';
-import { StorageRefused, loadPrefs, readJSON, savePrefs, uuid, writeJSON } from '../../store/localStore';
+import { failKey } from '../../app/failKey';
+import { loadPrefs, readJSON, savePrefs, uuid, writeJSON } from '../../store/localStore';
 import type { Device, Entry } from '../../store/types';
 import { DeviceSheet } from './DeviceSheet';
 import { DevicePicker } from './DevicePicker';
@@ -203,13 +204,18 @@ export function LogScreen() {
       toast(t('log.saved', { hq: formatHQ(saved.hq, locale) }), {
         label: t('log.undo'),
         run: async () => {
-          await store.deleteEntry(saved.id);
+          try {
+            await store.deleteEntry(saved.id);
+          } catch (err) {
+            toast(t(failKey(err)));
+            return;
+          }
           bump();
           toast(t('log.removed'));
         },
       });
     } catch (e) {
-      setSaveError(t(e instanceof StorageRefused ? 'log.errorDevice' : 'log.errorSave'));
+      setSaveError(t(failKey(e)));
     } finally {
       setSaving(false);
     }
@@ -241,13 +247,18 @@ export function LogScreen() {
       toast(t('log.saved', { hq: formatHQ(saved.hq, locale) }), {
         label: t('log.undo'),
         run: async () => {
-          await store.deleteEntry(saved.id);
+          try {
+            await store.deleteEntry(saved.id);
+          } catch (err) {
+            toast(t(failKey(err)));
+            return;
+          }
           bump();
           toast(t('log.removed'));
         },
       });
     } catch (err) {
-      setSaveError(t(err instanceof StorageRefused ? 'log.errorDevice' : 'log.errorSave'));
+      setSaveError(t(failKey(err)));
     } finally {
       repeating.current = false;
     }

@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { failKey } from '../../app/failKey';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../../app/context';
 import { useAuth } from '../../app/auth';
@@ -147,7 +148,13 @@ export function SettingsScreen() {
   }, [armed]);
 
   async function removeDevice(d: Device) {
-    await store.archiveDevice(d.id);
+    try {
+      await store.archiveDevice(d.id);
+    } catch (err) {
+      setArmed(null);
+      toast(t(failKey(err)));
+      return;
+    }
     setArmed(null);
     bump();
     toast(t('settings.removed'));

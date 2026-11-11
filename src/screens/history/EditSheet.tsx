@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useApp } from '../../app/context';
 import { RouteIcon } from '../../app/RouteIcon';
 import { entryHQ, formatHQ } from '../../lib/hq';
-import { StorageRefused } from '../../store/localStore';
+import { failKey } from '../../app/failKey';
 import type { Entry } from '../../store/types';
 import { LIMITS, NumberField, isFuture, parseNum, toLocalInput, validate } from '../log/fields';
 import { timePatch } from './editTime';
@@ -48,7 +48,7 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
       });
       onSaved(saved);
     } catch (e) {
-      setErr(t(e instanceof StorageRefused ? 'log.errorDevice' : 'log.errorSave'));
+      setErr(t(failKey(e)));
     } finally {
       setBusy(false);
     }

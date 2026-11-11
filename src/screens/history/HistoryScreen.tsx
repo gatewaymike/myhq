@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { failKey } from '../../app/failKey';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../../app/context';
 import { RouteIcon } from '../../app/RouteIcon';
@@ -101,7 +102,13 @@ function EntryList() {
   const deviceName = (id: string | null) => devices.find((d) => d.id === id)?.name;
 
   async function remove(e: Entry) {
-    await store.deleteEntry(e.id);
+    try {
+      await store.deleteEntry(e.id);
+    } catch (err) {
+      setArmed(null);
+      toast(t(failKey(err)));
+      return;
+    }
     setArmed(null);
     setOpen(null);
     bump();

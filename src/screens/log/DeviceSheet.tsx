@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../app/context';
+import { failKey } from '../../app/failKey';
 import type { Route } from '../../lib/hq';
 import type { Device } from '../../store/types';
 import { LIMITS, NumberField, parseNum, validate } from './fields';
@@ -14,6 +15,7 @@ export function DeviceSheet({ route, device, onClose, onSaved }: { route: Route;
   const [value, setValue] = useState(device ? String(device.route === 'inhalation' ? device.h2FlowMlMin : device.concentrationMgL) : '');
   const [mode, setMode] = useState(device?.modeLabel ?? '');
   const [busy, setBusy] = useState(false);
+  const [saveErr, setSaveErr] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,6 +32,7 @@ export function DeviceSheet({ route, device, onClose, onSaved }: { route: Route;
   async function save() {
     if (!ok || busy) return;
     setBusy(true);
+    setSaveErr(null);
     try {
       const v = parseNum(value);
       const fields = {
@@ -42,6 +45,8 @@ export function DeviceSheet({ route, device, onClose, onSaved }: { route: Route;
       const d = device ? await store.updateDevice(device.id, fields) : await store.addDevice(fields);
       bump();
       onSaved(d);
+    } catch (e) {
+      setSaveErr(t(failKey(e)));
     } finally {
       setBusy(false);
     }
@@ -122,6 +127,11 @@ export function DeviceSheet({ route, device, onClose, onSaved }: { route: Route;
             <span className="text-xs text-muted">{t('device.modeHint')}</span>
           </label>
 
+          {saveErr && (
+            <p role="alert" className="text-sm text-danger">
+              {saveErr}
+            </p>
+          )}
           <div className="mt-1 grid grid-cols-2 gap-3">
             <button type="button" onClick={onClose} className="min-h-tap rounded-xl border border-line text-sm text-body">
               {t('device.cancel')}
