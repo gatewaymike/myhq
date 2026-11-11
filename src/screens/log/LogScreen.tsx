@@ -214,31 +214,42 @@ export function LogScreen() {
     }
   }
 
+  // One repeat at a time: a double tap on a row is one entry, not two.
+  const repeating = useRef(false);
   async function repeat(e: Entry) {
-    const start = new Date();
-    const { localDate, tz } = localDateOf(start);
-    const saved = await store.addEntry({
-      deviceId: e.deviceId,
-      route: e.route,
-      sessionStart: start.toISOString(),
-      localDate,
-      tz,
-      minutes: e.minutes,
-      h2FlowMlMin: e.h2FlowMlMin,
-      volumeMl: e.volumeMl,
-      concentrationMgL: e.concentrationMgL,
-      notes: null,
-      clientRequestId: uuid(),
-    });
-    bump();
-    toast(t('log.saved', { hq: formatHQ(saved.hq, locale) }), {
-      label: t('log.undo'),
-      run: async () => {
-        await store.deleteEntry(saved.id);
-        bump();
-        toast(t('log.removed'));
-      },
-    });
+    if (repeating.current) return;
+    repeating.current = true;
+    setSaveError(null);
+    try {
+      const start = new Date();
+      const { localDate, tz } = localDateOf(start);
+      const saved = await store.addEntry({
+        deviceId: e.deviceId,
+        route: e.route,
+        sessionStart: start.toISOString(),
+        localDate,
+        tz,
+        minutes: e.minutes,
+        h2FlowMlMin: e.h2FlowMlMin,
+        volumeMl: e.volumeMl,
+        concentrationMgL: e.concentrationMgL,
+        notes: null,
+        clientRequestId: uuid(),
+      });
+      bump();
+      toast(t('log.saved', { hq: formatHQ(saved.hq, locale) }), {
+        label: t('log.undo'),
+        run: async () => {
+          await store.deleteEntry(saved.id);
+          bump();
+          toast(t('log.removed'));
+        },
+      });
+    } catch (err) {
+      setSaveError(t(err instanceof StorageRefused ? 'log.errorDevice' : 'log.errorSave'));
+    } finally {
+      repeating.current = false;
+    }
   }
 
   function startTimer() {
