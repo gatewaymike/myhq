@@ -9,9 +9,16 @@ export const LIMITS = {
   flow: 10000,
 } as const;
 
+/**
+ * Reads a typed figure. A comma followed by one or two digits, with no period anywhere, is a decimal
+ * comma ("1,5" is 1.5), as typed on keyboards that offer a comma for decimals. Any other comma is a
+ * thousands separator and is dropped ("1,200" is 1200; "1,234.5" is 1234.5).
+ */
 export function parseNum(s: string): number {
-  const clean = s.replace(/,/g, '').trim();
-  return clean === '' ? Number.NaN : Number(clean);
+  const t = s.trim();
+  if (t === '') return Number.NaN;
+  if (!t.includes('.') && /^\d+,\d{1,2}$/.test(t)) return Number(t.replace(',', '.'));
+  return Number(t.replace(/,/g, ''));
 }
 
 type T = (k: StringKey, v?: Record<string, string | number>) => string;
