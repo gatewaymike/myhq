@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../app/auth';
 import { useApp } from '../../app/context';
+import { LoadNotice } from '../../app/LoadNotice';
+import { useLoad } from '../../app/useLoad';
 import { RouteIcon } from '../../app/RouteIcon';
 import {
   MG_PER_HQ,
@@ -25,10 +28,8 @@ function entryMath(e: Entry, locale: string) {
 
 export function TodayScreen() {
   const { t, store, version, locale } = useApp();
+  const { loading: accountLoading } = useAuth();
   const [today, setToday] = useState(() => localDateOf(new Date()).localDate);
-  const [week, setWeek] = useState<Entry[] | null>(null);
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [lifetime, setLifetime] = useState<number | null>(null);
   const [showMath, setShowMath] = useState(false);
   const [openEntry, setOpenEntry] = useState<string | null>(null);
   const [about, setAbout] = useState(false);
@@ -39,22 +40,25 @@ export function TodayScreen() {
     return () => window.clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    let live = true;
-    Promise.all([
-      store.listEntries({ fromDate: addDays(today, -(SEVEN_DAY_WINDOW - 1)), toDate: today }),
-      store.listDevices(),
-      store.lifetimeHQ(),
-    ]).then(([e, d, l]) => {
-      if (!live) return;
-      setWeek(e);
-      setDevices(d);
-      setLifetime(l);
-    });
-    return () => {
-      live = false;
-    };
-  }, [store, version, today]);
+  // One load for the screen. A failed load never becomes a zero: with nothing loaded the figures show "…".
+  const { data, status, retry } = useLoad<{ week: Entry[]; devices: Device[]; lifetime: number }>(
+    store,
+    `today:${today}`,
+    async () => {
+      const [week, devices, lifetime] = await Promise.all([
+        store.listEntries({ fromDate: addDays(today, -(SEVEN_DAY_WINDOW - 1)), toDate: today }),
+        store.listDevices(),
+        store.lifetimeHQ(),
+      ]);
+      return { week, devices, lifetime };
+    },
+    [version],
+  );
+  // Until the stored sign-in has been read, the store is still the guest one: its empty day is not the person's day.
+  const week = accountLoading ? null : (data?.week ?? null);
+  const devices = data?.devices ?? [];
+  const lifetime = accountLoading ? null : (data?.lifetime ?? null);
+  const known = week !== null;
 
   const todays = (week ?? []).filter((e) => e.localDate === today);
   const day = summarizeDay(todays);
@@ -86,15 +90,17 @@ export function TodayScreen() {
 
       {/* Ring */}
       <div className="relative mx-auto aspect-square w-full max-w-[300px]">
-        <Ring water={day.water} inhalation={day.inhalation} locale={locale} label={`${formatHQ(day.total, locale)} ${t('today.hqToday')}`} />
+        <Ring water={day.water} inhalation={day.inhalation} locale={locale} label={`${known ? formatHQ(day.total, locale) : '…'} ${t('today.hqToday')}`} />
         <div className="pointer-events-none absolute inset-0 grid place-content-center gap-1 text-center">
           <span className={`tabular text-[3.6rem] font-bold leading-none ${day.total > 0 ? 'text-water' : 'text-muted/50'}`} style={day.total > 0 ? glow : undefined}>
-            {formatHQ(day.total, locale)}
+            {known ? formatHQ(day.total, locale) : '…'}
           </span>
           <span className="font-mono text-xs uppercase tracking-[.14em] text-text">{t('today.hqToday')}</span>
-          <span className="tabular font-mono text-xs text-muted">{formatMg(day.total * MG_PER_HQ, locale)} mg H₂</span>
+          <span className="tabular font-mono text-xs text-muted">{known ? formatMg(day.total * MG_PER_HQ, locale) : '…'} mg H₂</span>
         </div>
       </div>
+
+      <LoadNotice status={status} retry={retry} />
 
       {day.bothRoutes && (
         <span className="inline-flex items-center gap-2 justify-self-center rounded-full border border-gold/60 bg-gold/10 px-4 py-1.5 font-mono text-xs tracking-wide text-gold">
@@ -116,8 +122,8 @@ export function TodayScreen() {
                 <RouteIcon route={r} className="h-4 w-4" />
                 {t(r === 'water' ? 'route.water' : 'route.inhalation')}
               </span>
-              <span className="tabular text-2xl font-bold text-text">{formatHQ(v, locale)}</span>
-              <span className="tabular font-mono text-[11px] text-muted">{formatMg(v * MG_PER_HQ, locale)} mg H₂</span>
+              <span className="tabular text-2xl font-bold text-text">{known ? formatHQ(v, locale) : '…'}</span>
+              <span className="tabular font-mono text-[11px] text-muted">{known ? formatMg(v * MG_PER_HQ, locale) : '…'} mg H₂</span>
             </div>
           );
         })}
@@ -156,7 +162,7 @@ export function TodayScreen() {
         <div className="grid gap-1 px-4 py-3">
           <div className="flex items-baseline justify-between gap-4">
             <span className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">{t('today.sevenDayAvg')}</span>
-            <span className="tabular font-mono text-text">{formatHQ(avg, locale)} HQ</span>
+            <span className="tabular font-mono text-text">{known ? `${formatHQ(avg, locale)} HQ` : '…'}</span>
           </div>
           <span className="text-xs text-muted">{t('today.sevenDayAvgDef')}</span>
         </div>

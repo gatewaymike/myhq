@@ -108,6 +108,11 @@ export const strings = {
   'pwa.reload': { en: 'Reload', zh: '重新載入' },
   'log.errorSave': { en: 'Could not save. Check your connection and try again.', zh: '無法儲存，請確認網路連線後再試一次。' },
 
+  // Loading failures (build plan step 9). zh: DRAFT, native ZH-TW review pending.
+  'net.stale': { en: 'No connection. Showing what was last loaded.', zh: '目前沒有網路連線，顯示的是上次載入的資料。' },
+  'net.failed': { en: 'Could not load. Check your connection.', zh: '無法載入，請確認網路連線。' },
+  'net.retry': { en: 'Try again', zh: '再試一次' },
+
   // Equipment sheet
   'device.title': { en: 'Add equipment', zh: '新增設備' },
   'device.name': { en: 'Name', zh: '名稱' },
