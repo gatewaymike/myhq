@@ -117,7 +117,9 @@ export function LogScreen() {
   const [stoppedAt, setStoppedAt] = useState<number | null>(null);
 
   /* ------------------------------------------------------- effective values */
-  const flowValue = device?.h2FlowMlMin ?? parseNum(flow);
+  // During a timer session the flow is the saved device's, or else the figure captured at Start. A device
+  // that went away mid-session (removed, or re-created by signing in) can therefore never strand the session.
+  const flowValue = device?.h2FlowMlMin ?? (timer ? timer.h2FlowMlMin : parseNum(flow));
   const concValue = device?.concentrationMgL ?? parseNum(conc);
 
   const flowErr = !device && flow ? validate(flow, LIMITS.flow, t) : null;
