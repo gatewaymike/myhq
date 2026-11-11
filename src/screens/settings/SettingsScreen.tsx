@@ -1,5 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { failKey } from '../../app/failKey';
+import { LoadNotice } from '../../app/LoadNotice';
+import { useLoad } from '../../app/useLoad';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../../app/context';
 import { useAuth } from '../../app/auth';
@@ -123,7 +125,6 @@ export function SettingsScreen() {
   const install = useInstall();
   const email = session?.user.email ?? '';
 
-  const [devices, setDevices] = useState<Device[]>([]);
   const [editing, setEditing] = useState<Device | null>(null);
   const [adding, setAdding] = useState(false);
   const [armed, setArmed] = useState<string | null>(null);
@@ -133,13 +134,9 @@ export function SettingsScreen() {
   const [delBusy, setDelBusy] = useState(false);
   const [delErr, setDelErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    let live = true;
-    store.listDevices().then((d) => live && setDevices(d));
-    return () => {
-      live = false;
-    };
-  }, [store, version]);
+  // A failed load never reads as "no equipment": the last loaded list stays, or a message shows.
+  const { data: deviceList, status: devStatus, retry: retryDevices } = useLoad<Device[]>(store, 'settings:devices', () => store.listDevices(), [version]);
+  const devices = deviceList ?? [];
 
   useEffect(() => {
     if (!armed) return;
@@ -246,7 +243,10 @@ export function SettingsScreen() {
 
       {/* My equipment */}
       <Section id="equip-h" title={t('settings.equipment')}>
-        {devices.length === 0 ? (
+        <LoadNotice status={devStatus} retry={retryDevices} />
+        {deviceList === null ? (
+          devStatus === 'failed' ? null : <p className="text-sm text-muted">{t('history.loading')}</p>
+        ) : devices.length === 0 ? (
           <p className="text-sm text-muted">{t('settings.noEquipment')}</p>
         ) : (
           <ul className="grid grid-cols-[minmax(0,1fr)] gap-2">

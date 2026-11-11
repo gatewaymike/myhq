@@ -12,6 +12,8 @@ import {
   type Route,
 } from '../../lib/hq';
 import { failKey } from '../../app/failKey';
+import { LoadNotice } from '../../app/LoadNotice';
+import { useLoad } from '../../app/useLoad';
 import { loadPrefs, readJSON, savePrefs, uuid, writeJSON } from '../../store/localStore';
 import type { Device, Entry } from '../../store/types';
 import { DeviceSheet } from './DeviceSheet';
@@ -69,17 +71,21 @@ export function LogScreen() {
   const requestId = useRef(uuid());
 
   /* -------------------------------------------------------- load data */
+  // A failed load keeps the last loaded equipment and entries; the form stays usable either way.
+  const { data: loaded, status: loadStatus, retry: retryLoad } = useLoad<{ devices: Device[]; recent: Entry[] }>(
+    store,
+    'log',
+    async () => {
+      const [devices, recent] = await Promise.all([store.listDevices(), store.listEntries({ limit: 30 })]);
+      return { devices, recent };
+    },
+    [version],
+  );
   useEffect(() => {
-    let live = true;
-    Promise.all([store.listDevices(), store.listEntries({ limit: 30 })]).then(([d, e]) => {
-      if (!live) return;
-      setDevices(d);
-      setRecent(e);
-    });
-    return () => {
-      live = false;
-    };
-  }, [store, version]);
+    if (!loaded) return;
+    setDevices(loaded.devices);
+    setRecent(loaded.recent);
+  }, [loaded]);
 
   // Open on the last device used for this route (item 4).
   const routeDevices = devices.filter((d) => d.route === route);
@@ -329,6 +335,8 @@ export function LogScreen() {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
       <h1 className="pt-2 text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('log.title')}</h1>
+
+      <LoadNotice status={loadStatus} retry={retryLoad} />
 
       {/* Route */}
       <div className="grid grid-cols-2 gap-1 rounded-full border border-line bg-surface p-1" role="radiogroup" aria-label={t('log.routeLabel')}>
