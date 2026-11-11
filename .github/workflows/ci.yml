@@ -1,0 +1,21 @@
+# Runs the tests, the copy lint and a production build on every push and pull request.
+# Nothing here deploys. Vercel still builds main on its own; this run is the gate to read before merging.
+name: Check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tests, copy lint and build
+        run: npm run check
