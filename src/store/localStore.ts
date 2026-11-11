@@ -10,11 +10,21 @@ export function readJSON<T>(key: string, fallback: T): T {
     return fallback;
   }
 }
-export function writeJSON(key: string, value: unknown): void {
+/** Returns false when the device refused the write (storage full, blocked, or a private window). */
+export function writeJSON(key: string, value: unknown): boolean {
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
+    return true;
   } catch {
-    /* storage unavailable: the in-memory copy still works for this visit */
+    return false;
+  }
+}
+
+/** Thrown when guest data could not be written to this device, so nothing claims to be saved when it is not. */
+export class StorageRefused extends Error {
+  constructor() {
+    super('This device refused to store the data');
+    this.name = 'StorageRefused';
   }
 }
 
@@ -49,11 +59,17 @@ export class LocalStore implements Store {
   constructor(seed?: GuestData, key = KEY) {
     this.key = key;
     this.data = readJSON<GuestData | null>(key, null) ?? seed ?? { devices: [], entries: [] };
-    if (seed) this.save();
+    if (seed) writeJSON(this.key, this.data); // preview examples: best effort
   }
 
-  private save() {
-    writeJSON(this.key, this.data);
+  /**
+   * Writes the next state to the device first and only then adopts it. If the device refuses the
+   * write, this throws and the store keeps its previous state: an entry is never shown as saved
+   * when it would be gone on the next launch.
+   */
+  private commit(next: GuestData) {
+    if (!writeJSON(this.key, next)) throw new StorageRefused();
+    this.data = next;
   }
 
   /**
@@ -72,9 +88,11 @@ export class LocalStore implements Store {
     return { devices: [...this.data.devices], entries: [...this.data.entries] };
   }
 
+  /** Empties the guest data. If the device refuses the write, the in-memory copy is emptied all the same. */
   clear() {
-    this.data = { devices: [], entries: [] };
-    this.save();
+    const empty: GuestData = { devices: [], entries: [] };
+    writeJSON(this.key, empty);
+    this.data = empty;
   }
 
   async listDevices() {
@@ -85,25 +103,22 @@ export class LocalStore implements Store {
   async addDevice(d: DeviceInput) {
     this.refresh();
     const dev: Device = { ...d, id: uuid(), archived: false, createdAt: new Date().toISOString() };
-    this.data.devices.push(dev);
-    this.save();
+    this.commit({ devices: [...this.data.devices, dev], entries: this.data.entries });
     return dev;
   }
 
   async updateDevice(id: string, patch: Partial<DeviceInput>) {
     this.refresh();
-    const dev = this.data.devices.find((d) => d.id === id);
-    if (!dev) throw new Error('Device not found');
-    Object.assign(dev, patch);
-    this.save();
+    const cur = this.data.devices.find((d) => d.id === id);
+    if (!cur) throw new Error('Device not found');
+    const dev: Device = { ...cur, ...patch };
+    this.commit({ devices: this.data.devices.map((d) => (d.id === id ? dev : d)), entries: this.data.entries });
     return dev;
   }
 
   async archiveDevice(id: string) {
     this.refresh();
-    const dev = this.data.devices.find((d) => d.id === id);
-    if (dev) dev.archived = true;
-    this.save();
+    this.commit({ devices: this.data.devices.map((d) => (d.id === id ? { ...d, archived: true } : d)), entries: this.data.entries });
   }
 
   async listEntries(opts: { fromDate?: string; toDate?: string; limit?: number } = {}) {
@@ -129,25 +144,23 @@ export class LocalStore implements Store {
     const existing = this.data.entries.find((e) => e.clientRequestId === input.clientRequestId);
     if (existing) return existing;
     const entry: Entry = { ...input, id: uuid(), hq: computeHQ(input), source: 'guest', createdAt: new Date().toISOString() };
-    this.data.entries.push(entry);
-    this.save();
+    this.commit({ devices: this.data.devices, entries: [...this.data.entries, entry] });
     return entry;
   }
 
   async updateEntry(id: string, patch: Partial<Omit<EntryInput, 'clientRequestId'>>) {
     this.refresh();
-    const e = this.data.entries.find((x) => x.id === id);
-    if (!e) throw new Error('Entry not found');
-    Object.assign(e, patch);
-    e.hq = computeHQ(e);
-    this.save();
+    const cur = this.data.entries.find((x) => x.id === id);
+    if (!cur) throw new Error('Entry not found');
+    const merged = { ...cur, ...patch };
+    const e: Entry = { ...merged, hq: computeHQ(merged) };
+    this.commit({ devices: this.data.devices, entries: this.data.entries.map((x) => (x.id === id ? e : x)) });
     return e;
   }
 
   async deleteEntry(id: string) {
     this.refresh();
-    this.data.entries = this.data.entries.filter((e) => e.id !== id);
-    this.save();
+    this.commit({ devices: this.data.devices, entries: this.data.entries.filter((e) => e.id !== id) });
   }
 }
 

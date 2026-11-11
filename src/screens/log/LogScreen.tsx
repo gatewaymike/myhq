@@ -11,7 +11,7 @@ import {
   type EntryInput as FormulaInput,
   type Route,
 } from '../../lib/hq';
-import { loadPrefs, readJSON, savePrefs, uuid, writeJSON } from '../../store/localStore';
+import { StorageRefused, loadPrefs, readJSON, savePrefs, uuid, writeJSON } from '../../store/localStore';
 import type { Device, Entry } from '../../store/types';
 import { DeviceSheet } from './DeviceSheet';
 import { DevicePicker } from './DevicePicker';
@@ -205,8 +205,8 @@ export function LogScreen() {
           toast(t('log.removed'));
         },
       });
-    } catch {
-      setSaveError(t('log.errorSave'));
+    } catch (e) {
+      setSaveError(t(e instanceof StorageRefused ? 'log.errorDevice' : 'log.errorSave'));
     } finally {
       setSaving(false);
     }
