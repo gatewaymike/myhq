@@ -64,8 +64,9 @@ function AuthEffects() {
     if (recovery) nav('/reset');
   }, [recovery, nav]);
   useEffect(() => {
-    if (imported > 0) {
-      toast(imported === 1 ? t('auth.importedOne') : t('auth.imported', { n: imported }));
+    // imported > 0: entries moved (toast). -1: equipment alone moved, so no toast, but the screens still refresh.
+    if (imported !== 0) {
+      if (imported > 0) toast(imported === 1 ? t('auth.importedOne') : t('auth.imported', { n: imported }));
       clearImported();
       bump();
     }

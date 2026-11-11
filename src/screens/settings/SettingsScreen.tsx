@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { failKey } from '../../app/failKey';
+import { HandOverNotice } from '../../app/HandOverNotice';
 import { LoadNotice } from '../../app/LoadNotice';
 import { useLoad } from '../../app/useLoad';
 import { Link, useNavigate } from 'react-router-dom';
@@ -202,6 +203,8 @@ export function SettingsScreen() {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <h1 className="pt-2 text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('nav.settings')}</h1>
+
+      <HandOverNotice />
 
       {/* Account */}
       {(install.mode === 'button' || install.mode === 'ios' || install.mode === 'samsung' || install.mode === 'menu') && (

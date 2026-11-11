@@ -188,6 +188,10 @@ export const strings = {
   'auth.errorPassword': { en: 'Use at least 8 characters.', zh: '請使用至少 8 個字元。' },
   'auth.imported': { en: '{n} entries from this device are now in your account.', zh: '此裝置的 {n} 筆記錄已移入您的帳號。' },
   'auth.importedOne': { en: '1 entry from this device is now in your account.', zh: '此裝置的 1 筆記錄已移入您的帳號。' },
+  // Hand-over failed (build plan step 10). zh: DRAFT, native ZH-TW review pending.
+  'auth.stuck': { en: '{n} entries are still on this device and have not moved into your account.', zh: '此裝置上還有 {n} 筆記錄尚未移入您的帳號。' },
+  'auth.stuckOne': { en: '1 entry is still on this device and has not moved into your account.', zh: '此裝置上還有 1 筆記錄尚未移入您的帳號。' },
+  'auth.stuckSome': { en: 'Some data on this device has not moved into your account.', zh: '此裝置上還有資料尚未移入您的帳號。' },
   'auth.unavailable': { en: 'Accounts are not available in this preview.', zh: '此預覽版無法使用帳號功能。' },
   'auth.agree': { en: 'By creating an account you accept the privacy policy and the disclaimer below.', zh: '建立帳號即表示您接受下方的隱私權政策與免責聲明。' },
   'auth.agreeNoPrivacy': { en: 'By creating an account you accept the disclaimer below.', zh: '建立帳號即表示您接受下方的免責聲明。' },

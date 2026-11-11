@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../app/auth';
 import { useApp } from '../../app/context';
+import { HandOverNotice } from '../../app/HandOverNotice';
 import { LoadNotice } from '../../app/LoadNotice';
 import { useLoad } from '../../app/useLoad';
 import { RouteIcon } from '../../app/RouteIcon';
@@ -87,6 +88,8 @@ export function TodayScreen() {
         </div>
         <span className="font-mono text-xs uppercase tracking-[.14em] text-muted">{dateLabel}</span>
       </div>
+
+      <HandOverNotice />
 
       {/* Ring */}
       <div className="relative mx-auto aspect-square w-full max-w-[300px]">
