@@ -26,7 +26,8 @@ export function uuid(): string {
   });
 }
 
-const KEY = 'myhq.guest.v1';
+export const GUEST_KEY = 'myhq.guest.v1';
+const KEY = GUEST_KEY;
 interface GuestData {
   devices: Device[];
   entries: Entry[];
@@ -55,8 +56,19 @@ export class LocalStore implements Store {
     writeJSON(this.key, this.data);
   }
 
+  /**
+   * Picks up what another tab (or the installed app next to a browser tab) has stored since this
+   * copy was read. Every method starts here, so a save in one tab can never erase a save in another.
+   * If storage cannot be read, the in-memory copy stays as it is.
+   */
+  private refresh() {
+    const stored = readJSON<GuestData | null>(this.key, null);
+    if (stored && Array.isArray(stored.devices) && Array.isArray(stored.entries)) this.data = stored;
+  }
+
   /** Everything kept on this device, archived devices included (for the hand-over to an account). */
   snapshot(): GuestData {
+    this.refresh();
     return { devices: [...this.data.devices], entries: [...this.data.entries] };
   }
 
@@ -66,10 +78,12 @@ export class LocalStore implements Store {
   }
 
   async listDevices() {
+    this.refresh();
     return this.data.devices.filter((d) => !d.archived);
   }
 
   async addDevice(d: DeviceInput) {
+    this.refresh();
     const dev: Device = { ...d, id: uuid(), archived: false, createdAt: new Date().toISOString() };
     this.data.devices.push(dev);
     this.save();
@@ -77,6 +91,7 @@ export class LocalStore implements Store {
   }
 
   async updateDevice(id: string, patch: Partial<DeviceInput>) {
+    this.refresh();
     const dev = this.data.devices.find((d) => d.id === id);
     if (!dev) throw new Error('Device not found');
     Object.assign(dev, patch);
@@ -85,12 +100,14 @@ export class LocalStore implements Store {
   }
 
   async archiveDevice(id: string) {
+    this.refresh();
     const dev = this.data.devices.find((d) => d.id === id);
     if (dev) dev.archived = true;
     this.save();
   }
 
   async listEntries(opts: { fromDate?: string; toDate?: string; limit?: number } = {}) {
+    this.refresh();
     let list = [...this.data.entries];
     if (opts.fromDate) list = list.filter((e) => e.localDate >= opts.fromDate!);
     if (opts.toDate) list = list.filter((e) => e.localDate <= opts.toDate!);
@@ -103,10 +120,12 @@ export class LocalStore implements Store {
   }
 
   async lifetimeHQ() {
+    this.refresh();
     return this.data.entries.reduce((a, e) => a + e.hq, 0);
   }
 
   async addEntry(input: EntryInput) {
+    this.refresh();
     const existing = this.data.entries.find((e) => e.clientRequestId === input.clientRequestId);
     if (existing) return existing;
     const entry: Entry = { ...input, id: uuid(), hq: computeHQ(input), source: 'guest', createdAt: new Date().toISOString() };
@@ -116,6 +135,7 @@ export class LocalStore implements Store {
   }
 
   async updateEntry(id: string, patch: Partial<Omit<EntryInput, 'clientRequestId'>>) {
+    this.refresh();
     const e = this.data.entries.find((x) => x.id === id);
     if (!e) throw new Error('Entry not found');
     Object.assign(e, patch);
@@ -125,6 +145,7 @@ export class LocalStore implements Store {
   }
 
   async deleteEntry(id: string) {
+    this.refresh();
     this.data.entries = this.data.entries.filter((e) => e.id !== id);
     this.save();
   }
