@@ -74,6 +74,11 @@ export function NumberField(props: {
   );
 }
 
+/** True when a picked time is later than now (one minute of slack for a clock that just ticked over). */
+export function isFuture(date: Date, now: Date = new Date()): boolean {
+  return date.getTime() > now.getTime() + 60_000;
+}
+
 /** "YYYY-MM-DDTHH:mm" in local time, for <input type="datetime-local">. */
 export function toLocalInput(d: Date): string {
   const p = (n: number) => String(n).padStart(2, '0');

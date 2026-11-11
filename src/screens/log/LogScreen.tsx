@@ -16,7 +16,7 @@ import type { Device, Entry } from '../../store/types';
 import { DeviceSheet } from './DeviceSheet';
 import { DevicePicker } from './DevicePicker';
 import { RouteIcon } from '../../app/RouteIcon';
-import { LIMITS, NumberField, formatClock, parseNum, toLocalInput, validate } from './fields';
+import { LIMITS, NumberField, formatClock, parseNum, toLocalInput, validate, isFuture } from './fields';
 
 /* ------------------------------------------------------------------ timer */
 // Item 6: the start time is stored, so a locked phone or a closed tab never loses a session.
@@ -151,7 +151,8 @@ export function LogScreen() {
   }, [route, timer, stoppedAt, whenMode, pickValue]);
 
   const timerBlocking = route === 'inhalation' && inhMode === 'timer' && (!timer || !stoppedAt);
-  const canSave = !!formulaInput && !saving && !timerBlocking && !(whenMode === 'pick' && Number.isNaN(new Date(pickValue).getTime()));
+  const pickedFuture = whenMode === 'pick' && isFuture(new Date(pickValue));
+  const canSave = !!formulaInput && !saving && !timerBlocking && !(whenMode === 'pick' && Number.isNaN(new Date(pickValue).getTime())) && !pickedFuture;
 
   /* ------------------------------------------------------------ actions */
   const rememberDevice = useCallback(
@@ -537,9 +538,11 @@ export function LogScreen() {
                   value={pickValue}
                   max={toLocalInput(new Date())}
                   onChange={(e) => setPickValue(e.target.value)}
+                  aria-invalid={pickedFuture}
                   className="min-h-tap rounded-xl border border-line bg-bg px-3 text-text focus:border-water focus:outline-none"
                 />
               )}
+              {pickedFuture && <p className="text-xs text-danger">{t('log.errorFuture')}</p>}
             </div>
           )}
           {notesOpen && (

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { entryHQ } from '../../lib/hq';
-import { LIMITS, parseNum, validate } from './fields';
+import { LIMITS, isFuture, parseNum, validate } from './fields';
 
 const t = (k: string) => k;
 
@@ -34,5 +34,18 @@ describe('parseNum: typed figures', () => {
     expect(validate('1,5', LIMITS.concentration, t as never)).toBeNull();
     expect(validate('1200', LIMITS.concentration, t as never)).toBe('log.errorMax');
     expect(validate('0', LIMITS.volume, t as never)).toBe('log.errorPositive');
+  });
+});
+
+describe('isFuture: picked times', () => {
+  const now = new Date('2026-11-11T10:00:00Z');
+  it('refuses tomorrow and anything more than a minute ahead', () => {
+    expect(isFuture(new Date('2026-11-12T10:00:00Z'), now)).toBe(true);
+    expect(isFuture(new Date('2026-11-11T10:02:00Z'), now)).toBe(true);
+  });
+  it('allows now, the current minute and the past', () => {
+    expect(isFuture(now, now)).toBe(false);
+    expect(isFuture(new Date('2026-11-11T10:00:59Z'), now)).toBe(false);
+    expect(isFuture(new Date('2026-11-10T10:00:00Z'), now)).toBe(false);
   });
 });

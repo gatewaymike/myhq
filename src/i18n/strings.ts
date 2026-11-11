@@ -106,6 +106,8 @@ export const strings = {
   'install.samsung': { en: 'For the cleanest install, open this page in Chrome and choose Install app.', zh: '若要順利安裝，請用 Chrome 開啟此頁面，再選擇「安裝應用程式」。' },
   'pwa.updateReady': { en: 'A new version is ready.', zh: '已有新版本。' },
   'pwa.reload': { en: 'Reload', zh: '重新載入' },
+  // zh: DRAFT, native ZH-TW review pending (build plan step 8).
+  'log.errorFuture': { en: 'That time is in the future.', zh: '這個時間還沒到。' },
   // zh: DRAFT, native ZH-TW review pending (build plan step 3).
   'log.errorDevice': { en: 'Could not save on this device. Its storage is full or blocked.', zh: '無法儲存在此裝置上，儲存空間已滿或被封鎖。' },
   'log.errorSave': { en: 'Could not save. Check your connection and try again.', zh: '無法儲存，請確認網路連線後再試一次。' },
