@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { failKey } from '../../app/failKey';
+import { LoadNotice } from '../../app/LoadNotice';
+import { useLoad } from '../../app/useLoad';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../../app/context';
 import { RouteIcon } from '../../app/RouteIcon';
@@ -64,25 +66,24 @@ function EntryList() {
   const { t, store, version, bump, toast, locale } = useApp();
   const [routeF, setRouteF] = useState<RouteFilter>('all');
   const [range, setRange] = useState<(typeof RANGES)[number]>(30);
-  const [entries, setEntries] = useState<Entry[] | null>(null);
-  const [devices, setDevices] = useState<Device[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [armed, setArmed] = useState<string | null>(null);
   const [editing, setEditing] = useState<Entry | null>(null);
 
-  useEffect(() => {
-    let live = true;
-    const today = localDateOf(new Date()).localDate;
-    // "All time" returns up to the newest 1,000 entries (the API's per-response cap).
-    Promise.all([store.listEntries(range ? { fromDate: addDays(today, -(range - 1)) } : {}), store.listDevices()]).then(([e, d]) => {
-      if (!live) return;
-      setEntries(e);
-      setDevices(d);
-    });
-    return () => {
-      live = false;
-    };
-  }, [store, version, range]);
+  // A failed load never becomes an empty list: the last loaded list stays, or a message shows.
+  const { data, status, retry } = useLoad<{ entries: Entry[]; devices: Device[] }>(
+    store,
+    `history:${range ?? 'all'}`,
+    async () => {
+      const today = localDateOf(new Date()).localDate;
+      // "All time" returns up to the newest 1,000 entries (the API's per-response cap).
+      const [entries, devices] = await Promise.all([store.listEntries(range ? { fromDate: addDays(today, -(range - 1)) } : {}), store.listDevices()]);
+      return { entries, devices };
+    },
+    [version],
+  );
+  const entries = data?.entries ?? null;
+  const devices = data?.devices ?? [];
 
   useEffect(() => {
     if (!armed) return;
@@ -136,8 +137,10 @@ function EntryList() {
         </div>
       </div>
 
+      <LoadNotice status={status} retry={retry} />
+
       {entries === null ? (
-        <p className="text-center text-sm text-muted">{t('history.loading')}</p>
+        status === 'failed' ? null : <p className="text-center text-sm text-muted">{t('history.loading')}</p>
       ) : groups.length === 0 ? (
         <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">{t('history.empty')}</p>
       ) : (
@@ -233,17 +236,10 @@ function EntryList() {
 function TrendsView() {
   const { t, store, version, locale } = useApp();
   const [n, setN] = useState<(typeof TREND_RANGES)[number]>(14);
-  const [entries, setEntries] = useState<Entry[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const today = localDateOf(new Date()).localDate;
 
-  useEffect(() => {
-    let live = true;
-    store.listEntries({ fromDate: addDays(today, -(n - 1)), toDate: today }).then((e) => live && setEntries(e));
-    return () => {
-      live = false;
-    };
-  }, [store, version, n, today]);
+  const { data: entries, status, retry } = useLoad<Entry[]>(store, `trends:${today}:${n}`, () => store.listEntries({ fromDate: addDays(today, -(n - 1)), toDate: today }), [version]);
 
   const days: DayBar[] = useMemo(() => {
     const out: DayBar[] = [];
@@ -283,10 +279,11 @@ function TrendsView() {
           </div>
         </div>
         {entries === null ? (
-          <p className="py-16 text-center text-sm text-muted">{t('history.loading')}</p>
+          <p className="py-16 text-center text-sm text-muted">{status === 'failed' ? '' : t('history.loading')}</p>
         ) : (
           <TrendsChart days={days} locale={locale} selected={selected} onSelect={setSelected} label={t('trends.chartLabel', { n })} />
         )}
+        <LoadNotice status={status} retry={retry} />
         <p className="tabular min-h-[2.5rem] text-sm text-body" aria-live="polite">
           {sel ? (
             <>
@@ -305,17 +302,17 @@ function TrendsView() {
         <div className="grid gap-1 px-4 py-3">
           <div className="flex items-baseline justify-between gap-4">
             <span className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">{t('trends.avg')}</span>
-            <span className="tabular font-mono text-text">{formatHQ(avg, locale)} HQ</span>
+            <span className="tabular font-mono text-text">{entries === null ? '…' : `${formatHQ(avg, locale)} HQ`}</span>
           </div>
           <span className="text-xs text-muted">{t('trends.avgDef')}</span>
         </div>
         <div className="flex items-baseline justify-between gap-4 px-4 py-3">
           <span className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">{t('trends.daysLogged')}</span>
-          <span className="tabular font-mono text-text">{t('trends.ofN', { n: logged, total: n })}</span>
+          <span className="tabular font-mono text-text">{entries === null ? '…' : t('trends.ofN', { n: logged, total: n })}</span>
         </div>
         <div className="flex items-baseline justify-between gap-4 px-4 py-3">
           <span className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">{t('trends.bothDays')}</span>
-          <span className="tabular font-mono text-text">{t('trends.ofN', { n: both, total: n })}</span>
+          <span className="tabular font-mono text-text">{entries === null ? '…' : t('trends.ofN', { n: both, total: n })}</span>
         </div>
       </div>
     </div>
