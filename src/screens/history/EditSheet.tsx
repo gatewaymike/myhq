@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../../app/context';
 import { RouteIcon } from '../../app/RouteIcon';
-import { entryHQ, formatHQ, localDateOf } from '../../lib/hq';
+import { entryHQ, formatHQ } from '../../lib/hq';
 import type { Entry } from '../../store/types';
 import { LIMITS, NumberField, parseNum, toLocalInput, validate } from '../log/fields';
+import { timePatch } from './editTime';
 
 /** Edit an entry's figures, time and note (item 9: editable time on edits). The route stays. */
 export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: () => void; onSaved: (e: Entry) => void }) {
@@ -11,7 +12,9 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
   const water = entry.route === 'water';
   const [a, setA] = useState(String(water ? entry.volumeMl : entry.minutes));
   const [b, setB] = useState(String(water ? entry.concentrationMgL : entry.h2FlowMlMin));
-  const [when, setWhen] = useState(toLocalInput(new Date(entry.sessionStart)));
+  // The time as the sheet opened with it; the entry's time is only rewritten if this field changes.
+  const [openedWith] = useState(() => toLocalInput(new Date(entry.sessionStart)));
+  const [when, setWhen] = useState(openedWith);
   const [notes, setNotes] = useState(entry.notes ?? '');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -35,11 +38,8 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
     setBusy(true);
     setErr(null);
     try {
-      const { localDate, tz } = localDateOf(date);
       const saved = await store.updateEntry(entry.id, {
-        sessionStart: date.toISOString(),
-        localDate,
-        tz,
+        ...(timePatch(entry, when, openedWith) ?? {}),
         ...(water ? { volumeMl: parseNum(a), concentrationMgL: parseNum(b) } : { minutes: parseNum(a), h2FlowMlMin: parseNum(b) }),
         notes: notes.trim() || null,
       });
