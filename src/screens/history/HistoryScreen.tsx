@@ -113,7 +113,31 @@ function EntryList() {
     setArmed(null);
     setOpen(null);
     bump();
-    toast(t('log.removed'));
+    toast(t('log.removed'), {
+      label: t('log.undo'),
+      run: async () => {
+        try {
+          // Same client request id: the entry comes back as it was, and never twice.
+          await store.addEntry({
+            deviceId: e.deviceId,
+            route: e.route,
+            sessionStart: e.sessionStart,
+            localDate: e.localDate,
+            tz: e.tz,
+            minutes: e.minutes,
+            h2FlowMlMin: e.h2FlowMlMin,
+            volumeMl: e.volumeMl,
+            concentrationMgL: e.concentrationMgL,
+            notes: e.notes,
+            clientRequestId: e.clientRequestId,
+          });
+        } catch (err) {
+          toast(t(failKey(err)));
+          return;
+        }
+        bump();
+      },
+    });
   }
 
   return (
