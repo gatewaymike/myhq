@@ -289,8 +289,11 @@ export function ResetScreen() {
 function ForgotLinkExpired() {
   const { t } = useApp();
   return (
-    <Link to="/forgot" className="min-h-tap justify-self-center py-2 text-water">
-      {t('auth.resetSend')}
-    </Link>
+    <div className="grid justify-items-center gap-2 text-center">
+      <p className="text-sm text-body">{t('auth.linkExpired')}</p>
+      <Link to="/forgot" className="min-h-tap py-2 text-water">
+        {t('auth.resetSend')}
+      </Link>
+    </div>
   );
 }
