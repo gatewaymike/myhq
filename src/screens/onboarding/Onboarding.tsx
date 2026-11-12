@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../../app/context';
 import { useAuth } from '../../app/auth';
 import { RouteIcon } from '../../app/RouteIcon';
@@ -8,12 +8,14 @@ import { DeviceSheet } from '../log/DeviceSheet';
 
 /** First-run cards (item 11): skippable; shown once to someone with no entries and no equipment. */
 export const ONBOARDED_KEY = 'myhq.onboarded.v1';
+const AUTH_PATHS = ['/signin', '/signup', '/forgot', '/reset'];
 export const SHOW_INTRO_EVENT = 'myhq:show-intro';
 
 export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
   const { t, store } = useApp();
   const { session, loading } = useAuth();
   const nav = useNavigate();
+  const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [sheet, setSheet] = useState(false);
@@ -56,7 +58,8 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
     setStep(0);
   }
 
-  if (!open) return null;
+  // Never over the account screens: the intro waits until the person is back on an ordinary screen.
+  if (!open || AUTH_PATHS.includes(pathname)) return null;
 
   const cards = [
     {
