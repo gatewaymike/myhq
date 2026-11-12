@@ -46,10 +46,13 @@ export function AuthProvider({ guestStore, children }: { guestStore: LocalStore;
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setSession(data.session))
+      .catch(() => {
+        /* no stored session could be read: carry on as a guest */
+      })
+      .finally(() => setLoading(false));
     const { data } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       if (event === 'PASSWORD_RECOVERY') setRecovery(true);
