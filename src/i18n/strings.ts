@@ -116,6 +116,10 @@ export const strings = {
   'net.stale': { en: 'No connection. Showing what was last loaded.', zh: '目前沒有網路連線，顯示的是上次載入的資料。' },
   'net.failed': { en: 'Could not load. Check your connection.', zh: '無法載入，請確認網路連線。' },
   'net.retry': { en: 'Try again', zh: '再試一次' },
+  'today.roundNote': { en: 'Added at full precision, then rounded.', zh: '以完整精確度相加後再四捨五入。' },
+  'notFound.title': { en: 'That page does not exist.', zh: '沒有這個頁面。' },
+  'notFound.button': { en: 'Go to Today', zh: '回到今日' },
+  'auth.linkExpired': { en: 'This reset link has expired or was already used. Request a new one.', zh: '此重設連結已過期或已使用，請重新申請。' },
 
   // Equipment sheet
   'device.title': { en: 'Add equipment', zh: '新增設備' },
