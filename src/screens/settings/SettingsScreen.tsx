@@ -9,7 +9,7 @@ import { useAuth } from '../../app/auth';
 import { RouteIcon } from '../../app/RouteIcon';
 import { downloadFile, entriesToCSV, exportJSON } from '../../lib/export';
 import { formatInput } from '../../lib/hq';
-import { LocalStore } from '../../store/localStore';
+import { LocalStore, writeJSON } from '../../store/localStore';
 import type { Device } from '../../store/types';
 import { DeviceSheet } from '../log/DeviceSheet';
 import { Legal } from '../auth/AuthScreens';
@@ -20,7 +20,7 @@ import { isValidTime, readReminder, writeReminder, type ReminderSettings } from 
 import { askPermission } from '../../lib/reminderSync';
 import { notifications, useReminderStatus } from '../../app/ReminderSync';
 
-const APP_VERSION = '1.1.1'; // 1.0.0 live 2026-10-18; 1.1.0 adds the reminder; 1.1.1 shows its status
+const APP_VERSION = __APP_VERSION__; // from package.json at build time (vite.config.ts)
 const PREVIEW = import.meta.env.VITE_PREVIEW === '1';
 
 function RemindersSection() {
@@ -191,6 +191,15 @@ export function SettingsScreen() {
   function eraseGuest() {
     if (armed !== 'erase') return setArmed('erase');
     if (store instanceof LocalStore) store.clear();
+    // Also the timer and the saved preferences, so "erase" leaves nothing of the person on this device.
+    for (const k of ['myhq.timer.v1', 'myhq.prefs.v1']) {
+      writeJSON(k, null);
+      try {
+        window.localStorage.removeItem(k);
+      } catch {
+        /* ignore */
+      }
+    }
     setArmed(null);
     bump();
     toast(t('settings.erased'));
