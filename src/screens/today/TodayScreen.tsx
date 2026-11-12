@@ -154,6 +154,9 @@ export function TodayScreen() {
                 })}
               <div className="mt-1 border-t border-line pt-2 text-text">
                 {formatHQ(day.water, locale)} + {formatHQ(day.inhalation, locale)} = {formatHQ(day.total, locale)} HQ × 0.80 mg = {formatMg(day.total * MG_PER_HQ, locale)} mg H₂
+                {Math.round(day.water * 100) + Math.round(day.inhalation * 100) !== Math.round(day.total * 100) && (
+                  <span className="mt-1 block text-muted">{t('today.roundNote')}</span>
+                )}
               </div>
             </div>
           )}
