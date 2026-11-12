@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { BrowserRouter, MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Link, MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { AppProvider, useApp } from './app/context';
 import { AuthProvider, useAuth } from './app/auth';
 import { Shell } from './app/Shell';
@@ -15,17 +15,18 @@ import { SettingsScreen } from './screens/settings/SettingsScreen';
 import { ForgotScreen, ResetScreen, SignInScreen, SignUpScreen } from './screens/auth/AuthScreens';
 import { LocalStore, writeJSON } from './store/localStore';
 import { exampleSeed } from './store/exampleSeed';
-import type { StringKey } from './i18n/strings';
 
 const PREVIEW = import.meta.env.VITE_PREVIEW === '1';
 const PREVIEW_KEY = 'myhq.preview.v4';
 
-function ComingNext({ titleKey }: { titleKey: StringKey }) {
+function NotFound() {
   const { t } = useApp();
   return (
-    <div className="grid gap-4">
-      <h1 className="font-mono text-sm uppercase tracking-[.14em] text-text">{t(titleKey)}</h1>
-      <p className="rounded-card border border-dashed border-line p-6 text-center text-sm text-muted">{t('common.comingNext')}</p>
+    <div className="grid justify-items-center gap-4 rounded-card border border-dashed border-line p-6 text-center">
+      <p className="text-sm text-body">{t('notFound.title')}</p>
+      <Link to="/" className="grid min-h-[48px] place-content-center rounded-xl bg-water px-6 text-sm font-bold text-bg">
+        {t('notFound.button')}
+      </Link>
     </div>
   );
 }
@@ -91,7 +92,7 @@ function Screens() {
         <Route path="/signup" element={<SignUpScreen />} />
         <Route path="/forgot" element={<ForgotScreen />} />
         <Route path="/reset" element={<ResetScreen />} />
-        <Route path="*" element={<ComingNext titleKey="nav.today" />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Shell>
   );
