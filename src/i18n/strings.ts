@@ -278,6 +278,12 @@ export const strings = {
     en: 'No account needed. Entries stay on this device until you create one.',
     zh: '不需要帳號。建立帳號前，記錄會存在此裝置。',
   },
+  // First run (R-390 reopened) and the one-time equipment offer. Chinese is DRAFT, not native-reviewed.
+  'firstRun.water': { en: 'I drank hydrogen water', zh: '我喝了氫水' },
+  'firstRun.inhalation': { en: 'I did an inhalation session', zh: '我做了一次吸入' },
+  'firstRun.skip': { en: 'Skip for now', zh: '先略過' },
+  'offer.save': { en: 'Save {value} {unit} as your equipment?', zh: '要將 {value} {unit} 存為您的設備嗎？' },
+  'offer.yes': { en: 'Save as equipment', zh: '存為設備' },
   'settings.showIntro': { en: 'Show the intro again', zh: '再次顯示介紹' },
 
   // Preview banner

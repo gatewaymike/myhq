@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/auth';
 import { useApp } from '../../app/context';
 import { HandOverNotice } from '../../app/HandOverNotice';
@@ -19,6 +19,8 @@ import {
   summarizeDay,
 } from '../../lib/hq';
 import type { Device, Entry } from '../../store/types';
+import { DeviceSheet } from '../log/DeviceSheet';
+import type { Route } from '../../lib/hq';
 import { Figure } from '../../app/Figure';
 import { Ring } from './Ring';
 
@@ -33,6 +35,16 @@ export function TodayScreen() {
   const { loading: accountLoading } = useAuth();
   const [today, setToday] = useState(() => localDateOf(new Date()).localDate);
   const [about, setAbout] = useState(false);
+  // One-time offer after a hand-typed first entry (navigation state, so it never returns on reload).
+  const nav = useNavigate();
+  const location = useLocation();
+  const [offer, setOffer] = useState(() => (location.state as { offer?: { route: Route; value: number } } | null)?.offer ?? null);
+  const [offerSheet, setOfferSheet] = useState(false);
+  const dismissOffer = () => {
+    setOffer(null);
+    setOfferSheet(false);
+    nav('/', { replace: true, state: null });
+  };
 
   // Roll over at local midnight while the screen stays open.
   useEffect(() => {
@@ -59,6 +71,8 @@ export function TodayScreen() {
   const devices = data?.devices ?? [];
   const lifetime = accountLoading ? null : (data?.lifetime ?? null);
   const known = week !== null;
+  // Never logged: the button sits directly under the ring, and the entries card keeps only its sentence.
+  const neverLogged = known && lifetime === 0 && week.length === 0;
 
   const todays = (week ?? []).filter((e) => e.localDate === today);
   const day = summarizeDay(todays);
@@ -101,6 +115,29 @@ export function TodayScreen() {
           <span className="tabular font-mono text-xs text-muted">{known ? formatMg(day.total * MG_PER_HQ, locale) : '…'} mg H₂</span>
         </div>
       </div>
+
+      {neverLogged && (
+        <Link to="/log" className="grid min-h-[52px] place-content-center justify-self-center rounded-xl bg-action px-8 text-[16px] font-semibold text-on-action">
+          {t('today.logFirst')}
+        </Link>
+      )}
+
+      {offer && (
+        <div className="grid gap-3 rounded-card border border-line bg-surface p-4">
+          <p className="text-row text-text">
+            {t('offer.save', { value: formatInput(offer.value, locale), unit: offer.route === 'inhalation' ? 'mL/min H₂' : 'mg/L' })}
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button type="button" onClick={dismissOffer} className="min-h-[48px] rounded-xl border border-line text-row text-body">
+              {t('onboard.later')}
+            </button>
+            <button type="button" onClick={() => setOfferSheet(true)} className="min-h-[48px] rounded-xl bg-action text-row font-semibold text-on-action">
+              {t('offer.yes')}
+            </button>
+          </div>
+        </div>
+      )}
+      {offer && offerSheet && <DeviceSheet route={offer.route} presetValue={offer.value} onClose={() => setOfferSheet(false)} onSaved={dismissOffer} />}
 
       <LoadNotice status={status} retry={retry} />
 
@@ -149,9 +186,11 @@ export function TodayScreen() {
         {week !== null && todays.length === 0 ? (
           <div className="grid justify-items-center gap-3 rounded-card border border-dashed border-line p-6 text-center">
             <p className="text-sm text-muted">{t('today.empty')}</p>
-            <Link to="/log" className="grid min-h-[48px] place-content-center rounded-xl bg-water px-6 text-sm font-bold text-bg">
-              {t('today.logFirst')}
-            </Link>
+            {!neverLogged && (
+              <Link to="/log" className="grid min-h-[48px] place-content-center rounded-xl bg-action px-6 text-row font-semibold text-on-action">
+                {t('today.logFirst')}
+              </Link>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-[minmax(0,1fr)] gap-2">

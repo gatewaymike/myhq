@@ -7,12 +7,12 @@ import { LIMITS, NumberField, parseNum, validate } from './fields';
 import { RouteIcon } from '../../app/RouteIcon';
 
 /** "My equipment, set up once" (item 2). Hydrogen flow at the outlet or concentration; no purity input (G1). lint-allow */
-export function DeviceSheet({ route, device, onClose, onSaved }: { route: Route; device?: Device; onClose: () => void; onSaved: (d: Device) => void }) {
+export function DeviceSheet({ route, device, presetValue, onClose, onSaved }: { route: Route; device?: Device; presetValue?: number; onClose: () => void; onSaved: (d: Device) => void }) {
   const { t, store, bump } = useApp();
   // With `device`, the sheet edits it; the route of a saved device does not change.
   const [r, setR] = useState<Route>(device?.route ?? route);
   const [name, setName] = useState(device?.name ?? '');
-  const [value, setValue] = useState(device ? String(device.route === 'inhalation' ? device.h2FlowMlMin : device.concentrationMgL) : '');
+  const [value, setValue] = useState(device ? String(device.route === 'inhalation' ? device.h2FlowMlMin : device.concentrationMgL) : presetValue !== undefined ? String(presetValue) : '');
   const [mode, setMode] = useState(device?.modeLabel ?? '');
   const [busy, setBusy] = useState(false);
   const [saveErr, setSaveErr] = useState<string | null>(null);

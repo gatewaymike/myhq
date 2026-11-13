@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../../app/context';
 import {
   concentrationEquivalents,
@@ -44,8 +45,13 @@ function routeColor(r: Route) {
 export function LogScreen() {
   const { t, store, version, bump, toast, locale } = useApp();
   const prefs = useMemo(loadPrefs, []);
+  const nav = useNavigate();
+  // From the first-run screen: open on the tapped route, with the cursor in the first empty field.
+  const startRoute = (useLocation().state as { startRoute?: Route } | null)?.startRoute;
+  const cardRef = useRef<HTMLElement>(null);
+  const focused = useRef(false);
 
-  const [route, setRoute] = useState<Route>(prefs.lastRoute);
+  const [route, setRoute] = useState<Route>(startRoute ?? prefs.lastRoute);
   const [devices, setDevices] = useState<Device[]>([]);
   const [recent, setRecent] = useState<Entry[]>([]);
   const [deviceId, setDeviceId] = useState<string>(MANUAL);
@@ -97,6 +103,15 @@ export function LogScreen() {
     setDevices(loaded.devices);
     setRecent(loaded.recent);
   }, [loaded]);
+
+  useEffect(() => {
+    if (!startRoute || !loaded || focused.current) return;
+    focused.current = true;
+    window.setTimeout(() => {
+      const empty = [...(cardRef.current?.querySelectorAll<HTMLInputElement>('input') ?? [])].find((i) => i.value === '');
+      empty?.focus();
+    }, 50);
+  }, [startRoute, loaded]);
 
   // Open on the last device used for this route (item 4).
   const routeDevices = devices.filter((d) => d.route === route);
@@ -199,6 +214,8 @@ export function LogScreen() {
     setSaving(true);
     setSaveError(null);
     try {
+      // The first entry a person ever saves goes to Today so the gauge draws; every later save stays here.
+      const firstEver = !!loaded && loaded.recent.length === 0;
       const start = sessionStartDate ?? new Date();
       const { localDate, tz } = localDateOf(start);
       const saved = await store.addEntry({
@@ -233,6 +250,11 @@ export function LogScreen() {
           toast(t('log.removed'));
         },
       });
+      if (firstEver) {
+        // Typed by hand: Today offers once to keep the figure as equipment.
+        const offer = device ? null : route === 'inhalation' ? { route, value: flowValue } : { route, value: concValue };
+        nav('/', { state: offer ? { offer } : null });
+      }
     } catch (e) {
       setSaveError(t(failKey(e)));
     } finally {
@@ -374,7 +396,7 @@ export function LogScreen() {
       </div>
 
       {/* Main card */}
-      <section className={`grid grid-cols-[minmax(0,1fr)] gap-5 rounded-[20px] border bg-surface p-5 ${route === 'water' ? 'border-water/40' : 'border-inhalation/40'}`}>
+      <section ref={cardRef} className={`grid grid-cols-[minmax(0,1fr)] gap-5 rounded-[20px] border bg-surface p-5 ${route === 'water' ? 'border-water/40' : 'border-inhalation/40'}`}>
         {/* Equipment, one row */}
         <button
           type="button"

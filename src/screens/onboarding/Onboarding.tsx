@@ -5,8 +5,12 @@ import { useAuth } from '../../app/auth';
 import { RouteIcon } from '../../app/RouteIcon';
 import { readJSON, writeJSON } from '../../store/localStore';
 import { DeviceSheet } from '../log/DeviceSheet';
+import { FirstRun } from './FirstRun';
 
-/** First-run cards (item 11): skippable; shown once to someone with no entries and no equipment. */
+/**
+ * First run: one screen (FirstRun) shown once to someone with no entries and no equipment (R-390 reopened).
+ * The three cards stay, opened only from Settings ("Show the intro again").
+ */
 export const ONBOARDED_KEY = 'myhq.onboarded.v1';
 const AUTH_PATHS = ['/signin', '/signup', '/forgot', '/reset'];
 export const SHOW_INTRO_EVENT = 'myhq:show-intro';
@@ -17,6 +21,7 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
   const nav = useNavigate();
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
+  const [first, setFirst] = useState(false);
   const [step, setStep] = useState(0);
   const [sheet, setSheet] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -26,11 +31,11 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
     if (loading || readJSON<boolean>(ONBOARDED_KEY, false)) return;
     let live = true;
     if (forceShow) {
-      setOpen(true);
+      setFirst(true);
       return;
     }
     Promise.all([store.listDevices(), store.listEntries({ limit: 1 })]).then(([d, e]) => {
-      if (live && d.length === 0 && e.length === 0) setOpen(true);
+      if (live && d.length === 0 && e.length === 0) setFirst(true);
     });
     return () => {
       live = false;
@@ -55,11 +60,23 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
   function finish() {
     writeJSON(ONBOARDED_KEY, true);
     setOpen(false);
+    setFirst(false);
     setStep(0);
   }
 
   // Never over the account screens: the intro waits until the person is back on an ordinary screen.
-  if (!open || AUTH_PATHS.includes(pathname)) return null;
+  if (AUTH_PATHS.includes(pathname)) return null;
+  if (first && !open)
+    return (
+      <FirstRun
+        onSkip={finish}
+        onPick={(route) => {
+          finish();
+          nav('/log', { state: { startRoute: route } });
+        }}
+      />
+    );
+  if (!open) return null;
 
   const cards = [
     {
