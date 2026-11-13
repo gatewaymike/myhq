@@ -37,29 +37,11 @@ export default defineConfig({
       },
       workbox: {
         // The app shell: HTML, JS, CSS and icons. The link-preview image is for other sites, not the app.
-        globPatterns: ['**/*.{html,js,css,svg,png}'], // the plugin adds the manifest itself
+        globPatterns: ['**/*.{html,js,css,svg,png,woff2}'], // the plugin adds the manifest itself
         globIgnores: ['og-image.png'],
         navigateFallback: '/index.html', // matches the vercel.json rewrite
         cleanupOutdatedCaches: true,
-        // Supabase (auth and data) matches no rule below, so it always goes to the network.
-        // Google Fonts are cached so the installed app looks right offline; the browser still fetches
-        // them from Google the first time, which keeps the privacy page's Google Fonts sentence true.
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) => url.origin === 'https://fonts.googleapis.com',
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'google-fonts-css' },
-          },
-          {
-            urlPattern: ({ url }) => url.origin === 'https://fonts.gstatic.com',
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-files',
-              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
+        // Supabase (auth and data) matches no rule, so it always goes to the network. Fonts are bundled and precached.
       },
     }),
   ],
