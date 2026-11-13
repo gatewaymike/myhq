@@ -22,7 +22,7 @@ import { TrendsChart, type DayBar } from './TrendsChart';
 
 type RouteFilter = 'all' | Route;
 const RANGES = [7, 30, 90, 0] as const; // 0 = all time
-const TREND_RANGES = [14, 30] as const;
+const TREND_RANGES = [7, 14, 30] as const;
 
 const chip = (on: boolean) =>
   `min-h-tap rounded-full border px-4 text-row transition-colors duration-150 motion-reduce:transition-none ${on ? 'border-action bg-action/10 text-action' : 'border-line text-body hover:border-muted'}`;
@@ -301,7 +301,7 @@ function TrendsView() {
           <div className="flex items-center gap-4 text-xs text-body">
             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-water" aria-hidden="true" />{t('route.water')}</span>
             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-inhalation" aria-hidden="true" />{t('route.inhalation')}</span>
-            <span className="flex items-center gap-1.5"><span className="h-px w-4 bg-text/75" aria-hidden="true" />{t('trends.reference')}</span>
+            <span className="flex items-center gap-1.5"><span className="h-px w-4 bg-ref" aria-hidden="true" />{t('trends.reference')}</span>
           </div>
         </div>
         {entries === null ? (
