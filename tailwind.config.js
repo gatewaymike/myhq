@@ -21,7 +21,7 @@ export default {
         'figure-l': ['34px', { lineHeight: '34px' }],
         'figure-m': ['24px', { lineHeight: '26px' }],
         title: ['28px', { lineHeight: '32px' }],
-        body: ['16px', { lineHeight: '24px' }],
+        copy: ['16px', { lineHeight: '24px' }],
         row: ['15px', { lineHeight: '22px' }],
         small: ['13px', { lineHeight: '19px' }],
         arith: ['11.5px', { lineHeight: '17px' }],
