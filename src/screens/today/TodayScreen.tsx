@@ -71,13 +71,13 @@ export function TodayScreen() {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
       <div className="grid justify-items-center gap-2 pt-2">
-        <div className="flex items-center gap-3">
-          <h1 className="text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('today.title')}</h1>
+        <div className="relative flex w-full justify-center">
+          <h1 className="text-center text-title text-text">{t('today.title')}</h1>
           <button
             type="button"
             onClick={() => setAbout(true)}
             aria-label={t('today.about')}
-            className="grid h-11 w-11 place-content-center rounded-full text-water hover:bg-water/10"
+            className="absolute right-0 top-1/2 grid h-11 w-11 -translate-y-1/2 place-content-center rounded-full text-water hover:bg-water/10"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
               <circle cx="12" cy="12" r="10" />
