@@ -25,7 +25,7 @@ const RANGES = [7, 30, 90, 0] as const; // 0 = all time
 const TREND_RANGES = [14, 30] as const;
 
 const chip = (on: boolean) =>
-  `min-h-tap rounded-full border px-4 text-sm ${on ? 'border-water bg-water/10 text-water' : 'border-line text-body hover:border-muted'}`;
+  `min-h-tap rounded-full border px-4 text-row transition-colors duration-150 motion-reduce:transition-none ${on ? 'border-action bg-action/10 text-action' : 'border-line text-body hover:border-muted'}`;
 
 function mathFor(e: Entry, locale: string) {
   return e.route === 'water'
@@ -41,7 +41,7 @@ export function HistoryScreen() {
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
-      <h1 className="pt-2 text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('history.title')}</h1>
+      <h1 className="pt-2 text-center text-title text-text">{t('history.title')}</h1>
       <div className="grid grid-cols-2 gap-1 rounded-full border border-line bg-surface p-1" role="tablist" aria-label={t('history.title')}>
         {(['list', 'trends'] as const).map((v) => (
           <button
@@ -50,7 +50,7 @@ export function HistoryScreen() {
             role="tab"
             aria-selected={view === v}
             onClick={() => nav(v === 'list' ? '/history' : '/trends')}
-            className={`min-h-[48px] rounded-full text-[15px] ${view === v ? 'bg-water/15 text-water' : 'text-muted hover:text-body'}`}
+            className={`min-h-[48px] rounded-full text-row transition-colors duration-150 motion-reduce:transition-none ${view === v ? 'bg-surface-2 text-text' : 'text-muted hover:text-body'}`}
           >
             {t(v === 'list' ? 'history.list' : 'history.trends')}
           </button>
@@ -199,34 +199,36 @@ function EntryList() {
                           setOpen(isOpen ? null : e.id);
                           setArmed(null);
                         }}
-                        className="flex min-h-[56px] w-full items-center justify-between gap-3 px-3 py-2 text-left"
+                        className="grid min-h-[56px] w-full gap-1.5 px-3 py-2.5 text-left"
                       >
-                        <span className="flex min-w-0 items-center gap-3">
-                          <RouteIcon route={e.route} className={`h-4 w-4 shrink-0 ${color}`} />
-                          <span className="grid min-w-0">
-                            <span className="tabular truncate text-sm text-body">
-                              <span className="font-mono text-xs text-muted">{time(e.sessionStart)}</span> · {body}
+                        <span className="flex items-center justify-between gap-3">
+                          <span className="flex min-w-0 items-center gap-3">
+                            <RouteIcon route={e.route} className={`h-4 w-4 shrink-0 ${color}`} />
+                            <span className="grid min-w-0">
+                              <span className="tabular truncate text-row text-body">
+                                <span className="font-mono text-small text-muted">{time(e.sessionStart)}</span> · {body}
+                              </span>
+                              {deviceName(e.deviceId) && <span className="truncate text-small text-muted">{deviceName(e.deviceId)}</span>}
                             </span>
-                            {deviceName(e.deviceId) && <span className="truncate text-xs text-muted">{deviceName(e.deviceId)}</span>}
                           </span>
+                          <span className="tabular shrink-0 font-mono text-[16px] font-medium text-text">{formatHQ(e.hq, locale)}</span>
                         </span>
-                        <span className="tabular shrink-0 font-mono text-base font-medium text-text">{formatHQ(e.hq, locale)}</span>
+                        <span className="tabular block break-words font-mono text-arith text-muted">
+                          {mathFor(e, locale).expression} = {formatHQ(e.hq, locale)} HQ = {formatMg(e.hq * MG_PER_HQ, locale)} mg H₂
+                        </span>
                       </button>
                       {isOpen && (
                         <div className="grid gap-3 border-t border-line px-3 pb-3 pt-3">
-                          <p className="tabular rounded-lg bg-bg p-2 text-center font-mono text-[11px] leading-relaxed text-body">
-                            {mathFor(e, locale).expression} = {formatHQ(e.hq, locale)} HQ = {formatMg(e.hq * MG_PER_HQ, locale)} mg H₂
-                          </p>
                           {e.notes && <p className="whitespace-pre-wrap break-words text-sm text-body">{e.notes}</p>}
                           <div className="flex flex-wrap justify-end gap-2">
                             <button
                               type="button"
                               onClick={() => (armed === e.id ? remove(e) : setArmed(e.id))}
-                              className={`min-h-tap rounded-xl border px-4 text-sm ${armed === e.id ? 'border-danger bg-danger/10 text-danger' : 'border-line text-muted hover:text-body'}`}
+                              className={`min-h-tap rounded-xl border px-4 text-row ${armed === e.id ? 'border-danger bg-danger/10 text-danger' : 'border-line text-muted hover:text-body'}`}
                             >
                               {armed === e.id ? t('history.confirmDelete') : t('history.delete')}
                             </button>
-                            <button type="button" onClick={() => setEditing(e)} className="min-h-tap rounded-xl border border-water/60 px-4 text-sm text-water">
+                            <button type="button" onClick={() => setEditing(e)} className="min-h-tap rounded-xl border border-action/60 px-4 text-row text-action">
                               {t('history.edit')}
                             </button>
                           </div>

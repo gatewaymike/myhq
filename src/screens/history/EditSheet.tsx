@@ -60,7 +60,7 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-h"
-        className="grid max-h-[92vh] w-full max-w-md grid-cols-[minmax(0,1fr)] gap-4 overflow-y-auto rounded-t-[20px] border border-water/60 bg-surface p-5 shadow-[0_0_25px_rgb(var(--water)/.25)] sm:rounded-[20px]"
+        className="grid max-h-[92vh] w-full max-w-md grid-cols-[minmax(0,1fr)] gap-4 overflow-y-auto rounded-t-[20px] border border-line bg-surface p-5 sm:rounded-[20px]"
         style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -84,7 +84,7 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
               max={toLocalInput(new Date())}
               onChange={(e) => setWhen(e.target.value)}
               aria-invalid={future}
-              className="min-h-tap rounded-xl border border-line bg-bg px-3 text-text focus:border-water focus:outline-none"
+              className="min-h-tap rounded-xl border border-line bg-bg px-3 text-text focus:border-action focus:outline-none"
             />
             {future && <span className="text-xs text-danger">{t('log.errorFuture')}</span>}
           </label>
@@ -105,7 +105,7 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
               maxLength={500}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="rounded-xl border border-line bg-bg px-3 py-2 text-text focus:border-water focus:outline-none"
+              className="rounded-xl border border-line bg-bg px-3 py-2 text-text focus:border-action focus:outline-none"
             />
           </label>
           <p className="tabular text-center font-mono text-sm text-text">{hq === null ? '·' : `${formatHQ(hq, locale)} HQ`}</p>
@@ -114,7 +114,7 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
             <button type="button" onClick={onClose} className="min-h-[48px] rounded-xl border border-line text-sm text-body">
               {t('device.cancel')}
             </button>
-            <button type="submit" disabled={!ok || busy} className={`min-h-[48px] rounded-xl text-sm font-bold text-bg disabled:opacity-40 ${water ? 'bg-water' : 'bg-inhalation'}`}>
+            <button type="submit" disabled={!ok || busy} className={`min-h-[48px] rounded-xl text-row font-semibold text-on-action bg-action disabled:opacity-40`}>
               {busy ? t('log.saving') : t('history.saveChanges')}
             </button>
           </div>
