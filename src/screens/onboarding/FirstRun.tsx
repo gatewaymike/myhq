@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useDialog } from '../../app/useDialog';
 import { useApp } from '../../app/context';
 import { Figure } from '../../app/Figure';
 import { RouteIcon } from '../../app/RouteIcon';
@@ -12,16 +13,14 @@ export function FirstRun({ onPick, onSkip }: { onPick: (route: Route) => void; o
   const { t } = useApp();
   const titleRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => titleRef.current?.focus(), []);
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onSkip();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onSkip]);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useDialog(panelRef, onSkip);
 
   const tile = 'grid min-h-[88px] w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-card border bg-bg px-4 text-left transition-colors duration-150 motion-reduce:transition-none hover:bg-surface-2';
   return (
     <div className="fixed inset-0 z-[55] flex items-end justify-center bg-black/75 sm:items-center">
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="firstrun-title"

@@ -5,6 +5,7 @@ import type { Route } from '../../lib/hq';
 import type { Device } from '../../store/types';
 import { LIMITS, NumberField, parseNum, validate } from './fields';
 import { RouteIcon } from '../../app/RouteIcon';
+import { useDialog } from '../../app/useDialog';
 
 /** "My equipment, set up once" (item 2). Hydrogen flow at the outlet or concentration; no purity input (G1). lint-allow */
 export function DeviceSheet({ route, device, presetValue, onClose, onSaved }: { route: Route; device?: Device; presetValue?: number; onClose: () => void; onSaved: (d: Device) => void }) {
@@ -18,12 +19,10 @@ export function DeviceSheet({ route, device, presetValue, onClose, onSaved }: { 
   const [saveErr, setSaveErr] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
+  useDialog(dialogRef, onClose);
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
     dialogRef.current?.querySelector<HTMLInputElement>('input')?.focus();
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, []);
 
   const limit = r === 'inhalation' ? LIMITS.flow : LIMITS.concentration;
   const err = value ? validate(value, limit, t) : null;
@@ -59,7 +58,7 @@ export function DeviceSheet({ route, device, presetValue, onClose, onSaved }: { 
         role="dialog"
         aria-modal="true"
         aria-labelledby="device-title"
-        className="w-full max-w-md rounded-t-[20px] border border-water/60 bg-surface p-5 shadow-[0_0_25px_rgb(var(--water)/.25)] sm:rounded-[20px]"
+        className="w-full max-w-md rounded-t-[20px] border border-line bg-surface p-5 sm:rounded-[20px]"
         style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}
         onClick={(e) => e.stopPropagation()}
       >

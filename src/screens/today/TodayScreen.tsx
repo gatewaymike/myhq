@@ -21,6 +21,7 @@ import {
 import type { Device, Entry } from '../../store/types';
 import { DeviceSheet } from '../log/DeviceSheet';
 import type { Route } from '../../lib/hq';
+import { Dialog } from '../../app/Dialog';
 import { Figure } from '../../app/Figure';
 import { Ring } from './Ring';
 
@@ -241,25 +242,23 @@ export function TodayScreen() {
       </div>
 
       {about && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 sm:items-center" onClick={() => setAbout(false)}>
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="about-h"
-            className="grid w-full max-w-md gap-4 rounded-t-[20px] border border-water/60 bg-surface p-5 text-sm leading-relaxed text-body shadow-[0_0_25px_rgb(var(--water)/.25)] sm:rounded-[20px]"
-            style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}
-            onClick={(ev) => ev.stopPropagation()}
-          >
-            <h2 id="about-h" className="font-mono text-sm uppercase tracking-[.12em] text-text">{t('today.about')}</h2>
-            <p>{t('today.aboutHQ')}</p>
-            <p>{t('today.aboutRef')}</p>
-            <p>{t('today.aboutBoth')}</p>
-            <p>{t('today.aboutAvg')}</p>
-            <button type="button" onClick={() => setAbout(false)} className="min-h-[48px] rounded-xl border border-line text-body">
-              {t('today.close')}
-            </button>
-          </div>
-        </div>
+        <Dialog
+          onClose={() => setAbout(false)}
+          labelledBy="about-h"
+          closeOnScrim
+          scrimClassName="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 sm:items-center"
+          className="grid w-full max-w-md gap-4 rounded-t-[20px] border border-line bg-surface p-5 text-row leading-relaxed text-body sm:rounded-[20px]"
+          style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}
+        >
+          <h2 id="about-h" className="font-mono text-small uppercase tracking-[.12em] text-text">{t('today.about')}</h2>
+          <p>{t('today.aboutHQ')}</p>
+          <p>{t('today.aboutRef')}</p>
+          <p>{t('today.aboutBoth')}</p>
+          <p>{t('today.aboutAvg')}</p>
+          <button type="button" onClick={() => setAbout(false)} className="min-h-[48px] rounded-xl border border-line text-body">
+            {t('today.close')}
+          </button>
+        </Dialog>
       )}
     </div>
   );

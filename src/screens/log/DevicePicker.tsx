@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useRef } from 'react';
+import { useDialog } from '../../app/useDialog';
 import { useApp } from '../../app/context';
 import { RouteIcon } from '../../app/RouteIcon';
 import { formatInput, type Route } from '../../lib/hq';
@@ -17,11 +18,8 @@ export function DevicePicker(props: {
   const { t, locale } = useApp();
   const { route, devices, selectedId, manualId, onPick, onAdd, onClose } = props;
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialog(dialogRef, onClose);
 
   const accent = route === 'water' ? 'text-water' : 'text-inhalation';
   const row = (active: boolean) =>
@@ -30,6 +28,7 @@ export function DevicePicker(props: {
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 sm:items-center" onClick={onClose}>
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="picker-title"

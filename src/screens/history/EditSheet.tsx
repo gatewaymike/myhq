@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useDialog } from '../../app/useDialog';
 import { useApp } from '../../app/context';
 import { RouteIcon } from '../../app/RouteIcon';
 import { entryHQ, formatHQ } from '../../lib/hq';
@@ -20,11 +21,8 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialog(dialogRef, onClose);
 
   const aErr = validate(a, water ? LIMITS.volume : LIMITS.minutes, t);
   const bErr = validate(b, water ? LIMITS.concentration : LIMITS.flow, t);
@@ -57,6 +55,7 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 sm:items-center" onClick={onClose}>
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-h"
