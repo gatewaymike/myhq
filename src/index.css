@@ -2,25 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* MyHQ palette. APPROVED by Michael 2026-10-04 (proposal B, under R-366).
-   Channels are "R G B" so Tailwind opacity modifiers work. */
+/* MyHQ palette, Direction A "Instrument" (step 17, 2026-11-13; MYHQ_design_direction section 2).
+   Color means route and nothing else: water is ice blue, inhalation is apricot, every action is cream.
+   Channels are "R G B" so Tailwind opacity modifiers work. The old palette B values are in git history (R-367). */
 :root {
   color-scheme: dark;
   --bg: 2 14 10;          /* #020E0A locked */
-  --surface: 8 35 27;     /* #08231B */
-  --surface-2: 12 46 36;  /* #0C2E24 */
-  --border: 27 69 55;     /* #1B4537 */
-  --track: 14 42 34;      /* #0E2A22 */
-  --text: 232 243 239;    /* #E8F3EF */
-  --body: 201 221 215;    /* #C9DDD7 */
-  --muted: 142 173 164;   /* #8EADA4 */
-  --water: 0 229 255;     /* #00E5FF locked */
-  --inhalation: 180 136 255; /* #B488FF */
-  --gold: 200 168 75;     /* #C8A84B locked */
+  --surface: 10 26 21;    /* #0A1A15 */
+  --surface-2: 16 37 30;  /* #10251E */
+  --border: 30 58 49;     /* #1E3A31 */
+  --track: 20 39 31;      /* #14271F */
+  --text: 234 242 239;    /* #EAF2EF */
+  --body: 195 210 204;    /* #C3D2CC */
+  --muted: 159 179 172;   /* #9FB3AC */
+  --water: 91 184 245;    /* #5BB8F5 ice blue (the R-268 water color) */
+  --inhalation: 242 166 90; /* #F2A65A warm apricot */
+  --action: 247 250 250;  /* #F7FAFA cream: buttons, + Log, active states */
+  --on-action: 2 14 10;   /* #020E0A text on cream */
+  --ref: 247 250 250;     /* #F7FAFA the 10.0 reference mark and line */
+  --gold: 200 168 75;     /* #C8A84B locked; wordmark use only from here on */
   --mint: 2 195 154;      /* #02C39A */
-  --gold-bright: 226 196 102; /* #E2C466, wordmark only, brightened for legibility (Michael 2026-10-04) */
-  --mint-bright: 46 230 184;  /* #2EE6B8, wordmark and header descriptor only */
-  --danger: 255 122 122;  /* #FF7A7A */
+  --gold-bright: 226 196 102; /* #E2C466, wordmark only (R-374) */
+  --mint-bright: 46 230 184;  /* #2EE6B8, wordmark and confirmations (R-374) */
+  --danger: 255 138 128;  /* #FF8A80 */
 }
 
 html, body, #root { min-height: 100%; }
@@ -28,15 +32,19 @@ body {
   margin: 0;
   background: rgb(var(--bg));
   color: rgb(var(--body));
-  font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", "Noto Sans TC", sans-serif;
+  font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 :lang(zh-TW) body, html[lang="zh-TW"] body { line-height: 2; }
 
-/* Glow on headline numbers only (item 20). */
+/* Figures: fixed-width digits on every number (ruled 2026-11-11 18:27: DM Sans). */
+.tabular, .num { font-variant-numeric: tabular-nums; }
+/* One cell per digit, as wide as DM Sans's widest digit (0 = 698 of 1000 units). See src/app/Figure.tsx. */
+.fig-d { display: inline-block; width: 0.698em; text-align: center; }
+.num { font-family: "DM Sans", system-ui, sans-serif; font-weight: 600; letter-spacing: -0.02em; }
+/* Glow is retired (item 20 of R-363 reopened); the class stays only until the screens drop it in steps 18 to 20. */
 .glow-water { text-shadow: 0 0 10px rgb(var(--water) / .7), 0 0 22px rgb(var(--water) / .35); }
-.tabular { font-variant-numeric: tabular-nums; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
