@@ -76,7 +76,7 @@ export function AppProvider({ store, children }: { store: Store; children: React
   return (
     <Ctx.Provider value={value}>
       {children}
-      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 z-50 flex justify-center px-4" style={{ bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 z-50 flex justify-center px-4" style={{ bottom: 'calc(96px + var(--toast-lift, 0px) + env(safe-area-inset-bottom, 0px))' }}>
         {toastState && (
           <div className="pointer-events-auto flex max-w-full items-center gap-4 rounded-card border border-water/60 bg-surface-2 px-4 py-3 text-sm text-text shadow-[0_0_24px_rgb(var(--water)/.25)] animate-[toastIn_.25s_ease-out]">
             <span>{toastState.msg}</span>

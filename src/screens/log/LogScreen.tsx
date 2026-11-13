@@ -19,6 +19,7 @@ import type { Device, Entry } from '../../store/types';
 import { DeviceSheet } from './DeviceSheet';
 import { DevicePicker } from './DevicePicker';
 import { RouteIcon } from '../../app/RouteIcon';
+import { Figure } from '../../app/Figure';
 import { LIMITS, NumberField, formatClock, parseNum, toLocalInput, validate, isFuture } from './fields';
 
 /* ------------------------------------------------------------------ timer */
@@ -34,6 +35,7 @@ type WhenMode = 'now' | 'yesterday' | 'pick';
 type InhalationMode = 'timer' | 'manual';
 const MANUAL = '__manual__';
 const WATER_CHIPS = [200, 400, 600];
+const MINUTE_CHIPS = [15, 30, 45, 60];
 
 function routeColor(r: Route) {
   return r === 'water' ? 'text-water' : 'text-inhalation';
@@ -54,7 +56,7 @@ export function LogScreen() {
   const [conc, setConc] = useState('');
   const [flow, setFlow] = useState('');
   const [minutes, setMinutes] = useState('');
-  const [inhMode, setInhMode] = useState<InhalationMode>('timer');
+  const [inhMode, setInhMode] = useState<InhalationMode>('manual');
   const [notes, setNotes] = useState('');
 
   const [whenMode, setWhenMode] = useState<WhenMode>('now');
@@ -64,8 +66,17 @@ export function LogScreen() {
   const [now, setNow] = useState(Date.now());
   const [pourNoteSeen, setPourNoteSeen] = useState(prefs.pourNoteSeen);
 
-  const [showMath, setShowMath] = useState(false);
+  // The result bar sits where the toast normally appears; lift the toast clear of it while this screen is open.
+  useEffect(() => {
+    document.documentElement.style.setProperty('--toast-lift', '150px');
+    return () => {
+      document.documentElement.style.removeProperty('--toast-lift');
+    };
+  }, []);
   const [saving, setSaving] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
+  const flashTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(flashTimer.current), []);
   const [saveError, setSaveError] = useState<string | null>(null);
   // Double-save guard (item 9): one request id per form; a repeat tap reuses it and the store ignores the duplicate.
   const requestId = useRef(uuid());
@@ -177,7 +188,6 @@ export function LogScreen() {
     setMinutes('');
     setNotes('');
     setWhenMode('now');
-    setShowMath(false);
     setStoppedAt(null);
     setTimer(null);
     writeJSON(TIMER_KEY, null);
@@ -206,6 +216,9 @@ export function LogScreen() {
       });
       rememberDevice(route, deviceId);
       resetForm();
+      setSavedFlash(true);
+      window.clearTimeout(flashTimer.current);
+      flashTimer.current = window.setTimeout(() => setSavedFlash(false), 380);
       bump();
       toast(t('log.saved', { hq: formatHQ(saved.hq, locale) }), {
         label: t('log.undo'),
@@ -326,15 +339,12 @@ export function LogScreen() {
   const timeLabel = (d: Date) => d.toLocaleString(locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   const whenSummary =
     whenMode === 'now' ? t('log.now') : whenMode === 'yesterday' ? `${t('log.yesterday')} · ${timeLabel(new Date(Date.now() - 864e5))}` : timeLabel(new Date(pickValue));
-  const glowStyle = formulaInput
-    ? { textShadow: `0 0 10px rgb(var(--${route === 'water' ? 'water' : 'inhalation'}) / .65), 0 0 22px rgb(var(--${route === 'water' ? 'water' : 'inhalation'}) / .3)` }
-    : undefined;
-  const linkBtn = 'min-h-tap px-1 font-mono text-xs uppercase tracking-wider text-water';
+  const linkBtn = 'min-h-tap px-1 font-mono text-xs uppercase tracking-wider text-action';
 
   /* ------------------------------------------------------------- render */
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
-      <h1 className="pt-2 text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('log.title')}</h1>
+      <h1 className="pt-2 text-center text-title text-text">{t('log.title')}</h1>
 
       <LoadNotice status={loadStatus} retry={retryLoad} />
 
@@ -382,7 +392,7 @@ export function LogScreen() {
               </span>
             )}
           </span>
-          {!timer && <span className="shrink-0 font-mono text-xs uppercase tracking-wider text-water">{t('log.change')}</span>}
+          {!timer && <span className="shrink-0 font-mono text-xs uppercase tracking-wider text-action">{t('log.change')}</span>}
         </button>
 
         {route === 'water' ? (
@@ -442,74 +452,72 @@ export function LogScreen() {
               />
             )}
 
+            {/* Minutes or Timer: a two-way switch, locked while a session is running */}
+            <div className="grid grid-cols-2 gap-1 rounded-xl border border-line bg-bg p-1" role="radiogroup" aria-label={`${t('log.minutes')} / ${t('log.timer')}`}>
+              {(['manual', 'timer'] as InhalationMode[]).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  role="radio"
+                  aria-checked={inhMode === m}
+                  disabled={!!timer}
+                  onClick={() => setInhMode(m)}
+                  className={`min-h-tap rounded-lg text-row transition-colors duration-150 motion-reduce:transition-none disabled:cursor-default ${inhMode === m ? 'bg-surface-2 text-text' : 'text-muted hover:text-body'}`}
+                >
+                  {t(m === 'manual' ? 'log.minutes' : 'log.timer')}
+                </button>
+              ))}
+            </div>
+
             {inhMode === 'timer' && !stoppedAt ? (
               <div className="grid justify-items-center gap-4 py-1">
                 <span className="tabular font-mono text-[3.25rem] font-medium leading-none text-text">{formatClock(timer ? now - timer.startedAt : 0)}</span>
                 {timer ? (
                   <>
-                    <p className="max-w-sm text-center text-xs leading-relaxed text-muted">{t('log.sessionRunning')}</p>
+                    <p className="max-w-sm text-center text-small text-muted">{t('log.sessionRunning')}</p>
                     <div className="grid w-full grid-cols-2 gap-3">
-                      <button type="button" onClick={discardTimer} className="min-h-[48px] rounded-xl border border-line text-sm text-body">
+                      <button type="button" onClick={discardTimer} className="min-h-[52px] rounded-xl border border-line text-row text-body">
                         {t('log.discardSession')}
                       </button>
-                      <button type="button" onClick={stopTimer} className="min-h-[48px] rounded-xl bg-inhalation text-sm font-bold text-bg">
+                      <button type="button" onClick={stopTimer} className="min-h-[52px] rounded-xl bg-action text-row font-semibold text-on-action">
                         {t('log.stopSession')}
                       </button>
                     </div>
                   </>
                 ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={startTimer}
-                      disabled={!(flowValue > 0) || !!flowErr}
-                      className="min-h-[52px] w-full rounded-xl bg-inhalation text-base font-bold text-bg disabled:opacity-40"
-                    >
-                      {t('log.startSession')}
-                    </button>
-                    <button type="button" className={linkBtn} onClick={() => setInhMode('manual')}>
-                      {t('log.enterMinutesInstead')}
-                    </button>
-                  </>
+                  <button
+                    type="button"
+                    onClick={startTimer}
+                    disabled={!(flowValue > 0) || !!flowErr}
+                    className="min-h-[52px] w-full rounded-xl bg-action text-[16px] font-semibold text-on-action disabled:opacity-40"
+                  >
+                    {t('log.startSession')}
+                  </button>
                 )}
               </div>
             ) : (
-              <div className="grid gap-2">
+              <div className="grid gap-3">
+                {!stoppedAt && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {MINUTE_CHIPS.map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        aria-pressed={parseNum(minutes) === m}
+                        onClick={() => setMinutes(String(m))}
+                        className={`tabular min-h-[48px] rounded-xl border font-mono text-sm transition-colors duration-150 motion-reduce:transition-none ${parseNum(minutes) === m ? 'border-inhalation bg-inhalation/10 text-inhalation' : 'border-line text-body'}`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <NumberField id="log-minutes" label={t('log.minutes')} unit="min" value={minutes} onChange={setMinutes} error={minErr} />
-                {stoppedAt ? (
+                {stoppedAt && (
                   <button type="button" onClick={discardTimer} className={`${linkBtn} justify-self-start text-muted`}>
                     {t('log.discardSession')}
                   </button>
-                ) : (
-                  <button type="button" onClick={() => setInhMode('timer')} className={`${linkBtn} justify-self-start`}>
-                    {t('log.useTimer')}
-                  </button>
                 )}
-              </div>
-            )}
-          </>
-        )}
-      </section>
-
-      {/* Calculated HQ with the arithmetic (item 3) */}
-      <section className="grid justify-items-center gap-1 rounded-[20px] border border-line bg-surface px-4 py-5" aria-live="polite">
-        <span className="font-mono text-[11px] uppercase tracking-[.14em] text-muted">{t('log.calculated')}</span>
-        <span className={`tabular text-[3.5rem] font-bold leading-tight ${formulaInput ? routeText : 'text-muted/40'}`} style={glowStyle}>
-          {formatHQ(hq, locale)}
-          <span className="ml-2 align-baseline text-2xl font-normal">HQ</span>
-        </span>
-        <span className="font-mono text-xs text-body">{formatMg(hq * 0.8, locale)} mg H₂</span>
-        {math && (
-          <>
-            <button type="button" onClick={() => setShowMath((s) => !s)} aria-expanded={showMath} className={`${linkBtn} mt-1 normal-case tracking-normal`}>
-              {t(showMath ? 'log.hideMath' : 'log.showMath')}
-            </button>
-            {showMath && (
-              <div className="tabular w-full max-w-md rounded-xl border border-line bg-bg p-3 text-center font-mono text-xs leading-relaxed text-body">
-                <div className="break-words">{math.expression}</div>
-                <div className="text-text">
-                  = {formatHQ(math.hq, locale)} HQ × 0.80 mg = {formatMg(math.mg, locale)} mg H₂
-                </div>
               </div>
             )}
           </>
@@ -544,7 +552,7 @@ export function LogScreen() {
                       setWhenMode(w);
                       if (w === 'pick') setPickValue(toLocalInput(new Date()));
                     }}
-                    className={`min-h-tap rounded-xl border px-4 text-sm ${whenMode === w ? 'border-water bg-water/10 text-water' : 'border-line text-body'}`}
+                    className={`min-h-tap rounded-xl border px-4 text-sm ${whenMode === w ? 'border-action bg-action/10 text-action' : 'border-line text-body'}`}
                   >
                     {t(w === 'now' ? 'log.now' : w === 'yesterday' ? 'log.yesterday' : 'log.pickTime')}
                   </button>
@@ -558,7 +566,7 @@ export function LogScreen() {
                   max={toLocalInput(new Date())}
                   onChange={(e) => setPickValue(e.target.value)}
                   aria-invalid={pickedFuture}
-                  className="min-h-tap rounded-xl border border-line bg-bg px-3 text-text focus:border-water focus:outline-none"
+                  className="min-h-tap rounded-xl border border-line bg-bg px-3 text-text focus:border-action focus:outline-none"
                 />
               )}
               {pickedFuture && <p className="text-xs text-danger">{t('log.errorFuture')}</p>}
@@ -573,21 +581,45 @@ export function LogScreen() {
               autoFocus
               onChange={(e) => setNotes(e.target.value)}
               placeholder={t('log.notes')}
-              className="rounded-xl border border-line bg-bg px-3 py-2 text-text placeholder:text-muted/60 focus:border-water focus:outline-none"
+              className="scroll-mb-56 rounded-xl border border-line bg-bg px-3 py-2 text-text placeholder:text-muted/60 focus:border-action focus:outline-none"
             />
           )}
         </div>
       )}
 
-      {saveError && <p className="text-sm text-danger">{saveError}</p>}
-      <button
-        type="button"
-        onClick={save}
-        disabled={!canSave}
-        className={`min-h-[56px] rounded-xl text-base font-bold text-bg transition-opacity disabled:opacity-35 ${route === 'water' ? 'bg-water' : 'bg-inhalation'}`}
+      {/* Result bar: the figure, its arithmetic (always shown) and Save stay on screen above the tab bar */}
+      <section
+        aria-live="polite"
+        className="sticky bottom-[calc(96px+env(safe-area-inset-bottom,0px))] z-20 grid gap-3 rounded-card border border-line bg-surface p-4 before:pointer-events-none before:absolute before:inset-x-0 before:-top-6 before:h-6 before:bg-gradient-to-t before:from-bg before:to-transparent md:bottom-4"
       >
-        {saving ? t('log.saving') : t('log.save')}
-      </button>
+        <div className="flex items-end justify-between gap-3">
+          <div className="grid min-w-0 gap-1">
+            <span className={`flex items-baseline gap-2 ${formulaInput ? routeText : 'text-muted/50'}`}>
+              <span className="text-figure-l">
+                <Figure value={formatHQ(hq, locale)} />
+              </span>
+              <span className="font-mono text-small text-muted">HQ</span>
+            </span>
+            <span className="tabular font-mono text-small text-muted">{formatMg(hq * 0.8, locale)} mg H₂</span>
+          </div>
+          <button
+            type="button"
+            onClick={save}
+            disabled={!canSave && !savedFlash}
+            className={`min-h-[52px] min-w-[132px] shrink-0 rounded-xl bg-action px-5 text-[16px] font-semibold text-on-action transition-transform active:scale-[.98] motion-reduce:transition-none motion-reduce:active:scale-100 ${canSave || savedFlash ? '' : 'opacity-35'}`}
+          >
+            {savedFlash ? t('log.savedFlash') : saving ? t('log.saving') : t('log.save')}
+          </button>
+        </div>
+        <p className="tabular break-words font-mono text-arith text-body">
+          {math
+            ? `${math.expression} = ${formatHQ(math.hq, locale)} HQ × 0.80 mg = ${formatMg(math.mg, locale)} mg H₂`
+            : route === 'water'
+              ? '(mL ÷ 500) × (mg/L ÷ 1.6)'
+              : '(min ÷ 30) × (mL/min ÷ 300) × 2'}
+        </p>
+        {saveError && <p className="text-small text-danger">{saveError}</p>}
+      </section>
 
       {/* One-tap repeat (item 5) */}
       {repeatable.length > 0 && (

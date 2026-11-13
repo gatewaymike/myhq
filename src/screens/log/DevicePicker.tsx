@@ -33,7 +33,7 @@ export function DevicePicker(props: {
         role="dialog"
         aria-modal="true"
         aria-labelledby="picker-title"
-        className="grid w-full max-w-md gap-2 rounded-t-[20px] border border-water/60 bg-surface p-5 shadow-[0_0_25px_rgb(var(--water)/.25)] sm:rounded-[20px]"
+        className="grid w-full max-w-md gap-2 rounded-t-[20px] border border-line bg-surface p-5 sm:rounded-[20px]"
         style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}
         onClick={(e) => e.stopPropagation()}
       >

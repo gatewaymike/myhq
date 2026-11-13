@@ -87,6 +87,8 @@ export const strings = {
   'log.pickTime': { en: 'Pick a time', zh: '選擇時間' },
   'log.notes': { en: 'Notes (optional)', zh: '備註（選填）' },
   'log.save': { en: 'Save entry', zh: '儲存記錄' },
+  'log.savedFlash': { en: 'Saved ✓', zh: '已儲存 ✓' },
+  'log.timer': { en: 'Timer', zh: '計時' },
   'log.saving': { en: 'Saving…', zh: '儲存中…' },
   'log.saved': { en: 'Saved: {hq} HQ', zh: '已儲存：{hq} HQ' },
   'log.undo': { en: 'Undo', zh: '復原' },

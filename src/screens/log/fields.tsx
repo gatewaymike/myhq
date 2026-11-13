@@ -42,11 +42,11 @@ export function NumberField(props: {
 }) {
   const { id, label, unit, value, onChange, error, hint, below } = props;
   return (
-    <div className="grid min-w-0 gap-1.5">
+    <div className="grid min-w-0 scroll-mb-56 gap-1.5">
       <label htmlFor={id} className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">
         {label}
       </label>
-      <div className={`flex min-h-tap items-center rounded-xl border bg-bg focus-within:border-water ${error ? 'border-danger' : 'border-line'}`}>
+      <div className={`flex min-h-tap items-center rounded-xl border bg-bg focus-within:border-action ${error ? 'border-danger' : 'border-line'}`}>
         <input
           id={id}
           inputMode="decimal"
