@@ -11,12 +11,15 @@ import {
   type EntryInput as FormulaInput,
   type Route,
 } from '../../lib/hq';
+import { failKey } from '../../app/failKey';
+import { LoadNotice } from '../../app/LoadNotice';
+import { useLoad } from '../../app/useLoad';
 import { loadPrefs, readJSON, savePrefs, uuid, writeJSON } from '../../store/localStore';
 import type { Device, Entry } from '../../store/types';
 import { DeviceSheet } from './DeviceSheet';
 import { DevicePicker } from './DevicePicker';
 import { RouteIcon } from '../../app/RouteIcon';
-import { LIMITS, NumberField, formatClock, parseNum, toLocalInput, validate } from './fields';
+import { LIMITS, NumberField, formatClock, parseNum, toLocalInput, validate, isFuture } from './fields';
 
 /* ------------------------------------------------------------------ timer */
 // Item 6: the start time is stored, so a locked phone or a closed tab never loses a session.
@@ -68,17 +71,21 @@ export function LogScreen() {
   const requestId = useRef(uuid());
 
   /* -------------------------------------------------------- load data */
+  // A failed load keeps the last loaded equipment and entries; the form stays usable either way.
+  const { data: loaded, status: loadStatus, retry: retryLoad } = useLoad<{ devices: Device[]; recent: Entry[] }>(
+    store,
+    'log',
+    async () => {
+      const [devices, recent] = await Promise.all([store.listDevices(), store.listEntries({ limit: 30 })]);
+      return { devices, recent };
+    },
+    [version],
+  );
   useEffect(() => {
-    let live = true;
-    Promise.all([store.listDevices(), store.listEntries({ limit: 30 })]).then(([d, e]) => {
-      if (!live) return;
-      setDevices(d);
-      setRecent(e);
-    });
-    return () => {
-      live = false;
-    };
-  }, [store, version]);
+    if (!loaded) return;
+    setDevices(loaded.devices);
+    setRecent(loaded.recent);
+  }, [loaded]);
 
   // Open on the last device used for this route (item 4).
   const routeDevices = devices.filter((d) => d.route === route);
@@ -117,7 +124,9 @@ export function LogScreen() {
   const [stoppedAt, setStoppedAt] = useState<number | null>(null);
 
   /* ------------------------------------------------------- effective values */
-  const flowValue = device?.h2FlowMlMin ?? parseNum(flow);
+  // During a timer session the flow is the saved device's, or else the figure captured at Start. A device
+  // that went away mid-session (removed, or re-created by signing in) can therefore never strand the session.
+  const flowValue = device?.h2FlowMlMin ?? (timer ? timer.h2FlowMlMin : parseNum(flow));
   const concValue = device?.concentrationMgL ?? parseNum(conc);
 
   const flowErr = !device && flow ? validate(flow, LIMITS.flow, t) : null;
@@ -149,7 +158,8 @@ export function LogScreen() {
   }, [route, timer, stoppedAt, whenMode, pickValue]);
 
   const timerBlocking = route === 'inhalation' && inhMode === 'timer' && (!timer || !stoppedAt);
-  const canSave = !!formulaInput && !saving && !timerBlocking && !(whenMode === 'pick' && Number.isNaN(new Date(pickValue).getTime()));
+  const pickedFuture = whenMode === 'pick' && isFuture(new Date(pickValue));
+  const canSave = !!formulaInput && !saving && !timerBlocking && !(whenMode === 'pick' && Number.isNaN(new Date(pickValue).getTime())) && !pickedFuture;
 
   /* ------------------------------------------------------------ actions */
   const rememberDevice = useCallback(
@@ -200,43 +210,64 @@ export function LogScreen() {
       toast(t('log.saved', { hq: formatHQ(saved.hq, locale) }), {
         label: t('log.undo'),
         run: async () => {
-          await store.deleteEntry(saved.id);
+          try {
+            await store.deleteEntry(saved.id);
+          } catch (err) {
+            toast(t(failKey(err)));
+            return;
+          }
           bump();
           toast(t('log.removed'));
         },
       });
-    } catch {
-      setSaveError(t('log.errorSave'));
+    } catch (e) {
+      setSaveError(t(failKey(e)));
     } finally {
       setSaving(false);
     }
   }
 
+  // One repeat at a time: a double tap on a row is one entry, not two.
+  const repeating = useRef(false);
   async function repeat(e: Entry) {
-    const start = new Date();
-    const { localDate, tz } = localDateOf(start);
-    const saved = await store.addEntry({
-      deviceId: e.deviceId,
-      route: e.route,
-      sessionStart: start.toISOString(),
-      localDate,
-      tz,
-      minutes: e.minutes,
-      h2FlowMlMin: e.h2FlowMlMin,
-      volumeMl: e.volumeMl,
-      concentrationMgL: e.concentrationMgL,
-      notes: null,
-      clientRequestId: uuid(),
-    });
-    bump();
-    toast(t('log.saved', { hq: formatHQ(saved.hq, locale) }), {
-      label: t('log.undo'),
-      run: async () => {
-        await store.deleteEntry(saved.id);
-        bump();
-        toast(t('log.removed'));
-      },
-    });
+    if (repeating.current) return;
+    repeating.current = true;
+    setSaveError(null);
+    try {
+      const start = new Date();
+      const { localDate, tz } = localDateOf(start);
+      const saved = await store.addEntry({
+        deviceId: e.deviceId,
+        route: e.route,
+        sessionStart: start.toISOString(),
+        localDate,
+        tz,
+        minutes: e.minutes,
+        h2FlowMlMin: e.h2FlowMlMin,
+        volumeMl: e.volumeMl,
+        concentrationMgL: e.concentrationMgL,
+        notes: null,
+        clientRequestId: uuid(),
+      });
+      bump();
+      toast(t('log.saved', { hq: formatHQ(saved.hq, locale) }), {
+        label: t('log.undo'),
+        run: async () => {
+          try {
+            await store.deleteEntry(saved.id);
+          } catch (err) {
+            toast(t(failKey(err)));
+            return;
+          }
+          bump();
+          toast(t('log.removed'));
+        },
+      });
+    } catch (err) {
+      setSaveError(t(failKey(err)));
+    } finally {
+      repeating.current = false;
+    }
   }
 
   function startTimer() {
@@ -304,6 +335,8 @@ export function LogScreen() {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
       <h1 className="pt-2 text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('log.title')}</h1>
+
+      <LoadNotice status={loadStatus} retry={retryLoad} />
 
       {/* Route */}
       <div className="grid grid-cols-2 gap-1 rounded-full border border-line bg-surface p-1" role="radiogroup" aria-label={t('log.routeLabel')}>
@@ -524,9 +557,11 @@ export function LogScreen() {
                   value={pickValue}
                   max={toLocalInput(new Date())}
                   onChange={(e) => setPickValue(e.target.value)}
+                  aria-invalid={pickedFuture}
                   className="min-h-tap rounded-xl border border-line bg-bg px-3 text-text focus:border-water focus:outline-none"
                 />
               )}
+              {pickedFuture && <p className="text-xs text-danger">{t('log.errorFuture')}</p>}
             </div>
           )}
           {notesOpen && (
