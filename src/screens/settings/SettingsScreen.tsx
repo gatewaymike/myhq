@@ -53,70 +53,84 @@ function RemindersSection() {
   }
 
   return (
-    <Section id="remind-h" title={t('settings.reminders')}>
-      <div className="flex items-center justify-between gap-3">
-        <span id="remind-label" className="text-sm text-text">{t('settings.reminder.label')}</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={settings.on}
-          aria-labelledby="remind-label"
-          disabled={busy}
-          onClick={() => void toggle()}
-          className="flex min-h-tap min-w-tap items-center justify-center"
-        >
-          <span className={`relative h-7 w-12 rounded-full border transition-colors motion-reduce:transition-none ${settings.on ? 'border-water bg-water/25' : 'border-line bg-bg'}`}>
-            <span
-              className={`absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full transition-[left] motion-reduce:transition-none ${settings.on ? 'left-[calc(100%-1.5rem)] bg-water' : 'left-1 bg-muted'}`}
-            />
-          </span>
-        </button>
-      </div>
+    <Section id="remind-h" title={t('settings.reminders')} note={<p>{t('settings.reminder.skip')}</p>}>
+      <Row>
+        <div className="flex items-center justify-between gap-3">
+          <span id="remind-label" className="text-row text-text">{t('settings.reminder.label')}</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={settings.on}
+            aria-labelledby="remind-label"
+            disabled={busy}
+            onClick={() => void toggle()}
+            className="flex min-h-tap min-w-tap items-center justify-center"
+          >
+            <span className={`relative h-7 w-12 rounded-full border transition-colors motion-reduce:transition-none ${settings.on ? 'border-action bg-action/25' : 'border-line bg-bg'}`}>
+              <span
+                className={`absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full transition-[left] motion-reduce:transition-none ${settings.on ? 'left-[calc(100%-1.5rem)] bg-action' : 'left-1 bg-muted'}`}
+              />
+            </span>
+          </button>
+        </div>
+      </Row>
       {settings.on && (
-        <label className="flex items-center justify-between gap-3" htmlFor="remind-time">
-          <span className="text-sm text-body">{t('settings.reminder.time')}</span>
-          <input
-            id="remind-time"
-            type="time"
-            value={settings.time}
-            onChange={(e) => isValidTime(e.target.value) && save({ ...settings, time: e.target.value })}
-            className="tabular min-h-tap rounded-xl border border-line bg-bg px-3 font-mono text-text [color-scheme:dark] focus:border-water focus:outline-none"
-          />
-        </label>
+        <Row>
+          <label className="flex items-center justify-between gap-3" htmlFor="remind-time">
+            <span className="text-row text-body">{t('settings.reminder.time')}</span>
+            <input
+              id="remind-time"
+              type="time"
+              value={settings.time}
+              onChange={(e) => isValidTime(e.target.value) && save({ ...settings, time: e.target.value })}
+              className="tabular min-h-tap rounded-xl border border-line bg-bg px-3 font-mono text-text [color-scheme:dark] focus:border-action focus:outline-none"
+            />
+          </label>
+        </Row>
       )}
-      <p className="text-xs text-muted">{t('settings.reminder.skip')}</p>
       {settings.on && !denied && IS_NATIVE && status.kind === 'done' && status.report.next && (
-        <p className="text-sm text-body">
-          {t('settings.reminder.next', {
-            when: status.report.next.toLocaleString(locale, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }),
-          })}
-          <span className="ml-2 font-mono text-[11px] text-muted">· {status.report.pending}/14</span>
-        </p>
+        <Row>
+          <p className="text-row text-body">
+            {t('settings.reminder.next', {
+              when: status.report.next.toLocaleString(locale, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }),
+            })}
+            <span className="ml-2 font-mono text-label text-muted">· {status.report.pending}/14</span>
+          </p>
+        </Row>
       )}
       {settings.on && status.kind === 'error' && (
-        <p className="text-sm text-danger" role="alert">
-          {t('settings.reminder.error')}
-          <span className="mt-1 block break-words font-mono text-[11px] text-muted">{status.message}</span>
-        </p>
+        <Row>
+          <p className="text-row text-danger" role="alert">
+            {t('settings.reminder.error')}
+            <span className="mt-1 block break-words font-mono text-label text-muted">{status.message}</span>
+          </p>
+        </Row>
       )}
       {denied && (
-        <p className="text-sm text-danger" role="alert">
-          {t('settings.reminder.denied')}
-        </p>
+        <Row>
+          <p className="text-row text-danger" role="alert">
+            {t('settings.reminder.denied')}
+          </p>
+        </Row>
       )}
     </Section>
   );
 }
 
-function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+function Section({ id, title, children, note }: { id: string; title: string; children: ReactNode; note?: ReactNode }) {
   return (
-    <section className="grid grid-cols-[minmax(0,1fr)] gap-3 rounded-card border border-line bg-surface p-4" aria-labelledby={id}>
-      <h2 id={id} className="font-mono text-[11px] uppercase tracking-[.12em] text-muted">
+    <section className="grid grid-cols-[minmax(0,1fr)] gap-2" aria-labelledby={id}>
+      <h2 id={id} className="px-1 font-mono text-label uppercase tracking-[.12em] text-muted">
         {title}
       </h2>
-      {children}
+      <div className="grid grid-cols-[minmax(0,1fr)] divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">{children}</div>
+      {note && <div className="grid gap-1 px-1 text-small text-muted">{note}</div>}
     </section>
   );
+}
+
+function Row({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <div className={`grid min-h-[52px] grid-cols-[minmax(0,1fr)] content-center gap-2 px-4 py-3 ${className}`}>{children}</div>;
 }
 
 export function SettingsScreen() {
@@ -207,94 +221,107 @@ export function SettingsScreen() {
 
   const figure = (d: Device) =>
     d.route === 'inhalation' ? `${formatInput(d.h2FlowMlMin!, locale)} mL/min H₂` : `${formatInput(d.concentrationMgL!, locale)} mg/L`;
-  const btn = 'grid min-h-tap place-content-center rounded-xl border px-4 text-sm';
+  const btn = 'grid min-h-tap place-content-center rounded-xl border px-4 text-row';
+  const primary = `${btn} border-action bg-action font-semibold text-on-action`;
+  const routeWord = (d: Device) => t(d.route === 'water' ? 'route.water' : 'route.inhalation').toLocaleLowerCase(locale);
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
-      <h1 className="pt-2 text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('nav.settings')}</h1>
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
+      <h1 className="pt-2 text-center text-title text-text">{t('nav.settings')}</h1>
 
       <HandOverNotice />
 
-      {/* Account */}
       {(install.mode === 'button' || install.mode === 'ios' || install.mode === 'samsung' || install.mode === 'menu') && (
         <Section id="install-h" title={t('install.title')}>
-          <p className="text-sm text-body">{t('install.body')}</p>
-          {install.mode === 'button' && (
-            <button type="button" onClick={() => void install.install()} className={`${btn} justify-self-start border-water bg-water font-bold text-bg`}>
-              {t('install.button')}
-            </button>
-          )}
-          {install.mode === 'ios' && <p className="text-sm text-text">{t('install.ios')}</p>}
-          {install.mode === 'samsung' && <p className="text-sm text-text">{t('install.samsung')}</p>}
-          {install.mode === 'menu' && <p className="text-sm text-text">{t('install.menu')}</p>}
+          <Row>
+            <p className="text-row text-body">{t('install.body')}</p>
+            {install.mode === 'button' && (
+              <button type="button" onClick={() => void install.install()} className={`${primary} justify-self-start`}>
+                {t('install.button')}
+              </button>
+            )}
+            {install.mode === 'ios' && <p className="text-row text-text">{t('install.ios')}</p>}
+            {install.mode === 'samsung' && <p className="text-row text-text">{t('install.samsung')}</p>}
+            {install.mode === 'menu' && <p className="text-row text-text">{t('install.menu')}</p>}
+          </Row>
         </Section>
       )}
 
-      <Section id="acct-h" title={t('settings.account')}>
+      <Section id="acct-h" title={t('settings.account')} note={!session && !available ? <p>{t('auth.unavailable')}</p> : undefined}>
         {session ? (
           <>
-            <p className="break-words text-body">{t('settings.signedInAs', { email })}</p>
-            <button type="button" onClick={signOut} className={`${btn} justify-self-start border-line text-body`}>
-              {t('auth.signOut')}
-            </button>
+            <Row>
+              <p className="break-words text-row text-body">{t('settings.signedInAs', { email })}</p>
+            </Row>
+            <Row>
+              <button type="button" onClick={signOut} className={`${btn} justify-self-start border-line text-body`}>
+                {t('auth.signOut')}
+              </button>
+            </Row>
           </>
         ) : (
           <>
-            <p className="text-body">{t('settings.guest')}</p>
-            {available ? (
-              <div className="flex flex-wrap gap-3">
-                <Link to="/signup" className={`${btn} border-water bg-water font-bold text-bg`}>{t('auth.createAccount')}</Link>
-                <Link to="/signin" className={`${btn} border-line text-body`}>{t('auth.signIn')}</Link>
-              </div>
-            ) : (
-              <p className="text-xs text-muted">{t('auth.unavailable')}</p>
+            <Row>
+              <p className="text-row text-body">{t('settings.guest')}</p>
+            </Row>
+            {available && (
+              <Row>
+                <div className="flex flex-wrap gap-3">
+                  <Link to="/signup" className={primary}>{t('auth.createAccount')}</Link>
+                  <Link to="/signin" className={`${btn} border-line text-body`}>{t('auth.signIn')}</Link>
+                </div>
+              </Row>
             )}
           </>
         )}
       </Section>
 
-      {/* My equipment */}
-      <Section id="equip-h" title={t('settings.equipment')}>
-        <LoadNotice status={devStatus} retry={retryDevices} />
+      {/* My equipment: one row per device, the route in words */}
+      <Section id="equip-h" title={t('settings.equipment')} note={<p>{t('settings.removeNote')}</p>}>
+        {(devStatus === 'stale' || devStatus === 'failed') && (
+          <Row>
+            <LoadNotice status={devStatus} retry={retryDevices} />
+          </Row>
+        )}
         {deviceList === null ? (
-          devStatus === 'failed' ? null : <p className="text-sm text-muted">{t('history.loading')}</p>
+          devStatus === 'failed' ? null : (
+            <Row>
+              <p className="text-row text-muted">{t('history.loading')}</p>
+            </Row>
+          )
         ) : devices.length === 0 ? (
-          <p className="text-sm text-muted">{t('settings.noEquipment')}</p>
+          <Row>
+            <p className="text-row text-muted">{t('settings.noEquipment')}</p>
+          </Row>
         ) : (
-          <ul className="grid grid-cols-[minmax(0,1fr)] gap-2">
-            {devices.map((d) => {
-              const color = d.route === 'water' ? 'text-water' : 'text-inhalation';
-              return (
-                <li key={d.id} className="grid grid-cols-[minmax(0,1fr)] gap-2 rounded-xl border border-line bg-bg px-3 py-3">
-                  <span className="flex min-w-0 items-center gap-3">
-                    <RouteIcon route={d.route} className={`h-4 w-4 shrink-0 ${color}`} />
-                    <span className="grid min-w-0">
-                      <span className="truncate text-sm text-text">
-                        {d.name}
-                        {d.modeLabel ? ` · ${d.modeLabel}` : ''}
-                      </span>
-                      <span className="tabular font-mono text-[11px] text-muted">{figure(d)}</span>
+          devices.map((d) => {
+            const color = d.route === 'water' ? 'text-water' : 'text-inhalation';
+            return (
+              <div key={d.id} className="flex min-h-[60px] items-center gap-1 pr-2">
+                <button type="button" onClick={() => setEditing(d)} className="flex min-h-[60px] min-w-0 flex-1 items-center gap-3 px-4 py-2 text-left" aria-label={`${t('history.edit')}: ${d.name}`}>
+                  <RouteIcon route={d.route} className={`h-4 w-4 shrink-0 ${color}`} />
+                  <span className="grid min-w-0">
+                    <span className="truncate text-row text-text">
+                      {d.name}
+                      {d.modeLabel ? ` · ${d.modeLabel}` : ''}
+                    </span>
+                    <span className="tabular truncate font-mono text-arith text-muted">
+                      {figure(d)} · {routeWord(d)}
                     </span>
                   </span>
-                  <span className="flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => (armed === d.id ? removeDevice(d) : setArmed(d.id))}
-                      className={`${btn} ${armed === d.id ? 'border-danger bg-danger/10 text-danger' : 'border-line text-muted'}`}
-                    >
-                      {armed === d.id ? t('settings.confirmRemove') : t('settings.remove')}
-                    </button>
-                    <button type="button" onClick={() => setEditing(d)} className={`${btn} border-water/60 text-water`}>
-                      {t('history.edit')}
-                    </button>
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => (armed === d.id ? removeDevice(d) : setArmed(d.id))}
+                  className={`min-h-tap shrink-0 rounded-xl px-3 text-small ${armed === d.id ? 'bg-danger/10 text-danger' : 'text-muted hover:text-body'}`}
+                >
+                  {armed === d.id ? t('settings.confirmRemove') : t('settings.remove')}
+                </button>
+              </div>
+            );
+          })
         )}
-        <p className="text-xs text-muted">{t('settings.removeNote')}</p>
-        <button type="button" onClick={() => setAdding(true)} className="min-h-tap justify-self-start rounded-xl border border-dashed border-line px-4 text-sm text-muted hover:text-body">
+        <button type="button" onClick={() => setAdding(true)} className="min-h-[52px] px-4 text-left text-row text-action">
           + {t('log.addEquipment')}
         </button>
       </Section>
@@ -305,41 +332,43 @@ export function SettingsScreen() {
       ) : (
         // Michael 2026-10-29 (answer 4b): the website says where reminders live instead of hiding them.
         <Section id="remind-h" title={t('settings.reminders')}>
-          <p className="text-sm text-body">{t('settings.reminder.appOnly')}</p>
+          <Row>
+            <p className="text-row text-body">{t('settings.reminder.appOnly')}</p>
+          </Row>
         </Section>
       )}
 
-      {/* Language */}
       <Section id="lang-h" title={t('settings.language')}>
-        <div className="grid grid-cols-2 gap-1 rounded-full border border-line bg-bg p-1" role="radiogroup" aria-label={t('settings.language')}>
-          {(['en', 'zh-TW'] as const).map((l) => (
-            <button
-              key={l}
-              type="button"
-              role="radio"
-              aria-checked={lang === l}
-              onClick={() => setLang(l)}
-              className={`min-h-tap rounded-full text-sm ${lang === l ? 'bg-water/15 text-water' : 'text-muted'}`}
-            >
-              {l === 'en' ? 'English' : '中文'}
-            </button>
-          ))}
-        </div>
+        <Row>
+          <div className="grid grid-cols-2 gap-1 rounded-xl border border-line bg-bg p-1" role="radiogroup" aria-label={t('settings.language')}>
+            {(['en', 'zh-TW'] as const).map((l) => (
+              <button
+                key={l}
+                type="button"
+                role="radio"
+                aria-checked={lang === l}
+                onClick={() => setLang(l)}
+                className={`min-h-tap rounded-lg text-row transition-colors duration-150 motion-reduce:transition-none ${lang === l ? 'bg-surface-2 text-text' : 'text-muted'}`}
+              >
+                {l === 'en' ? 'English' : '中文'}
+              </button>
+            ))}
+          </div>
+        </Row>
       </Section>
 
-      {/* Your data */}
-      <Section id="data-h" title={t('settings.yourData')}>
-        <p className="text-xs text-muted">{t('settings.downloadNote')}</p>
-        <div className="flex flex-wrap gap-3">
-          <button type="button" disabled={!!busy} onClick={() => download('csv')} className={`${btn} border-water/60 text-water disabled:opacity-50`}>
-            {busy === 'csv' ? t('settings.preparing') : t('settings.downloadCSV')}
-          </button>
-          <button type="button" disabled={!!busy} onClick={() => download('json')} className={`${btn} border-water/60 text-water disabled:opacity-50`}>
-            {busy === 'json' ? t('settings.preparing') : t('settings.downloadJSON')}
-          </button>
-        </div>
-
-        <div className="mt-2 grid gap-3 border-t border-line pt-4">
+      <Section id="data-h" title={t('settings.yourData')} note={<p>{t('settings.downloadNote')}</p>}>
+        <Row>
+          <div className="flex flex-wrap gap-3">
+            <button type="button" disabled={!!busy} onClick={() => download('csv')} className={`${btn} border-action/60 text-action disabled:opacity-50`}>
+              {busy === 'csv' ? t('settings.preparing') : t('settings.downloadCSV')}
+            </button>
+            <button type="button" disabled={!!busy} onClick={() => download('json')} className={`${btn} border-action/60 text-action disabled:opacity-50`}>
+              {busy === 'json' ? t('settings.preparing') : t('settings.downloadJSON')}
+            </button>
+          </div>
+        </Row>
+        <Row>
           {session ? (
             !delOpen ? (
               <button type="button" onClick={() => setDelOpen(true)} className={`${btn} justify-self-start border-danger/60 text-danger`}>
@@ -353,9 +382,9 @@ export function SettingsScreen() {
                   confirmDelete();
                 }}
               >
-                <p className="text-sm leading-relaxed text-body">{t('settings.deleteExplain')}</p>
+                <p className="text-row leading-relaxed text-body">{t('settings.deleteExplain')}</p>
                 <label className="grid gap-1.5" htmlFor="del-confirm">
-                  <span className="font-mono text-[11px] uppercase tracking-[.1em] text-muted">{t('settings.deleteTypeLabel')}</span>
+                  <span className="font-mono text-label uppercase tracking-[.1em] text-muted">{t('settings.deleteTypeLabel')}</span>
                   <input
                     id="del-confirm"
                     value={delText}
@@ -365,7 +394,7 @@ export function SettingsScreen() {
                     className="min-h-tap rounded-xl border border-line bg-bg px-3 font-mono text-text focus:border-danger focus:outline-none"
                   />
                 </label>
-                {delErr && <p className="text-sm text-danger">{delErr}</p>}
+                {delErr && <p className="text-row text-danger">{delErr}</p>}
                 <div className="grid grid-cols-2 gap-3">
                   <button type="button" onClick={() => { setDelOpen(false); setDelText(''); }} className={`${btn} border-line text-body`}>
                     {t('device.cancel')}
@@ -373,7 +402,7 @@ export function SettingsScreen() {
                   <button
                     type="submit"
                     disabled={delText.trim().toUpperCase() !== 'DELETE' || delBusy}
-                    className={`${btn} border-danger bg-danger font-bold text-bg disabled:opacity-40`}
+                    className={`${btn} border-danger bg-danger font-semibold text-bg disabled:opacity-40`}
                   >
                     {delBusy ? t('auth.working') : t('settings.deleteConfirm')}
                   </button>
@@ -382,7 +411,7 @@ export function SettingsScreen() {
             )
           ) : (
             <>
-              <p className="text-xs text-muted">{t('settings.eraseExplain')}</p>
+              <p className="text-small text-muted">{t('settings.eraseExplain')}</p>
               <button
                 type="button"
                 onClick={eraseGuest}
@@ -392,26 +421,27 @@ export function SettingsScreen() {
               </button>
             </>
           )}
-        </div>
+        </Row>
       </Section>
 
-      {/* About HQ */}
       <Section id="about-h" title={t('settings.about')}>
-        <div className="grid gap-2 text-sm leading-relaxed text-body">
-          <p>{t('today.aboutHQ')}</p>
-          <p>{t('today.aboutRef')}</p>
-        </div>
+        <Row>
+          <div className="grid gap-2 text-row leading-relaxed text-body">
+            <p>{t('today.aboutHQ')}</p>
+            <p>{t('today.aboutRef')}</p>
+          </div>
+        </Row>
         <button
           type="button"
           onClick={() => window.dispatchEvent(new Event(SHOW_INTRO_EVENT))}
-          className="min-h-tap justify-self-start px-1 font-mono text-xs uppercase tracking-wider text-water"
+          className="min-h-[52px] px-4 text-left text-row text-action"
         >
           {t('settings.showIntro')}
         </button>
       </Section>
 
       <Legal />
-      <p className="text-center font-mono text-[11px] text-muted">{t('settings.version', { v: APP_VERSION })}</p>
+      <p className="text-center font-mono text-label text-muted">{t('settings.version', { v: APP_VERSION })}</p>
 
       {(editing || adding) && (
         <DeviceSheet

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../app/auth';
 import { useApp } from '../../app/context';
 import { HandOverNotice } from '../../app/HandOverNotice';
@@ -19,6 +19,10 @@ import {
   summarizeDay,
 } from '../../lib/hq';
 import type { Device, Entry } from '../../store/types';
+import { DeviceSheet } from '../log/DeviceSheet';
+import type { Route } from '../../lib/hq';
+import { Dialog } from '../../app/Dialog';
+import { Figure } from '../../app/Figure';
 import { Ring } from './Ring';
 
 function entryMath(e: Entry, locale: string) {
@@ -31,9 +35,17 @@ export function TodayScreen() {
   const { t, store, version, locale } = useApp();
   const { loading: accountLoading } = useAuth();
   const [today, setToday] = useState(() => localDateOf(new Date()).localDate);
-  const [showMath, setShowMath] = useState(false);
-  const [openEntry, setOpenEntry] = useState<string | null>(null);
   const [about, setAbout] = useState(false);
+  // One-time offer after a hand-typed first entry (navigation state, so it never returns on reload).
+  const nav = useNavigate();
+  const location = useLocation();
+  const [offer, setOffer] = useState(() => (location.state as { offer?: { route: Route; value: number } } | null)?.offer ?? null);
+  const [offerSheet, setOfferSheet] = useState(false);
+  const dismissOffer = () => {
+    setOffer(null);
+    setOfferSheet(false);
+    nav('/', { replace: true, state: null });
+  };
 
   // Roll over at local midnight while the screen stays open.
   useEffect(() => {
@@ -60,6 +72,8 @@ export function TodayScreen() {
   const devices = data?.devices ?? [];
   const lifetime = accountLoading ? null : (data?.lifetime ?? null);
   const known = week !== null;
+  // Never logged: the button sits directly under the ring, and the entries card keeps only its sentence.
+  const neverLogged = known && lifetime === 0 && week.length === 0;
 
   const todays = (week ?? []).filter((e) => e.localDate === today);
   const day = summarizeDay(todays);
@@ -72,13 +86,13 @@ export function TodayScreen() {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
       <div className="grid justify-items-center gap-2 pt-2">
-        <div className="flex items-center gap-3">
-          <h1 className="text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('today.title')}</h1>
+        <div className="relative flex w-full justify-center">
+          <h1 className="text-center text-title text-text">{t('today.title')}</h1>
           <button
             type="button"
             onClick={() => setAbout(true)}
             aria-label={t('today.about')}
-            className="grid h-11 w-11 place-content-center rounded-full text-water hover:bg-water/10"
+            className="absolute right-0 top-1/2 grid h-11 w-11 -translate-y-1/2 place-content-center rounded-full text-water hover:bg-water/10"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true">
               <circle cx="12" cy="12" r="10" />
@@ -95,13 +109,36 @@ export function TodayScreen() {
       <div className="relative mx-auto aspect-square w-full max-w-[300px]">
         <Ring water={day.water} inhalation={day.inhalation} locale={locale} label={`${known ? formatHQ(day.total, locale) : '…'} ${t('today.hqToday')}`} />
         <div className="pointer-events-none absolute inset-0 grid place-content-center gap-1 text-center">
-          <span className={`tabular text-[3.6rem] font-bold leading-none ${day.total > 0 ? 'text-water' : 'text-muted/50'}`} style={day.total > 0 ? glow : undefined}>
-            {known ? formatHQ(day.total, locale) : '…'}
+          <span className={`text-readout leading-none ${day.total > 0 ? 'text-water' : 'text-muted/50'}`} style={day.total > 0 ? glow : undefined}>
+            <Figure value={known ? formatHQ(day.total, locale) : '…'} />
           </span>
           <span className="font-mono text-xs uppercase tracking-[.14em] text-text">{t('today.hqToday')}</span>
           <span className="tabular font-mono text-xs text-muted">{known ? formatMg(day.total * MG_PER_HQ, locale) : '…'} mg H₂</span>
         </div>
       </div>
+
+      {neverLogged && (
+        <Link to="/log" className="grid min-h-[52px] place-content-center justify-self-center rounded-xl bg-action px-8 text-[16px] font-semibold text-on-action">
+          {t('today.logFirst')}
+        </Link>
+      )}
+
+      {offer && (
+        <div className="grid gap-3 rounded-card border border-line bg-surface p-4">
+          <p className="text-row text-text">
+            {t('offer.save', { value: formatInput(offer.value, locale), unit: offer.route === 'inhalation' ? 'mL/min H₂' : 'mg/L' })}
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button type="button" onClick={dismissOffer} className="min-h-[48px] rounded-xl border border-line text-row text-body">
+              {t('onboard.later')}
+            </button>
+            <button type="button" onClick={() => setOfferSheet(true)} className="min-h-[48px] rounded-xl bg-action text-row font-semibold text-on-action">
+              {t('offer.yes')}
+            </button>
+          </div>
+        </div>
+      )}
+      {offer && offerSheet && <DeviceSheet route={offer.route} presetValue={offer.value} onClose={() => setOfferSheet(false)} onSaved={dismissOffer} />}
 
       <LoadNotice status={status} retry={retry} />
 
@@ -132,36 +169,62 @@ export function TodayScreen() {
         })}
       </div>
 
-      {/* The arithmetic behind today's figure (item 3) */}
+      {/* The arithmetic behind today's figure, always shown (item 3, strengthened) */}
       {todays.length > 0 && (
-        <div className="grid justify-items-center gap-2">
-          <button type="button" onClick={() => setShowMath((s) => !s)} aria-expanded={showMath} className="min-h-tap px-2 font-mono text-xs text-water">
-            {t(showMath ? 'log.hideMath' : 'log.showMath')}
-          </button>
-          {showMath && (
-            <div className="tabular grid w-full gap-1.5 rounded-xl border border-line bg-bg p-3 font-mono text-xs leading-relaxed text-body">
-              {todays
-                .slice()
-                .reverse()
-                .map((e) => {
-                  const m = entryMath(e, locale);
-                  return (
-                    <div key={e.id} className="flex flex-wrap justify-between gap-x-3">
-                      <span className="break-words">{m.expression}</span>
-                      <span className="text-text">= {formatHQ(m.hq, locale)}</span>
-                    </div>
-                  );
-                })}
-              <div className="mt-1 border-t border-line pt-2 text-text">
-                {formatHQ(day.water, locale)} + {formatHQ(day.inhalation, locale)} = {formatHQ(day.total, locale)} HQ × 0.80 mg = {formatMg(day.total * MG_PER_HQ, locale)} mg H₂
-                {Math.round(day.water * 100) + Math.round(day.inhalation * 100) !== Math.round(day.total * 100) && (
-                  <span className="mt-1 block text-muted">{t('today.roundNote')}</span>
-                )}
-              </div>
-            </div>
+        <div className="tabular rounded-xl border border-line bg-bg p-3 font-mono text-xs leading-relaxed text-text">
+          {formatHQ(day.water, locale)} + {formatHQ(day.inhalation, locale)} = {formatHQ(day.total, locale)} HQ × 0.80 mg = {formatMg(day.total * MG_PER_HQ, locale)} mg H₂
+          {Math.round(day.water * 100) + Math.round(day.inhalation * 100) !== Math.round(day.total * 100) && (
+            <span className="mt-1 block text-muted">{t('today.roundNote')}</span>
           )}
         </div>
       )}
+
+      {/* Today's entries */}
+      <section className="grid gap-2" aria-labelledby="today-entries-h">
+        <h2 id="today-entries-h" className="font-mono text-[11px] uppercase tracking-[.12em] text-muted">
+          {t('today.entries')}
+        </h2>
+        {week !== null && todays.length === 0 ? (
+          <div className="grid justify-items-center gap-3 rounded-card border border-dashed border-line p-6 text-center">
+            <p className="text-sm text-muted">{t('today.empty')}</p>
+            {!neverLogged && (
+              <Link to="/log" className="grid min-h-[48px] place-content-center rounded-xl bg-action px-6 text-row font-semibold text-on-action">
+                {t('today.logFirst')}
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
+            {todays.map((e) => {
+              const m = entryMath(e, locale);
+              const color = e.route === 'water' ? 'text-water' : 'text-inhalation';
+              const body =
+                e.route === 'water'
+                  ? `${formatInput(e.volumeMl!, locale)} mL · ${formatInput(e.concentrationMgL!, locale)} mg/L`
+                  : `${formatInput(e.minutes!, locale)} min · ${formatInput(e.h2FlowMlMin!, locale)} mL/min`;
+              return (
+                <div key={e.id} className="grid gap-1.5 rounded-xl border border-line bg-surface px-3 py-2.5">
+                  <span className="flex items-center justify-between gap-3">
+                    <span className="flex min-w-0 items-center gap-3">
+                      <RouteIcon route={e.route} className={`h-4 w-4 shrink-0 ${color}`} />
+                      <span className="grid min-w-0">
+                        <span className="tabular truncate text-sm text-body">
+                          <span className="font-mono text-xs text-muted">{time(e.sessionStart)}</span> · {body}
+                        </span>
+                        {deviceName(e.deviceId) && <span className="truncate text-xs text-muted">{deviceName(e.deviceId)}</span>}
+                      </span>
+                    </span>
+                    <span className="tabular shrink-0 font-mono text-sm text-text">{formatHQ(e.hq, locale)} HQ</span>
+                  </span>
+                  <span className="tabular block font-mono text-[11px] leading-relaxed text-muted">
+                    {m.expression} = {formatHQ(e.hq, locale)} HQ = {formatMg(e.hq * MG_PER_HQ, locale)} mg H₂
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       {/* 7-day average (one labeled definition, item 16) and lifetime */}
       <div className="grid divide-y divide-line rounded-card border border-line bg-surface">
@@ -178,80 +241,24 @@ export function TodayScreen() {
         </div>
       </div>
 
-      {/* Today's entries */}
-      <section className="grid gap-2" aria-labelledby="today-entries-h">
-        <h2 id="today-entries-h" className="font-mono text-[11px] uppercase tracking-[.12em] text-muted">
-          {t('today.entries')}
-        </h2>
-        {week !== null && todays.length === 0 ? (
-          <div className="grid justify-items-center gap-3 rounded-card border border-dashed border-line p-6 text-center">
-            <p className="text-sm text-muted">{t('today.empty')}</p>
-            <Link to="/log" className="grid min-h-[48px] place-content-center rounded-xl bg-water px-6 text-sm font-bold text-bg">
-              {t('today.logFirst')}
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-2">
-            {todays.map((e) => {
-              const m = entryMath(e, locale);
-              const color = e.route === 'water' ? 'text-water' : 'text-inhalation';
-              const open = openEntry === e.id;
-              const body =
-                e.route === 'water'
-                  ? `${formatInput(e.volumeMl!, locale)} mL · ${formatInput(e.concentrationMgL!, locale)} mg/L`
-                  : `${formatInput(e.minutes!, locale)} min · ${formatInput(e.h2FlowMlMin!, locale)} mL/min`;
-              return (
-                <button
-                  key={e.id}
-                  type="button"
-                  aria-expanded={open}
-                  onClick={() => setOpenEntry(open ? null : e.id)}
-                  className="grid gap-2 rounded-xl border border-line bg-surface px-3 py-2.5 text-left hover:border-muted"
-                >
-                  <span className="flex items-center justify-between gap-3">
-                    <span className="flex min-w-0 items-center gap-3">
-                      <RouteIcon route={e.route} className={`h-4 w-4 shrink-0 ${color}`} />
-                      <span className="grid min-w-0">
-                        <span className="tabular truncate text-sm text-body">
-                          <span className="font-mono text-xs text-muted">{time(e.sessionStart)}</span> · {body}
-                        </span>
-                        {deviceName(e.deviceId) && <span className="truncate text-xs text-muted">{deviceName(e.deviceId)}</span>}
-                      </span>
-                    </span>
-                    <span className="tabular shrink-0 font-mono text-sm text-text">{formatHQ(e.hq, locale)} HQ</span>
-                  </span>
-                  {open && (
-                    <span className="tabular block rounded-lg bg-bg p-2 text-center font-mono text-[11px] leading-relaxed text-body">
-                      {m.expression} = {formatHQ(e.hq, locale)} HQ = {formatMg(e.hq * MG_PER_HQ, locale)} mg H₂
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
       {about && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 sm:items-center" onClick={() => setAbout(false)}>
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="about-h"
-            className="grid w-full max-w-md gap-4 rounded-t-[20px] border border-water/60 bg-surface p-5 text-sm leading-relaxed text-body shadow-[0_0_25px_rgb(var(--water)/.25)] sm:rounded-[20px]"
-            style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}
-            onClick={(ev) => ev.stopPropagation()}
-          >
-            <h2 id="about-h" className="font-mono text-sm uppercase tracking-[.12em] text-text">{t('today.about')}</h2>
-            <p>{t('today.aboutHQ')}</p>
-            <p>{t('today.aboutRef')}</p>
-            <p>{t('today.aboutBoth')}</p>
-            <p>{t('today.aboutAvg')}</p>
-            <button type="button" onClick={() => setAbout(false)} className="min-h-[48px] rounded-xl border border-line text-body">
-              {t('today.close')}
-            </button>
-          </div>
-        </div>
+        <Dialog
+          onClose={() => setAbout(false)}
+          labelledBy="about-h"
+          closeOnScrim
+          scrimClassName="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 sm:items-center"
+          className="grid w-full max-w-md gap-4 rounded-t-[20px] border border-line bg-surface p-5 text-row leading-relaxed text-body sm:rounded-[20px]"
+          style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}
+        >
+          <h2 id="about-h" className="font-mono text-small uppercase tracking-[.12em] text-text">{t('today.about')}</h2>
+          <p>{t('today.aboutHQ')}</p>
+          <p>{t('today.aboutRef')}</p>
+          <p>{t('today.aboutBoth')}</p>
+          <p>{t('today.aboutAvg')}</p>
+          <button type="button" onClick={() => setAbout(false)} className="min-h-[48px] rounded-xl border border-line text-body">
+            {t('today.close')}
+          </button>
+        </Dialog>
       )}
     </div>
   );

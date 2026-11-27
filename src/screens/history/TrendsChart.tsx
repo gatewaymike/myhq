@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { DAILY_REFERENCE_HQ } from '../../lib/hq';
+import { DAILY_REFERENCE_HQ, formatHQ } from '../../lib/hq';
 
 export interface DayBar {
   date: string; // YYYY-MM-DD
@@ -30,6 +30,9 @@ export function TrendsChart(props: {
   const { days, locale, selected, onSelect, label } = props;
   const wrap = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(340);
+  // Roving focus: one tab stop for the chart, arrow keys move between days, Enter or Space selects.
+  const [focusIdx, setFocusIdx] = useState<number | null>(null);
+  const slotRefs = useRef<(SVGRectElement | null)[]>([]);
 
   useEffect(() => {
     const el = wrap.current;
@@ -51,7 +54,7 @@ export function TrendsChart(props: {
   const slot = plotW / Math.max(1, days.length);
   const barW = Math.max(3, Math.min(24, slot * 0.62));
   const short = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
-  const labelEvery = days.length > 14 ? 7 : days.length > 7 ? 3 : 1;
+  const labelEvery = days.length > 14 ? 7 : days.length > 7 ? 3 : 2;
   const refY = y(DAILY_REFERENCE_HQ);
 
   return (
@@ -84,8 +87,8 @@ export function TrendsChart(props: {
         })}
 
         {/* reference line at 10.0 */}
-        <line x1={pad.l} x2={pad.l + plotW} y1={refY} y2={refY} stroke="rgb(var(--text))" strokeOpacity=".75" strokeWidth="1" />
-        <text x={pad.l + plotW + 4} y={refY + 4} fontSize="11" fill="rgb(var(--body))" fontFamily="DM Mono, ui-monospace, monospace">
+        <line x1={pad.l} x2={pad.l + plotW} y1={refY} y2={refY} stroke="rgb(var(--ref))" strokeWidth="1.5" />
+        <text x={pad.l + plotW + 4} y={refY + 4} fontSize="11" fill="rgb(var(--ref))" fontFamily="DM Mono, ui-monospace, monospace">
           10.0
         </text>
 
@@ -99,19 +102,59 @@ export function TrendsChart(props: {
         )}
 
         {/* hit targets: the whole column slot, taller and wider than the mark */}
-        {days.map((d, i) => (
-          <rect
-            key={d.date}
-            x={pad.l + i * slot}
-            y={pad.t}
-            width={slot}
-            height={plotH}
-            fill="transparent"
-            style={{ cursor: 'pointer' }}
-            onPointerEnter={(e) => e.pointerType === 'mouse' && onSelect(d.date)}
-            onClick={() => onSelect(d.date)}
-          />
-        ))}
+        {days.map((d, i) => {
+          const selIdx = days.findIndex((x) => x.date === selected);
+          const stop = focusIdx ?? (selIdx >= 0 ? selIdx : days.length - 1);
+          const isFocus = focusIdx === i;
+          const move = (to: number) => {
+            const n = Math.min(days.length - 1, Math.max(0, to));
+            setFocusIdx(n);
+            slotRefs.current[n]?.focus();
+          };
+          return (
+            <rect
+              key={d.date}
+              ref={(el) => {
+                slotRefs.current[i] = el;
+              }}
+              x={pad.l + i * slot}
+              y={pad.t}
+              width={slot}
+              height={plotH}
+              fill="transparent"
+              stroke={isFocus ? 'rgb(var(--action))' : 'none'}
+              strokeWidth="2"
+              rx="4"
+              role="button"
+              tabIndex={i === stop ? 0 : -1}
+              aria-pressed={selected === d.date}
+              aria-label={`${short(d.date)}: ${formatHQ(d.water + d.inhalation, locale)} HQ`}
+              style={{ cursor: 'pointer', outline: 'none' }}
+              onFocus={() => setFocusIdx(i)}
+              onBlur={() => setFocusIdx(null)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelect(d.date);
+                } else if (e.key === 'ArrowRight') {
+                  e.preventDefault();
+                  move(i + 1);
+                } else if (e.key === 'ArrowLeft') {
+                  e.preventDefault();
+                  move(i - 1);
+                } else if (e.key === 'Home') {
+                  e.preventDefault();
+                  move(0);
+                } else if (e.key === 'End') {
+                  e.preventDefault();
+                  move(days.length - 1);
+                }
+              }}
+              onPointerEnter={(e) => e.pointerType === 'mouse' && onSelect(d.date)}
+              onClick={() => onSelect(d.date)}
+            />
+          );
+        })}
       </svg>
     </div>
   );

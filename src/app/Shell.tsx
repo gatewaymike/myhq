@@ -63,7 +63,7 @@ function AccountLink() {
   const { pathname } = useLocation();
   if (!available || loading || session || ['/signin', '/signup', '/forgot', '/reset'].includes(pathname)) return null;
   return (
-    <Link to="/signin" className="grid min-h-tap place-content-center px-2 font-mono text-xs text-water">
+    <Link to="/signin" className="grid min-h-tap place-content-center px-2 font-mono text-xs text-action">
       {t('auth.signIn')}
     </Link>
   );
@@ -84,7 +84,7 @@ export function Shell({ children, banner }: { children: ReactNode; banner?: Reac
       to={to}
       end
       className={({ isActive }) =>
-        `flex min-h-tap flex-col items-center justify-end gap-1 pb-1 text-[11px] ${isActive ? 'text-water' : 'text-muted'}`
+        `flex min-h-tap flex-col items-center justify-end gap-1 pb-1 text-[11px] ${isActive ? 'text-action' : 'text-muted'}`
       }
     >
       {icon}
@@ -113,7 +113,7 @@ export function Shell({ children, banner }: { children: ReactNode; banner?: Reac
               to={d.to}
               end={d.to === '/'}
               className={({ isActive }) =>
-                `min-h-tap border-b-2 px-4 pt-3 text-sm ${isActive || (d.to === '/history' && pathname === '/trends') ? 'border-water text-water' : 'border-transparent text-body hover:text-text'}`
+                `min-h-tap border-b-2 px-4 pt-3 text-sm ${isActive || (d.to === '/history' && pathname === '/trends') ? 'border-action text-action' : 'border-transparent text-body hover:text-text'}`
               }
             >
               {t(d.key)}
@@ -135,7 +135,7 @@ export function Shell({ children, banner }: { children: ReactNode; banner?: Reac
           to="/log"
           aria-label={t('nav.log')}
           className={({ isActive }) =>
-            `-mt-7 grid h-14 w-14 place-content-center justify-self-center rounded-full bg-water text-[13px] font-bold text-bg shadow-[0_0_0_4px_rgb(var(--bg))] ${isActive ? 'ring-2 ring-water/50 ring-offset-2 ring-offset-bg' : ''}`
+            `-mt-7 grid h-14 w-14 place-content-center justify-self-center rounded-full bg-action text-[13px] font-semibold text-on-action shadow-[0_0_0_4px_rgb(var(--bg))] ${isActive ? 'ring-2 ring-action/50 ring-offset-2 ring-offset-bg' : ''}`
           }
         >
           {t('nav.addLog')}

@@ -37,11 +37,11 @@ export function Legal({ compact = false }: { compact?: boolean }) {
       </p>
       <p className="flex flex-wrap gap-x-4 gap-y-1">
         {PRIVACY_URL && (
-          <a className="text-water underline underline-offset-4" href={PRIVACY_URL} target="_blank" rel="noreferrer">
+          <a className="text-action underline underline-offset-4" href={PRIVACY_URL} target="_blank" rel="noreferrer">
             {t('legal.privacy')}
           </a>
         )}
-        <a className="text-mint underline underline-offset-4" href={SITE_URL} target="_blank" rel="noreferrer">
+        <a className="text-action underline underline-offset-4" href={SITE_URL} target="_blank" rel="noreferrer">
           {t('legal.site')}
         </a>
       </p>
@@ -54,7 +54,7 @@ function Card({ title, children }: { title: string; children: ReactNode }) {
     <div className="mx-auto grid w-full max-w-md grid-cols-[minmax(0,1fr)] gap-5">
       <div className="grid justify-items-center gap-2 pt-2">
         <Wordmark size="text-[2.5rem]" />
-        <h1 className="text-center text-[1.75rem] font-bold uppercase leading-tight tracking-[.12em] text-water sm:text-[2.2rem]">{title}</h1>
+        <h1 className="text-center text-title text-text">{title}</h1>
       </div>
       {children}
     </div>
@@ -72,7 +72,7 @@ function Field(props: { id: string; label: string; type: string; value: string; 
         autoComplete={props.autoComplete}
         onChange={(e) => props.onChange(e.target.value)}
         aria-invalid={!!props.error}
-        className={`min-h-tap rounded-xl border bg-bg px-3 py-2.5 text-text focus:border-water focus:outline-none ${props.error ? 'border-danger' : 'border-line'}`}
+        className={`min-h-tap rounded-xl border bg-bg px-3 py-2.5 text-text focus:border-action focus:outline-none ${props.error ? 'border-danger' : 'border-line'}`}
       />
       {props.error ? <span className="text-xs text-danger">{props.error}</span> : props.hint ? <span className="text-xs text-muted">{props.hint}</span> : null}
     </label>
@@ -82,7 +82,7 @@ function Field(props: { id: string; label: string; type: string; value: string; 
 function Submit({ busy, label }: { busy: boolean; label: string }) {
   const { t } = useApp();
   return (
-    <button type="submit" disabled={busy} className="min-h-[52px] rounded-xl bg-water text-base font-bold text-bg disabled:opacity-40">
+    <button type="submit" disabled={busy} className="min-h-[52px] rounded-xl bg-action text-[16px] font-semibold text-on-action disabled:opacity-40">
       {busy ? t('auth.working') : label}
     </button>
   );
@@ -123,12 +123,12 @@ export function SignInScreen() {
         <form onSubmit={submit} className="grid gap-4" noValidate>
           <Field id="si-email" label={t('auth.email')} type="email" autoComplete="email" value={email} onChange={setEmail} />
           <Field id="si-password" label={t('auth.password')} type="password" autoComplete="current-password" value={password} onChange={setPassword} />
-          {err && <p className="text-sm text-danger" role="alert">{err}</p>}
+          {err && <p className="text-row text-danger" role="alert">{err}</p>}
           <Submit busy={busy} label={t('auth.signIn')} />
           <div className="flex flex-wrap justify-between gap-2 text-sm">
-            <Link to="/forgot" className="min-h-tap py-2 text-water">{t('auth.forgot')}</Link>
+            <Link to="/forgot" className="min-h-tap py-2 text-action">{t('auth.forgot')}</Link>
             <span className="py-2 text-muted">
-              {t('auth.noAccount')} <Link to="/signup" className="text-water">{t('auth.createAccount')}</Link>
+              {t('auth.noAccount')} <Link to="/signup" className="text-action">{t('auth.createAccount')}</Link>
             </span>
           </div>
         </form>
@@ -144,7 +144,7 @@ function GuestNote() {
   return (
     <div className="grid gap-2 rounded-card border border-line p-4 text-sm text-body">
       <p>{t('auth.guestNote')}</p>
-      <Link to="/log" className="min-h-tap justify-self-start py-2 font-mono text-xs uppercase tracking-wider text-water">
+      <Link to="/log" className="min-h-tap justify-self-start py-2 font-mono text-xs uppercase tracking-wider text-action">
         {t('auth.continueGuest')}
       </Link>
     </div>
@@ -181,8 +181,8 @@ export function SignUpScreen() {
   if (sentTo) {
     return (
       <Card title={t('auth.checkEmailTitle')}>
-        <p className="rounded-card border border-water/40 bg-water/5 p-4 text-center text-body">{t('auth.checkEmailBody', { email: sentTo })}</p>
-        <Link to="/signin" className="min-h-tap justify-self-center py-2 text-water">{t('auth.signIn')}</Link>
+        <p className="rounded-card border border-line bg-surface p-4 text-center text-body">{t('auth.checkEmailBody', { email: sentTo })}</p>
+        <Link to="/signin" className="min-h-tap justify-self-center py-2 text-action">{t('auth.signIn')}</Link>
       </Card>
     );
   }
@@ -195,11 +195,11 @@ export function SignUpScreen() {
         <form onSubmit={submit} className="grid gap-4" noValidate>
           <Field id="su-email" label={t('auth.email')} type="email" autoComplete="email" value={email} onChange={setEmail} />
           <Field id="su-password" label={t('auth.password')} type="password" autoComplete="new-password" value={password} onChange={setPassword} hint={t('auth.passwordHint')} />
-          {err && <p className="text-sm text-danger" role="alert">{err}</p>}
+          {err && <p className="text-row text-danger" role="alert">{err}</p>}
           <p className="text-xs text-muted">{t(PRIVACY_URL ? 'auth.agree' : 'auth.agreeNoPrivacy')}</p>
           <Submit busy={busy} label={t('auth.createAccount')} />
           <p className="text-sm text-muted">
-            {t('auth.haveAccount')} <Link to="/signin" className="text-water">{t('auth.signIn')}</Link>
+            {t('auth.haveAccount')} <Link to="/signin" className="text-action">{t('auth.signIn')}</Link>
           </p>
         </form>
       )}
@@ -235,15 +235,15 @@ export function ForgotScreen() {
       {!available ? (
         <Unavailable />
       ) : sent ? (
-        <p className="rounded-card border border-water/40 bg-water/5 p-4 text-center text-body">{t('auth.resetSent', { email: email.trim() })}</p>
+        <p className="rounded-card border border-line bg-surface p-4 text-center text-body">{t('auth.resetSent', { email: email.trim() })}</p>
       ) : (
         <form onSubmit={submit} className="grid gap-4" noValidate>
           <Field id="fp-email" label={t('auth.email')} type="email" autoComplete="email" value={email} onChange={setEmail} />
-          {err && <p className="text-sm text-danger" role="alert">{err}</p>}
+          {err && <p className="text-row text-danger" role="alert">{err}</p>}
           <Submit busy={busy} label={t('auth.resetSend')} />
         </form>
       )}
-      <Link to="/signin" className="min-h-tap justify-self-center py-2 text-water">{t('auth.signIn')}</Link>
+      <Link to="/signin" className="min-h-tap justify-self-center py-2 text-action">{t('auth.signIn')}</Link>
     </Card>
   );
 }
@@ -278,7 +278,7 @@ export function ResetScreen() {
       ) : (
         <form onSubmit={submit} className="grid gap-4" noValidate>
           <Field id="rp-password" label={t('auth.newPassword')} type="password" autoComplete="new-password" value={password} onChange={setPassword} hint={t('auth.passwordHint')} />
-          {err && <p className="text-sm text-danger" role="alert">{err}</p>}
+          {err && <p className="text-row text-danger" role="alert">{err}</p>}
           <Submit busy={busy} label={t('auth.setPassword')} />
         </form>
       )}
@@ -291,7 +291,7 @@ function ForgotLinkExpired() {
   return (
     <div className="grid justify-items-center gap-2 text-center">
       <p className="text-sm text-body">{t('auth.linkExpired')}</p>
-      <Link to="/forgot" className="min-h-tap py-2 text-water">
+      <Link to="/forgot" className="min-h-tap py-2 text-action">
         {t('auth.resetSend')}
       </Link>
     </div>

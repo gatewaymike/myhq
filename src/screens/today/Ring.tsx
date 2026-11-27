@@ -3,6 +3,7 @@ import { DAILY_REFERENCE_HQ } from '../../lib/hq';
 /**
  * Daily ring (item 10, R-365): the HQ number with a reference tick at 10.0, never a percentage.
  * 300 x 300, r = 124, stroke 16; water then inhalation arcs, drawn over 1.5 s ease-out.
+ * Flat arc ends (no round caps), so each arc's length is exactly its value.
  * Scale: the full circle is 15.0 HQ, stepping up in fives above that, so a full ring never
  * reads as "10.0 reached" (suggested, not ruled).
  */
@@ -35,8 +36,7 @@ export function Ring({ water, inhalation, locale, label }: { water: number; inha
           <circle
             className="ring-arc"
             cx="150" cy="150" r={R} fill="none"
-            stroke="rgb(var(--water))" strokeWidth="16" strokeLinecap="round"
-            strokeDasharray={`${w} ${C}`}
+            stroke="rgb(var(--water))" strokeWidth="16" strokeDasharray={`${w} ${C}`}
             style={{ ['--len' as string]: `${w}` }}
           />
         )}
@@ -44,8 +44,7 @@ export function Ring({ water, inhalation, locale, label }: { water: number; inha
           <circle
             className="ring-arc"
             cx="150" cy="150" r={R} fill="none"
-            stroke="rgb(var(--inhalation))" strokeWidth="16" strokeLinecap="round"
-            strokeDasharray={`${i} ${C}`}
+            stroke="rgb(var(--inhalation))" strokeWidth="16" strokeDasharray={`${i} ${C}`}
             transform={`rotate(${(w / C) * 360} 150 150)`}
             style={{ ['--len' as string]: `${i}`, animationDelay: '.15s' }}
           />

@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react';
-import { BrowserRouter, Link, MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
+import { BrowserRouter, Link, MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AppProvider, useApp } from './app/context';
 import { AuthProvider, useAuth } from './app/auth';
 import { Shell } from './app/Shell';
@@ -57,6 +57,16 @@ function PreviewBanner() {
 }
 
 /** Account events that need the router or a toast. */
+/** A new screen opens at its top. History and Trends are one screen with two tabs, so switching between them keeps the place. */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  const group = pathname === '/trends' ? '/history' : pathname;
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [group]);
+  return null;
+}
+
 function AuthEffects() {
   const { t, toast, bump } = useApp();
   const { recovery, imported, clearImported } = useAuth();
@@ -78,6 +88,7 @@ function AuthEffects() {
 function Screens() {
   return (
     <Shell banner={PREVIEW ? <PreviewBanner /> : undefined}>
+      <ScrollToTop />
       <AuthEffects />
       {IS_NATIVE ? <BackButton /> : <UpdateBar />}
       {IS_NATIVE && <ReminderSync />}

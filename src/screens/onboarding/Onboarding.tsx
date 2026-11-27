@@ -5,8 +5,13 @@ import { useAuth } from '../../app/auth';
 import { RouteIcon } from '../../app/RouteIcon';
 import { readJSON, writeJSON } from '../../store/localStore';
 import { DeviceSheet } from '../log/DeviceSheet';
+import { FirstRun } from './FirstRun';
+import { Dialog } from '../../app/Dialog';
 
-/** First-run cards (item 11): skippable; shown once to someone with no entries and no equipment. */
+/**
+ * First run: one screen (FirstRun) shown once to someone with no entries and no equipment (R-390 reopened).
+ * The three cards stay, opened only from Settings ("Show the intro again").
+ */
 export const ONBOARDED_KEY = 'myhq.onboarded.v1';
 const AUTH_PATHS = ['/signin', '/signup', '/forgot', '/reset'];
 export const SHOW_INTRO_EVENT = 'myhq:show-intro';
@@ -17,6 +22,7 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
   const nav = useNavigate();
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
+  const [first, setFirst] = useState(false);
   const [step, setStep] = useState(0);
   const [sheet, setSheet] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -26,11 +32,11 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
     if (loading || readJSON<boolean>(ONBOARDED_KEY, false)) return;
     let live = true;
     if (forceShow) {
-      setOpen(true);
+      setFirst(true);
       return;
     }
     Promise.all([store.listDevices(), store.listEntries({ limit: 1 })]).then(([d, e]) => {
-      if (live && d.length === 0 && e.length === 0) setOpen(true);
+      if (live && d.length === 0 && e.length === 0) setFirst(true);
     });
     return () => {
       live = false;
@@ -55,11 +61,23 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
   function finish() {
     writeJSON(ONBOARDED_KEY, true);
     setOpen(false);
+    setFirst(false);
     setStep(0);
   }
 
   // Never over the account screens: the intro waits until the person is back on an ordinary screen.
-  if (!open || AUTH_PATHS.includes(pathname)) return null;
+  if (AUTH_PATHS.includes(pathname)) return null;
+  if (first && !open)
+    return (
+      <FirstRun
+        onSkip={finish}
+        onPick={(route) => {
+          finish();
+          nav('/log', { state: { startRoute: route } });
+        }}
+      />
+    );
+  if (!open) return null;
 
   const cards = [
     {
@@ -107,7 +125,7 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
         </>
       ),
       art: (
-        <div className="mx-auto grid h-14 w-14 place-content-center rounded-full bg-water text-[13px] font-bold text-bg">{t('nav.addLog')}</div>
+        <div className="mx-auto grid h-14 w-14 place-content-center rounded-full bg-action text-[13px] font-semibold text-on-action">{t('nav.addLog')}</div>
       ),
       primary: {
         label: t('today.logFirst'),
@@ -121,12 +139,12 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
   const card = cards[step];
 
   return (
-    <div className="fixed inset-0 z-[55] flex items-end justify-center bg-black/75 sm:items-center">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="onboard-title"
-        className="grid max-h-[92vh] w-full max-w-md grid-cols-[minmax(0,1fr)] gap-5 overflow-y-auto rounded-t-[24px] border border-water/60 bg-surface p-6 shadow-[0_0_25px_rgb(var(--water)/.25)] sm:rounded-[24px]"
+    <>
+      <Dialog
+        onClose={finish}
+        labelledBy="onboard-title"
+        scrimClassName="fixed inset-0 z-[55] flex items-end justify-center bg-black/75 sm:items-center"
+        className="grid max-h-[92vh] w-full max-w-md grid-cols-[minmax(0,1fr)] gap-5 overflow-y-auto rounded-t-[24px] border border-line bg-surface p-6 sm:rounded-[24px]"
         style={{ paddingBottom: 'calc(24px + env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="flex items-center justify-between">
@@ -138,7 +156,7 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
 
         <div className="py-2">{card.art}</div>
 
-        <h2 id="onboard-title" ref={titleRef} tabIndex={-1} className="text-center text-[1.6rem] font-bold uppercase leading-tight tracking-[.1em] text-water focus:outline-none">
+        <h2 id="onboard-title" ref={titleRef} tabIndex={-1} className="text-center text-title text-text focus:outline-none">
           {card.title}
         </h2>
         <div className="grid gap-3 text-[15px] leading-relaxed text-body">{card.body}</div>
@@ -146,7 +164,7 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
         {/* step dots */}
         <div className="flex justify-center gap-2" aria-hidden="true">
           {cards.map((_, i) => (
-            <span key={i} className={`h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-water' : 'w-1.5 bg-line'}`} />
+            <span key={i} className={`h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-action' : 'w-1.5 bg-line'}`} />
           ))}
         </div>
 
@@ -156,11 +174,11 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
               {card.secondary.label}
             </button>
           )}
-          <button type="button" onClick={card.primary.run} className="min-h-[52px] rounded-xl bg-water text-base font-bold text-bg">
+          <button type="button" onClick={card.primary.run} className="min-h-[52px] rounded-xl bg-action text-[16px] font-semibold text-on-action">
             {card.primary.label}
           </button>
         </div>
-      </div>
+      </Dialog>
 
       {sheet && (
         <DeviceSheet
@@ -172,6 +190,6 @@ export function Onboarding({ forceShow = false }: { forceShow?: boolean }) {
           }}
         />
       )}
-    </div>
+    </>
   );
 }

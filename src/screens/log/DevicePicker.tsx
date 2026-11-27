@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useRef } from 'react';
+import { useDialog } from '../../app/useDialog';
 import { useApp } from '../../app/context';
 import { RouteIcon } from '../../app/RouteIcon';
 import { formatInput, type Route } from '../../lib/hq';
@@ -17,11 +18,8 @@ export function DevicePicker(props: {
   const { t, locale } = useApp();
   const { route, devices, selectedId, manualId, onPick, onAdd, onClose } = props;
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useDialog(dialogRef, onClose);
 
   const accent = route === 'water' ? 'text-water' : 'text-inhalation';
   const row = (active: boolean) =>
@@ -30,10 +28,11 @@ export function DevicePicker(props: {
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 sm:items-center" onClick={onClose}>
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="picker-title"
-        className="grid w-full max-w-md gap-2 rounded-t-[20px] border border-water/60 bg-surface p-5 shadow-[0_0_25px_rgb(var(--water)/.25)] sm:rounded-[20px]"
+        className="grid w-full max-w-md gap-2 rounded-t-[20px] border border-line bg-surface p-5 sm:rounded-[20px]"
         style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}
         onClick={(e) => e.stopPropagation()}
       >
