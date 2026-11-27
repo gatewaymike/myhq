@@ -106,7 +106,20 @@ export const strings = {
   'install.samsung': { en: 'For the cleanest install, open this page in Chrome and choose Install app.', zh: '若要順利安裝，請用 Chrome 開啟此頁面，再選擇「安裝應用程式」。' },
   'pwa.updateReady': { en: 'A new version is ready.', zh: '已有新版本。' },
   'pwa.reload': { en: 'Reload', zh: '重新載入' },
+  // zh: DRAFT, native ZH-TW review pending (build plan step 8).
+  'log.errorFuture': { en: 'That time is in the future.', zh: '這個時間還沒到。' },
+  // zh: DRAFT, native ZH-TW review pending (build plan step 3).
+  'log.errorDevice': { en: 'Could not save on this device. Its storage is full or blocked.', zh: '無法儲存在此裝置上，儲存空間已滿或被封鎖。' },
   'log.errorSave': { en: 'Could not save. Check your connection and try again.', zh: '無法儲存，請確認網路連線後再試一次。' },
+
+  // Loading failures (build plan step 9). zh: DRAFT, native ZH-TW review pending.
+  'net.stale': { en: 'No connection. Showing what was last loaded.', zh: '目前沒有網路連線，顯示的是上次載入的資料。' },
+  'net.failed': { en: 'Could not load. Check your connection.', zh: '無法載入，請確認網路連線。' },
+  'net.retry': { en: 'Try again', zh: '再試一次' },
+  'today.roundNote': { en: 'Added at full precision, then rounded.', zh: '以完整精確度相加後再四捨五入。' },
+  'notFound.title': { en: 'That page does not exist.', zh: '沒有這個頁面。' },
+  'notFound.button': { en: 'Go to Today', zh: '回到今日' },
+  'auth.linkExpired': { en: 'This reset link has expired or was already used. Request a new one.', zh: '此重設連結已過期或已使用，請重新申請。' },
 
   // Equipment sheet
   'device.title': { en: 'Add equipment', zh: '新增設備' },
@@ -179,6 +192,10 @@ export const strings = {
   'auth.errorPassword': { en: 'Use at least 8 characters.', zh: '請使用至少 8 個字元。' },
   'auth.imported': { en: '{n} entries from this device are now in your account.', zh: '此裝置的 {n} 筆記錄已移入您的帳號。' },
   'auth.importedOne': { en: '1 entry from this device is now in your account.', zh: '此裝置的 1 筆記錄已移入您的帳號。' },
+  // Hand-over failed (build plan step 10). zh: DRAFT, native ZH-TW review pending.
+  'auth.stuck': { en: '{n} entries are still on this device and have not moved into your account.', zh: '此裝置上還有 {n} 筆記錄尚未移入您的帳號。' },
+  'auth.stuckOne': { en: '1 entry is still on this device and has not moved into your account.', zh: '此裝置上還有 1 筆記錄尚未移入您的帳號。' },
+  'auth.stuckSome': { en: 'Some data on this device has not moved into your account.', zh: '此裝置上還有資料尚未移入您的帳號。' },
   'auth.unavailable': { en: 'Accounts are not available in this preview.', zh: '此預覽版無法使用帳號功能。' },
   'auth.agree': { en: 'By creating an account you accept the privacy policy and the disclaimer below.', zh: '建立帳號即表示您接受下方的隱私權政策與免責聲明。' },
   'auth.agreeNoPrivacy': { en: 'By creating an account you accept the disclaimer below.', zh: '建立帳號即表示您接受下方的免責聲明。' },

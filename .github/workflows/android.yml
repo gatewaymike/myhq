@@ -23,10 +23,10 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - name: Build the web app and copy it into the Android project
+      - name: Test, lint and build the web app, then copy it into the Android project
         run: |
           npm ci
-          npm run build
+          npm run check
           npx cap sync android
       - name: Debug APK (for test phones)
         working-directory: android

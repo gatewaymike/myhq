@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../../app/context';
 import { RouteIcon } from '../../app/RouteIcon';
-import { entryHQ, formatHQ, localDateOf } from '../../lib/hq';
+import { entryHQ, formatHQ } from '../../lib/hq';
+import { failKey } from '../../app/failKey';
 import type { Entry } from '../../store/types';
-import { LIMITS, NumberField, parseNum, toLocalInput, validate } from '../log/fields';
+import { LIMITS, NumberField, isFuture, parseNum, toLocalInput, validate } from '../log/fields';
+import { timePatch } from './editTime';
 
 /** Edit an entry's figures, time and note (item 9: editable time on edits). The route stays. */
 export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: () => void; onSaved: (e: Entry) => void }) {
@@ -11,7 +13,9 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
   const water = entry.route === 'water';
   const [a, setA] = useState(String(water ? entry.volumeMl : entry.minutes));
   const [b, setB] = useState(String(water ? entry.concentrationMgL : entry.h2FlowMlMin));
-  const [when, setWhen] = useState(toLocalInput(new Date(entry.sessionStart)));
+  // The time as the sheet opened with it; the entry's time is only rewritten if this field changes.
+  const [openedWith] = useState(() => toLocalInput(new Date(entry.sessionStart)));
+  const [when, setWhen] = useState(openedWith);
   const [notes, setNotes] = useState(entry.notes ?? '');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -25,7 +29,9 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
   const aErr = validate(a, water ? LIMITS.volume : LIMITS.minutes, t);
   const bErr = validate(b, water ? LIMITS.concentration : LIMITS.flow, t);
   const date = new Date(when);
-  const ok = !aErr && !bErr && !Number.isNaN(date.getTime());
+  // Only a time the person just picked is checked: an entry already dated ahead can still have its note fixed.
+  const future = when !== openedWith && isFuture(date);
+  const ok = !aErr && !bErr && !Number.isNaN(date.getTime()) && !future;
   const hq = ok
     ? entryHQ(water ? { route: 'water', volumeMl: parseNum(a), concentrationMgL: parseNum(b) } : { route: 'inhalation', minutes: parseNum(a), h2FlowMlMin: parseNum(b) })
     : null;
@@ -35,17 +41,14 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
     setBusy(true);
     setErr(null);
     try {
-      const { localDate, tz } = localDateOf(date);
       const saved = await store.updateEntry(entry.id, {
-        sessionStart: date.toISOString(),
-        localDate,
-        tz,
+        ...(timePatch(entry, when, openedWith) ?? {}),
         ...(water ? { volumeMl: parseNum(a), concentrationMgL: parseNum(b) } : { minutes: parseNum(a), h2FlowMlMin: parseNum(b) }),
         notes: notes.trim() || null,
       });
       onSaved(saved);
-    } catch {
-      setErr(t('log.errorSave'));
+    } catch (e) {
+      setErr(t(failKey(e)));
     } finally {
       setBusy(false);
     }
@@ -80,8 +83,10 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
               value={when}
               max={toLocalInput(new Date())}
               onChange={(e) => setWhen(e.target.value)}
+              aria-invalid={future}
               className="min-h-tap rounded-xl border border-line bg-bg px-3 text-text focus:border-water focus:outline-none"
             />
+            {future && <span className="text-xs text-danger">{t('log.errorFuture')}</span>}
           </label>
           <NumberField id="edit-a" label={t(water ? 'log.volume' : 'log.minutes')} unit={water ? 'mL' : 'min'} value={a} onChange={setA} error={aErr} />
           <NumberField

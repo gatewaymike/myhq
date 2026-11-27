@@ -1,11 +1,14 @@
+import { readFileSync } from 'node:fs';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+const APP_VERSION = (JSON.parse(readFileSync('./package.json', 'utf8')) as { version: string }).version;
 const BG = '#020E0A'; // locked app background (R-367)
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: { __APP_VERSION__: JSON.stringify(APP_VERSION) }, // the Settings footer reads package.json, so it cannot drift
   plugins: [
     react(),
     // Installable web app (operations handoff 2026-10-07, M2). vite-plugin-pwa writes the manifest and the

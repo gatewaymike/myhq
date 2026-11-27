@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { t as translate, type Lang, type StringKey } from '../i18n/strings';
-import { readJSON, writeJSON } from '../store/localStore';
+import { GUEST_KEY, readJSON, writeJSON } from '../store/localStore';
 import type { Store } from '../store/types';
 
 interface AppCtx {
@@ -43,6 +43,15 @@ export function AppProvider({ store, children }: { store: Store; children: React
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
+
+  // Another tab saved or removed guest data: refetch, so every open tab shows the same day.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === GUEST_KEY || e.key === null) setVersion((n) => n + 1);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const toast = useCallback((msg: string, action?: ToastState['action']) => {
     const id = Date.now();

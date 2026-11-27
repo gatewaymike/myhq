@@ -1,11 +1,15 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { failKey } from '../../app/failKey';
+import { HandOverNotice } from '../../app/HandOverNotice';
+import { LoadNotice } from '../../app/LoadNotice';
+import { useLoad } from '../../app/useLoad';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../../app/context';
 import { useAuth } from '../../app/auth';
 import { RouteIcon } from '../../app/RouteIcon';
 import { downloadFile, entriesToCSV, exportJSON } from '../../lib/export';
 import { formatInput } from '../../lib/hq';
-import { LocalStore } from '../../store/localStore';
+import { LocalStore, writeJSON } from '../../store/localStore';
 import type { Device } from '../../store/types';
 import { DeviceSheet } from '../log/DeviceSheet';
 import { Legal } from '../auth/AuthScreens';
@@ -16,7 +20,7 @@ import { isValidTime, readReminder, writeReminder, type ReminderSettings } from 
 import { askPermission } from '../../lib/reminderSync';
 import { notifications, useReminderStatus } from '../../app/ReminderSync';
 
-const APP_VERSION = '1.1.1'; // 1.0.0 live 2026-10-18; 1.1.0 adds the reminder; 1.1.1 shows its status
+const APP_VERSION = __APP_VERSION__; // from package.json at build time (vite.config.ts)
 const PREVIEW = import.meta.env.VITE_PREVIEW === '1';
 
 function RemindersSection() {
@@ -122,7 +126,6 @@ export function SettingsScreen() {
   const install = useInstall();
   const email = session?.user.email ?? '';
 
-  const [devices, setDevices] = useState<Device[]>([]);
   const [editing, setEditing] = useState<Device | null>(null);
   const [adding, setAdding] = useState(false);
   const [armed, setArmed] = useState<string | null>(null);
@@ -132,13 +135,9 @@ export function SettingsScreen() {
   const [delBusy, setDelBusy] = useState(false);
   const [delErr, setDelErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    let live = true;
-    store.listDevices().then((d) => live && setDevices(d));
-    return () => {
-      live = false;
-    };
-  }, [store, version]);
+  // A failed load never reads as "no equipment": the last loaded list stays, or a message shows.
+  const { data: deviceList, status: devStatus, retry: retryDevices } = useLoad<Device[]>(store, 'settings:devices', () => store.listDevices(), [version]);
+  const devices = deviceList ?? [];
 
   useEffect(() => {
     if (!armed) return;
@@ -147,7 +146,13 @@ export function SettingsScreen() {
   }, [armed]);
 
   async function removeDevice(d: Device) {
-    await store.archiveDevice(d.id);
+    try {
+      await store.archiveDevice(d.id);
+    } catch (err) {
+      setArmed(null);
+      toast(t(failKey(err)));
+      return;
+    }
     setArmed(null);
     bump();
     toast(t('settings.removed'));
@@ -186,6 +191,15 @@ export function SettingsScreen() {
   function eraseGuest() {
     if (armed !== 'erase') return setArmed('erase');
     if (store instanceof LocalStore) store.clear();
+    // Also the timer and the saved preferences, so "erase" leaves nothing of the person on this device.
+    for (const k of ['myhq.timer.v1', 'myhq.prefs.v1']) {
+      writeJSON(k, null);
+      try {
+        window.localStorage.removeItem(k);
+      } catch {
+        /* ignore */
+      }
+    }
     setArmed(null);
     bump();
     toast(t('settings.erased'));
@@ -198,6 +212,8 @@ export function SettingsScreen() {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <h1 className="pt-2 text-center text-[2rem] font-bold uppercase leading-none tracking-[.12em] text-water sm:text-[2.6rem]">{t('nav.settings')}</h1>
+
+      <HandOverNotice />
 
       {/* Account */}
       {(install.mode === 'button' || install.mode === 'ios' || install.mode === 'samsung' || install.mode === 'menu') && (
@@ -239,7 +255,10 @@ export function SettingsScreen() {
 
       {/* My equipment */}
       <Section id="equip-h" title={t('settings.equipment')}>
-        {devices.length === 0 ? (
+        <LoadNotice status={devStatus} retry={retryDevices} />
+        {deviceList === null ? (
+          devStatus === 'failed' ? null : <p className="text-sm text-muted">{t('history.loading')}</p>
+        ) : devices.length === 0 ? (
           <p className="text-sm text-muted">{t('settings.noEquipment')}</p>
         ) : (
           <ul className="grid grid-cols-[minmax(0,1fr)] gap-2">
