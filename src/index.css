@@ -36,7 +36,11 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
-:lang(zh-TW) body, html[lang="zh-TW"] body { line-height: 2; }
+/* Chinese line height 1.7 on body and small text (finding B27). The second rule names each text style so the
+   line height built into the size utilities (and leading-relaxed) cannot cancel it. Figures, titles,
+   labels and the arithmetic line keep their own. */
+html[lang="zh-TW"] body { line-height: 1.7; }
+html[lang="zh-TW"] :is(.text-copy, .text-row, .text-small, .text-sm, .text-xs, .leading-relaxed) { line-height: 1.7; }
 
 /* Figures: fixed-width digits on every number (ruled 2026-11-11 18:27: DM Sans). */
 .tabular, .num { font-variant-numeric: tabular-nums; }
