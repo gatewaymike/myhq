@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { t as translate, type Lang, type StringKey } from '../i18n/strings';
 import { GUEST_KEY, readJSON, writeJSON } from '../store/localStore';
 import type { Store } from '../store/types';
+import { haptic } from '../lib/haptics';
 
 interface AppCtx {
   store: Store;
@@ -85,6 +86,7 @@ export function AppProvider({ store, children }: { store: Store; children: React
                 type="button"
                 className="min-h-tap px-2 font-mono text-xs uppercase tracking-wider text-water"
                 onClick={() => {
+                  haptic.light(); // every toast action is Undo
                   toastState.action!.run();
                   setToast(null);
                 }}

@@ -22,6 +22,7 @@ import { DevicePicker } from './DevicePicker';
 import { RouteIcon } from '../../app/RouteIcon';
 import { Figure } from '../../app/Figure';
 import { LIMITS, NumberField, formatClock, parseNum, toLocalInput, validate, isFuture } from './fields';
+import { haptic } from '../../lib/haptics';
 
 /* ------------------------------------------------------------------ timer */
 // Item 6: the start time is stored, so a locked phone or a closed tab never loses a session.
@@ -231,6 +232,7 @@ export function LogScreen() {
         notes: notes.trim() || null,
         clientRequestId: requestId.current,
       });
+      haptic.success();
       rememberDevice(route, deviceId);
       resetForm();
       setSavedFlash(true);
@@ -256,6 +258,7 @@ export function LogScreen() {
         nav('/', { state: offer ? { offer } : null });
       }
     } catch (e) {
+      haptic.error();
       setSaveError(t(failKey(e)));
     } finally {
       setSaving(false);
@@ -284,6 +287,7 @@ export function LogScreen() {
         notes: null,
         clientRequestId: uuid(),
       });
+      haptic.success();
       bump();
       toast(t('log.saved', { hq: formatHQ(saved.hq, locale) }), {
         label: t('log.undo'),
@@ -299,6 +303,7 @@ export function LogScreen() {
         },
       });
     } catch (err) {
+      haptic.error();
       setSaveError(t(failKey(err)));
     } finally {
       repeating.current = false;
@@ -308,6 +313,7 @@ export function LogScreen() {
   function startTimer() {
     if (!(flowValue > 0) || flowErr) return;
     const s: TimerState = { startedAt: Date.now(), deviceId: device?.id ?? null, h2FlowMlMin: flowValue };
+    haptic.light();
     writeJSON(TIMER_KEY, s);
     setTimer(s);
     setStoppedAt(null);
@@ -316,6 +322,7 @@ export function LogScreen() {
 
   function stopTimer() {
     if (!timer) return;
+    haptic.medium();
     const end = Date.now();
     setStoppedAt(end);
     // Whole tenths of a minute (6 s), so the review figure reads cleanly.
@@ -380,6 +387,7 @@ export function LogScreen() {
             aria-checked={route === r}
             disabled={!!timer && r === 'water'}
             onClick={() => {
+              haptic.select();
               setRoute(r);
               const p = loadPrefs();
               p.lastRoute = r;
@@ -427,7 +435,7 @@ export function LogScreen() {
                     key={ml}
                     type="button"
                     aria-pressed={parseNum(volume) === ml}
-                    onClick={() => setVolume(String(ml))}
+                    onClick={() => { haptic.select(); setVolume(String(ml)); }}
                     className={`tabular min-h-[48px] rounded-xl border font-mono text-sm ${parseNum(volume) === ml ? 'border-water bg-water/10 text-water' : 'border-line text-body'}`}
                   >
                     {ml} mL
@@ -483,7 +491,7 @@ export function LogScreen() {
                   role="radio"
                   aria-checked={inhMode === m}
                   disabled={!!timer}
-                  onClick={() => setInhMode(m)}
+                  onClick={() => { haptic.select(); setInhMode(m); }}
                   className={`min-h-tap rounded-lg text-row transition-colors duration-150 motion-reduce:transition-none disabled:cursor-default ${inhMode === m ? 'bg-surface-2 text-text' : 'text-muted hover:text-body'}`}
                 >
                   {t(m === 'manual' ? 'log.minutes' : 'log.timer')}
@@ -526,7 +534,7 @@ export function LogScreen() {
                         key={m}
                         type="button"
                         aria-pressed={parseNum(minutes) === m}
-                        onClick={() => setMinutes(String(m))}
+                        onClick={() => { haptic.select(); setMinutes(String(m)); }}
                         className={`tabular min-h-[48px] rounded-xl border font-mono text-sm transition-colors duration-150 motion-reduce:transition-none ${parseNum(minutes) === m ? 'border-inhalation bg-inhalation/10 text-inhalation' : 'border-line text-body'}`}
                       >
                         {m}
@@ -571,6 +579,7 @@ export function LogScreen() {
                     type="button"
                     aria-pressed={whenMode === w}
                     onClick={() => {
+                      haptic.select();
                       setWhenMode(w);
                       if (w === 'pick') setPickValue(toLocalInput(new Date()));
                     }}

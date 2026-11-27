@@ -19,6 +19,7 @@ import { IS_NATIVE } from '../../lib/platform';
 import { isValidTime, readReminder, writeReminder, type ReminderSettings } from '../../lib/reminder';
 import { askPermission } from '../../lib/reminderSync';
 import { notifications, useReminderStatus } from '../../app/ReminderSync';
+import { haptic } from '../../lib/haptics';
 
 const APP_VERSION = __APP_VERSION__; // from package.json at build time (vite.config.ts)
 const PREVIEW = import.meta.env.VITE_PREVIEW === '1';
@@ -162,6 +163,7 @@ export function SettingsScreen() {
   async function removeDevice(d: Device) {
     try {
       await store.archiveDevice(d.id);
+      haptic.light();
     } catch (err) {
       setArmed(null);
       toast(t(failKey(err)));

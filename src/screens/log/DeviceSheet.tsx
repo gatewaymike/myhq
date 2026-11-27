@@ -6,6 +6,7 @@ import type { Device } from '../../store/types';
 import { LIMITS, NumberField, parseNum, validate } from './fields';
 import { RouteIcon } from '../../app/RouteIcon';
 import { useDialog } from '../../app/useDialog';
+import { haptic } from '../../lib/haptics';
 
 /** "My equipment, set up once" (item 2). Hydrogen flow at the outlet or concentration; no purity input (G1). lint-allow */
 export function DeviceSheet({ route, device, presetValue, onClose, onSaved }: { route: Route; device?: Device; presetValue?: number; onClose: () => void; onSaved: (d: Device) => void }) {
@@ -45,6 +46,7 @@ export function DeviceSheet({ route, device, presetValue, onClose, onSaved }: { 
       bump();
       onSaved(d);
     } catch (e) {
+      haptic.error();
       setSaveErr(t(failKey(e)));
     } finally {
       setBusy(false);

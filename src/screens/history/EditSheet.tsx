@@ -7,6 +7,7 @@ import { failKey } from '../../app/failKey';
 import type { Entry } from '../../store/types';
 import { LIMITS, NumberField, isFuture, parseNum, toLocalInput, validate } from '../log/fields';
 import { timePatch } from './editTime';
+import { haptic } from '../../lib/haptics';
 
 /** Edit an entry's figures, time and note (item 9: editable time on edits). The route stays. */
 export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: () => void; onSaved: (e: Entry) => void }) {
@@ -44,8 +45,10 @@ export function EditSheet({ entry, onClose, onSaved }: { entry: Entry; onClose: 
         ...(water ? { volumeMl: parseNum(a), concentrationMgL: parseNum(b) } : { minutes: parseNum(a), h2FlowMlMin: parseNum(b) }),
         notes: notes.trim() || null,
       });
+      haptic.success();
       onSaved(saved);
     } catch (e) {
+      haptic.error();
       setErr(t(failKey(e)));
     } finally {
       setBusy(false);

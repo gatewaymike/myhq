@@ -19,6 +19,7 @@ import {
 import type { Device, Entry } from '../../store/types';
 import { EditSheet } from './EditSheet';
 import { TrendsChart, type DayBar } from './TrendsChart';
+import { haptic } from '../../lib/haptics';
 
 type RouteFilter = 'all' | Route;
 const RANGES = [7, 30, 90, 0] as const; // 0 = all time
@@ -49,7 +50,7 @@ export function HistoryScreen() {
             type="button"
             role="tab"
             aria-selected={view === v}
-            onClick={() => nav(v === 'list' ? '/history' : '/trends')}
+            onClick={() => { haptic.select(); nav(v === 'list' ? '/history' : '/trends'); }}
             className={`min-h-[48px] rounded-full text-row transition-colors duration-150 motion-reduce:transition-none ${view === v ? 'bg-surface-2 text-text' : 'text-muted hover:text-body'}`}
           >
             {t(v === 'list' ? 'history.list' : 'history.trends')}
@@ -110,6 +111,7 @@ function EntryList() {
       toast(t(failKey(err)));
       return;
     }
+    haptic.light();
     setArmed(null);
     setOpen(null);
     bump();
@@ -146,7 +148,7 @@ function EntryList() {
       <div className="grid gap-2">
         <div className="flex flex-wrap gap-2" role="group" aria-label={t('log.routeLabel')}>
           {(['all', 'water', 'inhalation'] as RouteFilter[]).map((r) => (
-            <button key={r} type="button" aria-pressed={routeF === r} onClick={() => setRouteF(r)} className={`${chip(routeF === r)} flex items-center gap-2`}>
+            <button key={r} type="button" aria-pressed={routeF === r} onClick={() => { haptic.select(); setRouteF(r); }} className={`${chip(routeF === r)} flex items-center gap-2`}>
               {r !== 'all' && <RouteIcon route={r} className="h-3.5 w-3.5" />}
               {t(r === 'all' ? 'history.all' : r === 'water' ? 'route.water' : 'route.inhalation')}
             </button>
@@ -154,7 +156,7 @@ function EntryList() {
         </div>
         <div className="flex flex-wrap gap-2" role="group" aria-label={t('log.when')}>
           {RANGES.map((n) => (
-            <button key={n} type="button" aria-pressed={range === n} onClick={() => setRange(n)} className={chip(range === n)}>
+            <button key={n} type="button" aria-pressed={range === n} onClick={() => { haptic.select(); setRange(n); }} className={chip(range === n)}>
               {n ? t('history.days', { n }) : t('history.allTime')}
             </button>
           ))}
@@ -288,7 +290,7 @@ function TrendsView() {
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <div className="flex flex-wrap gap-2" role="group" aria-label={t('log.when')}>
         {TREND_RANGES.map((r) => (
-          <button key={r} type="button" aria-pressed={n === r} onClick={() => { setN(r); setSelected(null); }} className={chip(n === r)}>
+          <button key={r} type="button" aria-pressed={n === r} onClick={() => { haptic.select(); setN(r); setSelected(null); }} className={chip(n === r)}>
             {t('history.days', { n: r })}
           </button>
         ))}
@@ -307,7 +309,7 @@ function TrendsView() {
         {entries === null ? (
           <p className="py-16 text-center text-sm text-muted">{status === 'failed' ? '' : t('history.loading')}</p>
         ) : (
-          <TrendsChart days={days} locale={locale} selected={selected} onSelect={setSelected} label={t('trends.chartLabel', { n })} />
+          <TrendsChart days={days} locale={locale} selected={selected} onSelect={(d) => { haptic.select(); setSelected(d); }} label={t('trends.chartLabel', { n })} />
         )}
         <LoadNotice status={status} retry={retry} />
         <p className="tabular min-h-[2.5rem] text-sm text-body" aria-live="polite">
